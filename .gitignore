@@ -1,0 +1,16 @@
+# Ignore Datasets folder and large archive files
+Datasets/
+Datasets/*
+*.rar
+*.zip
+*.tar
+*.tar.gz
+
+# System and IDE files
+.DS_Store
+Thumbs.db
+*.tmp
+__pycache__/
+*.pyc
+.gemini/
+.agents/
