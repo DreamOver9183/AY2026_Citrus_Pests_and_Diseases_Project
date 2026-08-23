@@ -51,17 +51,23 @@ def load_zip(path: Path) -> dict:
 
 
 def verdict(delta: float, sigma: float) -> tuple[str, str]:
-    """依決策規則判定。回傳 (標記, 說明)。"""
+    """依決策規則判定。回傳 (標記, 說明)。
+
+    正負兩側都要標清楚：−1.9σ 若寫成「不足」會被誤讀成「正向但差一點」，
+    實際上它是「接近顯著變差」。
+    """
     if sigma <= 0:
         return "?", "σ 無效"
     n = delta / sigma
     if n >= 2:
         return "納入", f"+{n:.1f}σ ≥ 2σ"
     if n <= -2:
-        return "負面", f"{n:.1f}σ ≤ −2σ"
-    if abs(n) < 1:
-        return "無差異", f"{n:+.1f}σ（<1σ）"
-    return "不足", f"{n:+.1f}σ（未達 2σ）"
+        return "顯著變差", f"{n:.1f}σ ≤ −2σ"
+    if n >= 1:
+        return "正向不足", f"+{n:.1f}σ（未達 2σ）"
+    if n <= -1:
+        return "疑似變差", f"{n:.1f}σ（接近 −2σ）"
+    return "無差異", f"{n:+.1f}σ（<1σ）"
 
 
 def main() -> int:
