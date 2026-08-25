@@ -1,0 +1,55 @@
+{
+  "split": "val",
+  "conf": "default (mAP@0.001 / confusion_matrix@0.25)",
+  "weights": "Train Code\\v9\\Train_output\\Phase4\\best.pt",
+  "checkpoint_epoch": 69,
+  "imgsz": 640,
+  "device": "cpu (fp32)",
+  "overall": {
+    "mAP50": 0.86651,
+    "mAP50_95": 0.65356,
+    "precision": 0.88595,
+    "recall": 0.80756
+  },
+  "global_from_confusion_matrix": {
+    "n_total": 2809,
+    "total_TP": 1841,
+    "total_FP": 704,
+    "total_FN": 272,
+    "macro_accuracy": 0.95657,
+    "macro_precision": 0.81306,
+    "macro_recall": 0.8564,
+    "macro_f1": 0.83107,
+    "micro_precision": 0.72338,
+    "micro_recall": 0.87127,
+    "detection_jaccard": 0.65353,
+    "micro_f1": 0.79047
+  },
+  "best_f1_conf": 0.4985,
+  "fp_from_background": {
+    "Oily_Spot": 1,
+    "Canker": 63,
+    "Sooty_Mold": 1,
+    "Black_Spot": 1,
+    "Scale_Insect": 563,
+    "Citrus_Leaf_Miner": 6,
+    "Thrips": 18,
+    "Aphid": 43
+  },
+  "fn_to_background": {
+    "Oily_Spot": 0,
+    "Canker": 29,
+    "Sooty_Mold": 0,
+    "Black_Spot": 0,
+    "Scale_Insect": 181,
+    "Citrus_Leaf_Miner": 10,
+    "Thrips": 24,
+    "Aphid": 20
+  },
+  "speed_ms_cpu": {
+    "preprocess": 2.261,
+    "inference": 156.447,
+    "loss": 0.0,
+    "postprocess": 0.521
+  }
+}

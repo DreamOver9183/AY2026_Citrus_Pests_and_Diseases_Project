@@ -2,7 +2,7 @@
 """Datasets_YOLO26_v5r 建置腳本。
 
 依《柑橘病蟲害 YOLO26 資料集建置技術摘要》(v5.1) 的方法論，套用到重新標註後的
-v5r 來源，並修正 v5 的三處缺陷（詳見 docs/v5r_資料集建置說明.md）：
+v5r 來源，並修正 v5 的三處缺陷（詳見 docs/v5r_說明_資料集建置與標註重整.md）：
 
   1. Thrips 的兩個子類（Thysanoptera 蟲體 / thirps_leaf_damage 葉害）合併為單一
      Thrips 類。重標後兩者尺度已對齊，合併後極差 9.8x（v5 為 24.7x）。

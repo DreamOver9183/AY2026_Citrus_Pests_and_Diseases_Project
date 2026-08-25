@@ -1,0 +1,56 @@
+{
+  "split": "test",
+  "conf": 0.4985,
+  "weights": "Train Code\\v9\\Train_output\\Phase4\\best.pt",
+  "checkpoint_epoch": 69,
+  "imgsz": 640,
+  "device": "cpu (fp32)",
+  "overall": {
+    "mAP50": 0.81982,
+    "mAP50_95": 0.63625,
+    "precision": 0.9263,
+    "recall": 0.84184
+  },
+  "global_from_confusion_matrix": {
+    "n_total": 2236,
+    "total_TP": 1514,
+    "total_FP": 247,
+    "total_FN": 475,
+    "macro_accuracy": 0.95964,
+    "macro_precision": 0.93025,
+    "macro_recall": 0.84571,
+    "macro_f1": 0.87949,
+    "micro_precision": 0.85974,
+    "micro_recall": 0.76119,
+    "detection_jaccard": 0.6771,
+    "micro_f1": 0.80747
+  },
+  "best_f1_conf": null,
+  "fp_from_background": {
+    "Oily_Spot": 0,
+    "Canker": 26,
+    "Sooty_Mold": 0,
+    "Black_Spot": 0,
+    "Scale_Insect": 190,
+    "Citrus_Leaf_Miner": 0,
+    "Thrips": 10,
+    "Aphid": 21
+  },
+  "fn_to_background": {
+    "Oily_Spot": 0,
+    "Canker": 14,
+    "Sooty_Mold": 1,
+    "Black_Spot": 1,
+    "Scale_Insect": 382,
+    "Citrus_Leaf_Miner": 14,
+    "Thrips": 14,
+    "Aphid": 49
+  },
+  "speed_ms_cpu": {
+    "preprocess": 2.434,
+    "inference": 158.928,
+    "loss": 0.0,
+    "postprocess": 0.363
+  },
+  "_note": "conf 已過濾：mAP 與 best_f1_conf 均不可引用，只取混淆矩陣與 P/R/F1"
+}

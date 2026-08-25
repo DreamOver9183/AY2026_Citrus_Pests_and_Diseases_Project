@@ -1,0 +1,10 @@
+,true_Oily_Spot,true_Canker,true_Sooty_Mold,true_Black_Spot,true_Scale_Insect,true_Citrus_Leaf_Miner,true_Thrips,true_Aphid,true_background
+pred_Oily_Spot,22,0,0,2,0,0,0,0,0
+pred_Canker,0,129,0,0,0,0,0,0,45
+pred_Sooty_Mold,0,0,32,0,0,0,0,0,0
+pred_Black_Spot,1,0,0,22,0,0,0,0,0
+pred_Scale_Insect,0,0,0,0,1160,0,0,0,224
+pred_Citrus_Leaf_Miner,0,0,0,0,0,17,0,0,2
+pred_Thrips,0,0,0,0,0,0,86,0,3
+pred_Aphid,0,0,0,0,0,0,3,163,15
+pred_background,1,40,1,1,353,10,36,34,0

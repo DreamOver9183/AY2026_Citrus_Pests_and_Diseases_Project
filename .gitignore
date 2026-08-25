@@ -45,3 +45,9 @@ desktop.ini
 .agents/
 .cursor/
 .windsurf/
+
+# 訓練 log（大量進度條輸出，內容已摘要於 docs/）
+*_Train_log.txt
+
+# final_eval.py 每次執行自動產生，內含本機絕對路徑
+Train Code/v9/Train_output/Phase4/v5r_local.yaml
