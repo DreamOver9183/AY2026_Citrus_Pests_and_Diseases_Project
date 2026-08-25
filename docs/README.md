@@ -23,7 +23,7 @@
 | [v9_結果_最終評估_valid與test.md](v9_結果_最終評估_valid與test.md) | 交付權重 `best.pt` @ ep69 在兩個 split 上的完整數據：per-class、混淆矩陣、四象限、部署閾值 | 要引用最終數字 |
 | [v9_記錄_實驗重整與六臂消融.md](v9_記錄_實驗重整與六臂消融.md) | 從程式審查、六臂設計到逐臂結果與三次長跑的完整工程紀錄（1100+ 行） | 要查某個決定的來龍去脈 |
 | [v5r_說明_資料集建置與標註重整.md](v5r_說明_資料集建置與標註重整.md) | `Datasets_YOLO26_v5r` 怎麼從 v5 重建：Thrips 合併、Aphid 過濾、極差從 24.7x 降到 9.1x | 要動資料集之前 |
-| [通用_參考_評估指標與公式.md](通用_參考_評估指標與公式.md) | 混淆矩陣四象限、Accuracy/Precision/Recall/FPR/F1 的定義與 LaTeX 公式 | 寫報告要列公式 |
+| [通用_參考_評估指標與公式.md](通用_參考_評估指標與公式.md) | 混淆矩陣四象限、物件偵測 TN 約定、Accuracy/Precision/Recall/FPR/F1／Macro／Micro／Detection Jaccard 的定義與 LaTeX 公式 | 寫報告要列公式、跨版本比較數據前先核對算法一致 |
 
 ## 已封存
 
