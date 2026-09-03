@@ -30,10 +30,36 @@ ROOT = Path(sys.argv[1]) if len(sys.argv) > 1 else REPO / "Datasets" / "Datasets
 IMGSZ_REF = 640
 SPLITS = ("train", "valid", "test")
 
-CLASSES = ["Oily_Spot", "Canker", "Sooty_Mold", "Black_Spot",
-           "Scale_Insect", "Citrus_Leaf_Miner", "Thrips", "Aphid"]
+FALLBACK_CLASSES = ["Oily_Spot", "Canker", "Sooty_Mold", "Black_Spot",
+                    "Scale_Insect", "Citrus_Leaf_Miner", "Thrips", "Aphid"]
 
-# v5 基線（train split，letterbox 到 640 的面積等效邊長）
+
+def load_classes(root: Path) -> list[str]:
+    """由資料集自己的 data.yaml 取類別清單。
+
+    v5.5 起類別數不再固定為 8（`Thrips_Damage` 拆為第 9 類），寫死清單會讓新類別
+    被誤報成「類別 id 越界」。這裡只做最小解析，維持本腳本不依賴 pyyaml。
+    """
+    p = root / "data.yaml"
+    if not p.is_file():
+        return list(FALLBACK_CLASSES)
+    names, in_names = [], False
+    for ln in p.read_text(encoding="utf-8").splitlines():
+        if ln.startswith("names:"):
+            in_names = True
+            continue
+        if in_names:
+            if ln.startswith("  - "):
+                names.append(ln[4:].strip())
+            elif ln.strip() and not ln.startswith(" "):
+                break
+    return names or list(FALLBACK_CLASSES)
+
+
+CLASSES = load_classes(ROOT)
+
+# v5 基線（train split，letterbox 到 640 的面積等效邊長）。
+# v5.5 之後新增的類別在 v5 沒有對應項，查不到就略過該欄，不是錯誤。
 V5_BASELINE = {
     "Oily_Spot": (1.4, 0.978), "Canker": (6.9, 0.795), "Sooty_Mold": (1.4, 0.980),
     "Black_Spot": (1.5, 0.934), "Scale_Insect": (3.7, 0.855),
@@ -159,7 +185,12 @@ def main():
             continue
         p10, p50, p99 = pctl(s, .10), pctl(s, .50), pctl(s, .99)
         sp_ = p99 / max(p10, 0.01)
-        v5sp, ap = V5_BASELINE[name]
+        base = V5_BASELINE.get(name)
+        if base is None:                      # v5 沒有這一類（例：Thrips_Damage）
+            print(f"{name:<20}{p10:>8.1f}{p50:>8.1f}{p99:>8.1f}{sp_:>8.1f}x"
+                  f"{'—':>10}{'—':>10}{'—':>8}")
+            continue
+        v5sp, ap = base
         delta = f"{sp_/v5sp:.2f}x"
         print(f"{name:<20}{p10:>8.1f}{p50:>8.1f}{p99:>8.1f}{sp_:>8.1f}x{v5sp:>9.1f}x{delta:>10}{ap:>8.3f}")
 

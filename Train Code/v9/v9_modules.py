@@ -400,7 +400,24 @@ ARMS: dict = {
         arch=dict(adown=False, stb=True), loss_ratio=None,
         train=dict(box=8.0, imgsz=640), s_per_epoch=360,
     ),
+
+    # ── P3 資料端修正（2026-09-02）─────────────────────────────────────
+    # 六臂消融證明架構層面全數無效，這兩臂只動資料，模型設定與 A0 逐項相同。
+    "C0": dict(
+        desc="基準重跑：與 A0 完全相同的設定，用來量 run 間變異",
+        arch=dict(adown=False, stb=False), loss_ratio=None,
+        train=dict(box=8.0, imgsz=640), s_per_epoch=165, dataset="v5r",
+    ),
+    "C1": dict(
+        desc="v5.5：刪 Aphid_Leaf_Damage ＋ Thrips_Leaf_Damage 拆為第 9 類",
+        arch=dict(adown=False, stb=False), loss_ratio=None,
+        train=dict(box=8.0, imgsz=640), s_per_epoch=165, dataset="v55",
+    ),
 }
+
+# C0 存在的理由：目前所有 σ 都是「單次執行、epoch 內」的變異，run 間變異完全未知。
+# 沒有 C0 就無法判斷 C1 的差異是資料改動造成的，還是換一次執行的運氣。
+# 判準見 docs/v9_說明_P3定位精度改善與測試流程.md §3.1（主判準是固定子集的中位 IoU）。
 
 # A1 / A1b 的 box 是刻意校準的：Wise-Inner-MPDIoU 的損失量級隨 ratio 而不同
 # （本機實測微小框：ratio=0.70 為 CIoU 的 2.17x、ratio=1.25 為 1.93x），
@@ -434,7 +451,8 @@ def install_arm(arm: str, epochs: int = 60) -> dict:
         close_mosaic=close_mosaic_for(epochs),
         # 消融臂一律跑滿，否則各臂的平台期窗口不一致就無法比較
         patience=epochs,
-        name=f"v5r_{arm}_{epochs}e",
+        # A0–A3 與 C0 都是 v5r，維持原本的命名；C1 跑 v5.5，run 目錄要能一眼分辨
+        name=f"{spec.get('dataset', 'v5r')}_{arm}_{epochs}e",
     )
     return hp
 

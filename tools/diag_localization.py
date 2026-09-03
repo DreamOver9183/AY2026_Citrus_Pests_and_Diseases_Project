@@ -55,12 +55,42 @@ IMGSZ = 640
 IOU_THRS = np.round(np.arange(0.50, 0.96, 0.05), 2)
 IMG_EXT = (".jpg", ".jpeg", ".png", ".JPG", ".JPEG", ".PNG")
 
-# 合併類 -> (來源目錄, 子類名稱依來源 label 的 class id 排列)
-MERGED = {
+# 合併類 -> (來源目錄, 子類名稱依來源 label 的 class id 排列)。
+# v5.5 起 Thrips 已在資料集層級拆成兩類，屆時這一項會由 `configure()` 自動移除
+# ——已經拆好的類別不需要（也無法）再做 provenance 還原。
+MERGED_ALL = {
     6: ("Pests/Thrips_v5r.yolo26/train", ["Insect", "Damage"]),
     7: ("Pests/Aphid.yolo26/train", ["Insect", "Damage"]),
 }
+MERGED = dict(MERGED_ALL)
 SIZE_BINS = [(0, 32, "<32px"), (32, 96, "32-96px"), (96, 256, "96-256px"), (256, 1e9, ">256px")]
+
+
+def configure(root: Path) -> None:
+    """依資料集自己的 data.yaml 設定類別清單與需要 provenance 還原的合併類。
+
+    v5r 是 8 類、Thrips 與 Aphid 各自合併了蟲體與葉害兩個子域，需要靠 md5 還原子域；
+    v5.5 起 Thrips 已拆成獨立類別（`Thrips_Damage`），該類就不再需要還原。
+    只做最小 yaml 解析，維持本檔不依賴 pyyaml。
+    """
+    global DATA_ROOT, NAMES, MERGED
+    DATA_ROOT = root
+    p = root / "data.yaml"
+    if p.is_file():
+        names, in_names = [], False
+        for ln in p.read_text(encoding="utf-8").splitlines():
+            if ln.startswith("names:"):
+                in_names = True
+                continue
+            if in_names:
+                if ln.startswith("  - "):
+                    names.append(ln[4:].strip())
+                elif ln.strip() and not ln.startswith(" "):
+                    break
+        if names:
+            NAMES = names
+    MERGED = {cid: v for cid, v in MERGED_ALL.items()
+              if cid < len(NAMES) and f"{NAMES[cid]}_Damage" not in NAMES}
 
 
 def md5(path: Path) -> str:
@@ -165,11 +195,14 @@ def collect(split: str, prov: dict) -> list[dict]:
     像素座標一律等推論拿到 `r.orig_shape` 之後再算，見 `attach_pixels()`。
     """
     items, hit, miss = [], 0, 0
+    # 檔名前綴即輸出類別名（`{類別}_{序號}` / `{類別}_aug_{序號}`），只有仍需還原的合併類
+    # 要算 md5。v5.5 拆類後 Thrips 不在 MERGED 裡，就不會白算一次雜湊。
+    merged_prefixes = tuple(NAMES[c] + "_" for c in MERGED)
     for lbl in sorted((DATA_ROOT / split / "labels").glob("*.txt")):
         img = find_image(DATA_ROOT / split / "images", lbl.stem)
         if img is None:
             continue
-        sub = prov.get(md5(img)) if lbl.stem.split("_")[0] in ("Thrips", "Aphid") else None
+        sub = prov.get(md5(img)) if lbl.stem.startswith(merged_prefixes) else None
         boxes = []
         for c, cx, cy, w, h in parse_label(lbl):
             sid = sub.get(tuple(round(v, 6) for v in (cx, cy, w, h))) if sub else None
@@ -322,14 +355,22 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--split", default="valid,test")
     ap.add_argument("--weights", default=str(WEIGHTS))
+    ap.add_argument("--data", default=str(DATA_ROOT),
+                    help="資料集根目錄（含 train/valid/test 與 data.yaml）")
+    ap.add_argument("--out", default=str(OUT_DIR))
     ap.add_argument("--bootstrap", type=int, default=0,
                     help="以影像為單位重抽樣的次數（建議 500）；0 = 不做")
     args = ap.parse_args()
 
+    configure(Path(args.data))
+    print(f"資料集：{DATA_ROOT}\n類別（{len(NAMES)}）：{', '.join(NAMES)}")
+    print(f"需 provenance 還原的合併類：{[NAMES[c] for c in MERGED] or '無'}")
+
     from ultralytics import YOLO
 
     model = YOLO(args.weights)
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    out_dir = Path(args.out)
+    out_dir.mkdir(parents=True, exist_ok=True)
 
     print("建立 provenance 索引 …")
     prov = build_provenance()
@@ -414,7 +455,7 @@ def main() -> None:
             if not data:
                 continue
             keys = sorted({k for d in data for k in d})
-            with open(OUT_DIR / f"{split}_{name}.csv", "w", encoding="utf-8", newline="") as f:
+            with open(out_dir / f"{split}_{name}.csv", "w", encoding="utf-8", newline="") as f:
                 w = csv.DictWriter(f, fieldnames=keys)
                 w.writeheader()
                 w.writerows(data)
@@ -441,7 +482,7 @@ def main() -> None:
                   f"{b['recall75']:>8.3f}{b['med_iou']:>8.3f}{b['bias_w']:>8.2f}"
                   f"{b['spread_w']:>9.2f}")
 
-    print(f"\n輸出：{OUT_DIR}")
+    print(f"\n輸出：{out_dir}")
 
 
 if __name__ == "__main__":
