@@ -44,6 +44,8 @@
 | `tools/build_dataset_v5r.py` | 由來源資料集建置 v5r |
 | `tools/verify_dataset_v5r.py` | v5r 建置後的驗收 |
 | `tools/check_dataset_leakage.py` | 近重複影像跨 split 洩漏查驗（dHash，位元級 md5 檢查抓不到的重複） |
+| `tools/quantify_leak_impact.py` | 把洩漏對 P3 分層指標（中位 IoU/AP50-95）的影響量化成「洩漏 vs 乾淨」子集對比 |
+| `tools/dedupe_leaked_train_images.py` | 只從 train 移除洩漏影像的修正工具，預設 dry-run，`--apply` 才真的刪除 |
 | `Train Code/v9/train_ablation.ipynb` | Kaggle 訓練（改一行 `ARM` 切換臂別） |
 | `Train Code/v9/RESUME.ipynb` | Kaggle 續跑 |
 | `Train Code/v9/v9_modules.py` | 自訂 loss、模組、六臂定義的單一真實來源 |
