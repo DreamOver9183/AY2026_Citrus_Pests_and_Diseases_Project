@@ -16,6 +16,10 @@
      `Thrips_Damage`（僅 `thirps_leaf_damage` 葉害，新增類別 id 8）。
      **Aphid 丟棄 `Aphid_Leaf_Damage` 子類**（96 框／34 圖，整張影像移除）。
      兩者的來源檔案與 v5r 完全相同，只是輸出時依標註子類分流／過濾。
+  4. **近重複去洩漏：群組整群移進 train，不刪任何影像**（見 `move_duplicate_clusters_to_train`）。
+     切分與影像處理方式完全照舊，只在切分之後多一道搬移：dHash 距離 ≤ 6 的
+     近重複群組（≥2 張）全部集中到 train，valid/test 只留沒有近重複的影像。
+     模型因此不可能在 train 看到評估集的答案，而資料一張都沒少。
 
 **與 `build_dataset_v5r.py`的關鍵差異——每個類別各自獨立切分：**
 
@@ -58,7 +62,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from build_dataset_v5r import (          # noqa: E402  重用 v5r 的解析/寫出邏輯，方法論保持一致
     AUG, IMG_EXT, equiv_px, find_image, parse_label, write_augmented, write_sample,
 )
+from check_dataset_leakage import dhash  # noqa: E402  與洩漏查驗共用同一個感知雜湊定義
 from PIL import Image as PILImage        # noqa: E402
+
+import numpy as np                       # noqa: E402
 
 REPO = Path(__file__).resolve().parent.parent
 V5R_ROOT = REPO / "Datasets" / "Datasets_YOLO26_v5r"
@@ -70,6 +77,7 @@ SPLIT = (0.80, 0.10, 0.10)          # 與 v5r 相同的切分比例，但每類�
 AUG_MULT = 4
 AUG_CAP = 1200
 APHID_MIN_PX = 20.0
+DUP_THRESHOLD = 6                   # dHash（64-bit）的 Hamming 距離閾值，與洩漏查驗一致
 
 CLASSES = [
     "Oily_Spot", "Canker", "Sooty_Mold", "Black_Spot",
@@ -170,6 +178,76 @@ def split_items(items: list[dict], seed: int) -> dict[str, list[dict]]:
     }
 
 
+class _UnionFind:
+    def __init__(self, n: int) -> None:
+        self.parent = list(range(n))
+
+    def find(self, x: int) -> int:
+        while self.parent[x] != x:
+            self.parent[x] = self.parent[self.parent[x]]
+            x = self.parent[x]
+        return x
+
+    def union(self, a: int, b: int) -> None:
+        ra, rb = self.find(a), self.find(b)
+        if ra != rb:
+            self.parent[rb] = ra
+
+
+def move_duplicate_clusters_to_train(pool: dict[str, list[dict]],
+                                     threshold: int = DUP_THRESHOLD) -> int:
+    """把近重複影像群組整群移進 train，就地修改 `pool`，回傳搬移張數。
+
+    `docs/v5r_記錄_近重複影像跨split洩漏查驗.md` 查到的洩漏，全部來自同一場景的
+    連拍相鄰影格或同一張原圖的重複匯出被隨機切分到不同 split。這裡不刪除任何影像，
+    只是把**同一個近重複群組（≥2 張）的成員全部集中到 train**：
+
+      * train 裡出現重複只是輕微冗餘，模型不會因此看到評估集的答案；
+      * valid/test 只保留在該類別中沒有任何近重複的影像，模型不可能「抄解答」；
+      * 順帶消除 valid↔test 之間的重複——本專案用「valid 與 test 同號」當顯著性
+        的實務判準（見 docs/v9_說明_P3定位精度改善與測試流程.md §3.1），
+        兩個評估集若共用近重複影像，一致性會被虛假墊高。
+
+    以群組（連通分量）而非單一配對為單位，是為了處理連拍序列這種 3 張以上的情況：
+    只搬其中一張仍會在剩下的成員之間留下跨 split 的重複。
+    """
+    items = pool["train"] + pool["valid"] + pool["test"]
+    if len(items) < 2:
+        return 0
+
+    hashes = []
+    for it in items:
+        h = dhash(it["img"])
+        if h is None:                     # 讀不到就當作獨立影像，不參與分群
+            h = np.zeros(64, dtype=bool)
+        hashes.append(h)
+    H = np.stack(hashes)
+
+    uf = _UnionFind(len(items))
+    BLOCK = 200
+    for i0 in range(0, len(items), BLOCK):
+        a = H[i0:i0 + BLOCK]
+        dist = (a[:, None, :] != H[None, :, :]).sum(-1)
+        for bi in range(a.shape[0]):
+            gi = i0 + bi
+            for gj in range(gi + 1, len(items)):
+                if int(dist[bi, gj]) <= threshold:
+                    uf.union(gi, gj)
+
+    sizes: Counter = Counter(uf.find(i) for i in range(len(items)))
+    in_cluster = {id(items[i]) for i in range(len(items)) if sizes[uf.find(i)] > 1}
+
+    moved = 0
+    for sp in ("valid", "test"):
+        keep, move = [], []
+        for it in pool[sp]:
+            (move if id(it) in in_cluster else keep).append(it)
+        pool[sp] = keep
+        pool["train"].extend(move)
+        moved += len(move)
+    return moved
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true", help="只統計，不寫檔")
@@ -203,8 +281,21 @@ def main() -> None:
     print(f"{'Background(健康株)':<20}{len(bg):>7,}{0:>8,}{'v5r':>6}  標註清空為負樣本")
     pools["Background"] = split_items(bg, SEED)
 
-    # ── 2. 增強配額（Scale_Insect 改走標準路徑；Thrips/Thrips_Damage 合併配額）──
-    print(f"\n【2】增強配額（target = min({AUG_MULT}× raw, {AUG_CAP})，"
+    # ── 2. 近重複群組整群移進 train（不刪任何影像）──────────────────────
+    print(f"\n【2】近重複去洩漏（dHash 距離 ≤ {DUP_THRESHOLD} 的群組整群移進 train，不刪圖）")
+    print(f"{'類別':<20}{'移進train':>10}{'valid':>8}{'test':>7}")
+    total_moved = 0
+    for name in CLASSES:
+        before_v, before_t = len(pools[name]["valid"]), len(pools[name]["test"])
+        moved = move_duplicate_clusters_to_train(pools[name])
+        total_moved += moved
+        if moved:
+            after_v, after_t = len(pools[name]["valid"]), len(pools[name]["test"])
+            print(f"{name:<20}{moved:>10,}{f'{before_v}→{after_v}':>8}{f'{before_t}→{after_t}':>7}")
+    print(f"{'合計':<20}{total_moved:>10,}")
+
+    # ── 4. 增強配額（Scale_Insect 改走標準路徑；Thrips/Thrips_Damage 合併配額）──
+    print(f"\n【3】增強配額（target = min({AUG_MULT}× raw, {AUG_CAP})，"
           f"Scale_Insect 這次也走標準增強，不再降採樣）")
     print(f"{'類別':<20}{'raw train':>11}{'目標':>8}{'需增強':>8}")
     quota: dict[str, int] = {}
@@ -230,14 +321,14 @@ def main() -> None:
         print("\n--dry-run：不寫檔，結束。")
         return
 
-    # ── 3. 寫出 ────────────────────────────────────────────────────────
+    # ── 5. 寫出 ────────────────────────────────────────────────────────
     if out_root.exists():
         shutil.rmtree(out_root)
     for sp in ("train", "valid", "test"):
         (out_root / sp / "images").mkdir(parents=True, exist_ok=True)
         (out_root / sp / "labels").mkdir(parents=True, exist_ok=True)
 
-    print("\n【3】寫出")
+    print("\n【4】寫出")
     counters: dict[str, Counter] = defaultdict(Counter)
     for name in CLASSES + ["Background"]:
         for sp in ("train", "valid", "test"):
@@ -263,7 +354,7 @@ def main() -> None:
         if need:
             print(f"  {name:<20} 增強 {made:,}/{need:,}")
 
-    # ── 4. data.yaml ───────────────────────────────────────────────────
+    # ── 6. data.yaml ───────────────────────────────────────────────────
     yaml_text = (
         "# Datasets_YOLO26_v5.5 —— 由 tools/build_dataset_v5_5.py 產生\n"
         f"# seed={SEED}（每類別各自獨立切分，不共用單一 rng）  split={SPLIT}  先切分後增強\n"
@@ -272,8 +363,8 @@ def main() -> None:
     )
     (out_root / "data.yaml").write_text(yaml_text, encoding="utf-8")
 
-    # ── 5. 總結 ────────────────────────────────────────────────────────
-    print(f"\n【4】完成  →  {out_root}")
+    # ── 7. 總結 ────────────────────────────────────────────────────────
+    print(f"\n【5】完成  →  {out_root}")
     print(f"\n{'類別':<20}{'train':>9}{'valid':>8}{'test':>8}")
     for name in CLASSES + ["Background"]:
         print(f"{name:<20}{counters['train'][name]:>9,}{counters['valid'][name]:>8,}{counters['test'][name]:>8,}")
