@@ -224,12 +224,57 @@ Scale_Insect 的完整標註座標比對見附錄——`BURST010`／`BURST011` �
 重訓一次 A0 做對照**——這兩件事都留給使用者決定。
 
 > **2026-09-03 補記**：使用者在本文件寫成的同時，已在 **Roboflow 專案本身**（非本機
-> `Datasets/` 資料夾）依肉眼判讀手動清理 Scale_Insect 的連拍／重複照片，**尚未重新
-> 匯出／上傳同步回本機**。本文件與三個工具的所有數字，都是基於同步前的舊版來源
-> （1119 張）。**待使用者同步新版本後，需重跑 `tools/check_dataset_leakage.py` 與
-> `tools/quantify_leak_impact.py`**，才能確認：(1) 手動清理覆蓋了自動查驗找到的
-> 46 組跨 split 配對中的多少組，(2) 是否還有肉眼漏看、但 dHash 抓得到的殘留洩漏。
-> `tools/dedupe_leaked_train_images.py` 在同步前不具意義，先不要 `--apply`。
+> `Datasets/` 資料夾）依肉眼判讀手動清理 Scale_Insect 的連拍／重複照片，當時尚未同步。
+
+## 8. 2026-09-04 · Scale_Insect／Canker 重標同步，v5.5 已建置並驗收
+
+使用者把 Scale_Insect（1,119→251 張來源，1,179 框）與 Canker（244→241 張，
+標註改為 100% 矩形）的重標結果同步到 `Datasets/Datasets_YOLO26_v5.5/`（原始來源，
+非建置產物）。這與先前計畫交給 Antigravity 的「刪 Aphid_Leaf_Damage ＋ 拆
+Thrips_Leaf_Damage」是同一個 v5.5 版本號但範圍不同的兩件事——確認 Antigravity
+尚未執行後，決定**合併成一個 v5.5**，改由本機直接建置（不再交付 Antigravity）。
+
+**平衡度量測**（raw source，切分/增強/降採樣之前）顯示 Scale_Insect 舊版一個類別
+獨佔 raw pool 的 **71.2%**——`downsample_scale()` 正是為了壓制這個獨佔而存在。
+重標後 Scale_Insect 降到 15.5%，不再是問題類別，因此**移除了這個特例**，
+改走與其他類別相同的標準增強路徑（`min(4×raw, 1200)`）。
+
+**新增建置腳本**：[tools/build_dataset_v5_5.py](../tools/build_dataset_v5_5.py)。
+`build_dataset_v5r.py` 本身完全未改動，v5r 的既有產出與可重現性不受影響。
+關鍵設計差異：**每個類別改用各自獨立的 `random.Random(SEED)` 切分**，
+不再像 v5r 那樣共用一顆 rng 依序穿過所有類別——因為 Scale_Insect／Canker 的
+來源張數已經改變，若沿用共用 rng，即使 Thrips／Aphid 的來源完全沒動，
+它們的切分也會被迫連帶偏移。**代價**：P3 診斷用的「固定評估子集」
+（valid 299/test 298 框）在 v5.5 上不成立，需要重新建立基準（見下）。
+
+### 8.1 建置結果
+
+9 類（新增 `Thrips_Damage` = id 8），`train 7,544 / valid 348 / test 347`，
+`verify_dataset_v5r.py` 全數通過（成對性、座標、類別 id、split 洩漏位元檢查）。
+
+### 8.2 洩漏狀態複查（dHash，同一套方法重跑在實際建置後的 split 上）
+
+| 類別 | 跨 split 配對 | valid 受影響 | test 受影響 | 對照 v5r 舊值 |
+| --- | ---: | ---: | ---: | --- |
+| **Scale_Insect** | **0** | 0 | 0 | 舊 46 組 → **徹底解決** |
+| **Canker** | **0** | 0 | 0 | 舊本來就 0，未破壞 |
+| Thrips | 51 | 15 | 17 | 舊 48 組——**規模相當，未處理** |
+| Thrips_Damage | 0 | 0 | 0 | 與 §4 的量化結果一致：洩漏從不發生在葉害子域 |
+| Aphid | 10 | 5 | 3 | 舊 15 組 → 部分改善（刪除 Leaf_Damage 的副作用，非刻意修正） |
+
+**Thrips 的洩漏本質未變**——來源檔案完全沒動，只是這次改用獨立 rng 切分，
+近重複影像被隨機分配到不同 split 的機率跟 v5r 相近，是預期中的結果，不是新引入的
+問題。若要處理，可比照 Scale_Insect 的做法（Roboflow 端人工清理）或套用
+`tools/dedupe_leaked_train_images.py` 的「只刪 train 端」策略（需要先把該工具的
+`SOURCES`／`OUT_ROOT` 指向 v5.5，本次未做）。
+
+### 8.3 尚未完成（留給後續）
+
+1. **P3 基準需要在 v5.5 上重新建立**——`tools/diag_localization.py` 與
+   `tools/quantify_leak_impact.py` 都要對 v5.5 的 `OutPut` 重跑（先訓練出 v5.5 版本的
+   `best.pt` 才有權重可評估），現有的 valid 299/test 298 固定子集門檻不再適用。
+2. **Thrips／Aphid 的殘留洩漏未修正**，本次只確認了規模、未執行任何修正。
+3. 尚未訓練任何模型於 v5.5（本文件只到「資料集已建置並驗收」為止）。
 
 ---
 

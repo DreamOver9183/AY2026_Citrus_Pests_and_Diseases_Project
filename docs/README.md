@@ -25,7 +25,7 @@
 | [v9_結果_最終評估_valid與test.md](v9_結果_最終評估_valid與test.md) | 交付權重 `best.pt` @ ep69 在兩個 split 上的完整數據：per-class、混淆矩陣、四象限、部署閾值 | 要查最終評估的原始數字 |
 | [v9_記錄_實驗重整與六臂消融.md](v9_記錄_實驗重整與六臂消融.md) | 從程式審查、六臂設計到逐臂結果與三次長跑的完整工程紀錄（1100+ 行） | 要查某個決定的來龍去脈 |
 | [v5r_說明_資料集建置與標註重整.md](v5r_說明_資料集建置與標註重整.md) | `Datasets_YOLO26_v5r` 怎麼從 v5 重建：Thrips 合併、Aphid 過濾、極差從 24.7x 降到 9.1x | 要動資料集之前 |
-| [v5r_記錄_近重複影像跨split洩漏查驗.md](v5r_記錄_近重複影像跨split洩漏查驗.md) | **已查驗屬實、未修正。** Scale_Insect / Thrips / Aphid 的 train 與 valid/test 間有 13.4% 近重複影像洩漏；四個 Diseases 類別乾淨 | 評估 test 集數字可信度、決定要不要重切分之前 |
+| [v5r_記錄_近重複影像跨split洩漏查驗.md](v5r_記錄_近重複影像跨split洩漏查驗.md) | Scale_Insect / Thrips / Aphid 的洩漏查驗、量化、修正設計；**§8：v5.5 已建置**，Scale_Insect/Canker 洩漏清零，Thrips/Aphid 殘留未修 | 評估 test 集數字可信度、要動 v5.5 之前 |
 | [通用_參考_評估指標與公式.md](通用_參考_評估指標與公式.md) | 混淆矩陣四象限、Accuracy/Precision/Recall/FPR/F1 的定義與 LaTeX 公式 | 寫報告要列公式 |
 
 ## 已封存
@@ -41,7 +41,8 @@
 | `tools/final_eval.py` | 本機執行 valid/test 最終評估（CPU 約 6 分鐘） |
 | `tools/diag_localization.py` | P3 定位精度診斷：provenance 還原、子域分層 AP、殘差分解、尺寸帶、bootstrap（CPU 約 12 分鐘） |
 | `tools/compare_arms.py` | 六臂消融結果比較，自動套用 2σ 判準 |
-| `tools/build_dataset_v5r.py` | 由來源資料集建置 v5r |
+| `tools/build_dataset_v5r.py` | 由來源資料集建置 v5r（未改動，維持可重現） |
+| `tools/build_dataset_v5_5.py` | 由 v5r + 新 Scale_Insect/Canker 重標 + Thrips 拆類 + Aphid 過濾建置 v5.5；每類獨立切分 |
 | `tools/verify_dataset_v5r.py` | v5r 建置後的驗收 |
 | `tools/check_dataset_leakage.py` | 近重複影像跨 split 洩漏查驗（dHash，位元級 md5 檢查抓不到的重複） |
 | `tools/quantify_leak_impact.py` | 把洩漏對 P3 分層指標（中位 IoU/AP50-95）的影響量化成「洩漏 vs 乾淨」子集對比 |
