@@ -60,6 +60,7 @@
 | `tools/verify_dataset_v5_6.py` | v5.6 驗收：八道 Gate（結構／洩漏／合成來源／評估集／增強品質／分佈位移／可重現） |
 | `tools/prepare_manual_packages.py` | 產生 A/B 兩個人工工作包的待處理影像（含 dHash 去重與等距取樣） |
 | `tools/make_annotation_guide.py` | 由既有標註渲染「正例／反例」對照圖，說明文字依影像實際內容產生 |
+| `tools/check_annotation_return.py` | 人工標註**回收端**：格式預檢（組員先交 2 張）＋正式驗收；B 可 `--install` 併進來源樹並把 id 0 重映成 5 |
 | `tools/score_annotation_agreement.py` | 兩人標註一致性（貪婪配對 + 中位 IoU），輸出白話結論與後續建議 |
 | `tools/copy_paste_clm.py` | CLM 食痕合成器。**實測不合格已否決**，保留供日後有輪廓標註時再用；檔頭有完整失敗分析 |
 | `Train Code/v10/train_v10.ipynb` | **v10 訓練（v5.5 / 9 類）**，由 v9 的 A0 臂改寫；自足、無自訂模組注入 |
