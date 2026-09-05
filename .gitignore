@@ -51,3 +51,4 @@ desktop.ini
 
 # final_eval.py 每次執行自動產生，內含本機絕對路徑
 Train Code/v9/Train_output/Phase4/v5r_local.yaml
+Train Code/v10/Train_output/extracted/data_local.yaml
