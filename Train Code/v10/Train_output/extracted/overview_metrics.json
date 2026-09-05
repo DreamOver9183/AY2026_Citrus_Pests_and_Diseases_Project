@@ -1,0 +1,38 @@
+{
+  "valid": {
+    "mAP50": 0.79931,
+    "mAP50_95": 0.59268,
+    "ul_P": 0.85617,
+    "ul_R": 0.77412,
+    "n_total": 862,
+    "total_TP": 556,
+    "total_FP": 136,
+    "total_FN": 173,
+    "macro_accuracy": 0.96017,
+    "macro_precision": 0.83653,
+    "macro_recall": 0.79169,
+    "macro_f1": 0.8088,
+    "micro_precision": 0.80347,
+    "micro_recall": 0.76269,
+    "detection_jaccard": 0.64277,
+    "micro_f1": 0.78255
+  },
+  "test": {
+    "mAP50": 0.80928,
+    "mAP50_95": 0.60605,
+    "ul_P": 0.85456,
+    "ul_R": 0.77909,
+    "n_total": 804,
+    "total_TP": 581,
+    "total_FP": 119,
+    "total_FN": 108,
+    "macro_accuracy": 0.96863,
+    "macro_precision": 0.83165,
+    "macro_recall": 0.7913,
+    "macro_f1": 0.80408,
+    "micro_precision": 0.83,
+    "micro_recall": 0.84325,
+    "detection_jaccard": 0.71906,
+    "micro_f1": 0.83657
+  }
+}
