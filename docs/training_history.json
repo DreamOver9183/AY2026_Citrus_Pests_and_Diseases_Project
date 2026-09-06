@@ -1,0 +1,361 @@
+{
+ "generated": "2026-09-06",
+ "note": "本檔由 scratchpad 的 build_history.py 從各版本的原始輸出直接讀出，非手動抄寫。v5 時代的部分欄位為 null，因為來源文件用圖片嵌入數字、無法解析。",
+ "datasets": {
+  "v5": {
+   "classes": 8,
+   "images": {
+    "train": 7140,
+    "valid": 436,
+    "test": 445
+   },
+   "boxes": null,
+   "leakage": "未查驗（方法論同 v5r，大機率有）",
+   "note": "已被 v5r 取代；Thrips 極差 24.7x、Aphid 26.0x",
+   "build_script": null
+  },
+  "v5r": {
+   "classes": 8,
+   "images": {
+    "train": 7145,
+    "valid": 438,
+    "test": 438
+   },
+   "boxes": null,
+   "leakage": "三個 Pests 類別共 13.4% 跨 split 近重複（未修，刻意保留可重現性）",
+   "note": "Thrips 兩子類合併（極差 24.7x→9.1x）、Aphid 丟棄 <20px 框（26.0x→9.4x）",
+   "build_script": "tools/build_dataset_v5r.py"
+  },
+  "v5.5": {
+   "classes": 9,
+   "images": {
+    "train": 7544,
+    "valid": 327,
+    "test": 326
+   },
+   "boxes": {
+    "train": 18975,
+    "valid": 729,
+    "test": 689
+   },
+   "leakage": "全類別 0 組（近重複群組整群移進 train，不刪圖）",
+   "note": "新增 Thrips_Damage；Scale_Insect 與 Canker 全面重標",
+   "build_script": "tools/build_dataset_v5_5.py"
+  },
+  "v5.6": {
+   "classes": 9,
+   "images": {
+    "train": 7264,
+    "valid": 401,
+    "test": 401
+   },
+   "boxes": {
+    "train": 18078,
+    "valid": 868,
+    "test": 822
+   },
+   "leakage": "全類別 0 組",
+   "note": "逐類絕對評估量、與 v5.5 巢狀相容；修掉全類別的框膨脹缺陷",
+   "build_script": "tools/build_dataset_v5_6.py"
+  }
+ },
+ "runs": {
+  "v8": {
+   "dataset": "v5",
+   "classes": 8,
+   "epochs_planned": 160,
+   "patience": 30,
+   "reported_weight": "best.pt",
+   "epochs_run": 99,
+   "best_epoch": 69,
+   "best_mAP50": 0.82082,
+   "best_mAP50_95": 0.64688,
+   "plateau16_mean": 0.63775,
+   "plateau16_std": 0.00389,
+   "total_seconds": 15536.8,
+   "seconds_per_epoch": 156.9,
+   "eval": {
+    "valid": {
+     "mAP50": 0.82082,
+     "mAP50_95": 0.64688
+    },
+    "test": null
+   },
+   "note": "唯一沒有獨立 test 評估的版本；數字與之後全部不可比（見 archive/README.md）",
+   "artifacts": "Train Records/YOLO26n_P2_Citrus_MuSGD_v8/"
+  },
+  "v9_ablation": {
+   "dataset": "v5r",
+   "classes": 8,
+   "epochs_planned": 60,
+   "patience": 0,
+   "reported_weight": "平台期平均（末 16 輪）",
+   "arms": {
+    "A0 基準": 0.63399,
+    "A4 imgsz800": 0.63652,
+    "A2 ADown": 0.62657,
+    "A1 W-I-MPDIoU r0.70": 0.61938,
+    "A1b r1.25": 0.61562,
+    "A3 StarTripletBlock": 0.60789
+   },
+   "a0_std": 0.00383,
+   "threshold_2sigma": 0.64165,
+   "verdict": "零臂通過。改動越貴結果越差",
+   "artifacts": "Train Code/v9/"
+  },
+  "v9_A0": {
+   "dataset": "v5r",
+   "classes": 8,
+   "epochs_planned": 160,
+   "epochs_run": 160,
+   "patience": 0,
+   "best_epoch": 69,
+   "reported_weight": "best.pt",
+   "eval": {
+    "val": {
+     "mAP50": 0.86651,
+     "mAP50_95": 0.65356,
+     "precision": 0.88595,
+     "recall": 0.80756,
+     "jaccard": 0.65353
+    },
+    "test": {
+     "mAP50": 0.89079,
+     "mAP50_95": 0.67829,
+     "precision": 0.8995,
+     "recall": 0.86139,
+     "jaccard": 0.66979
+    }
+   },
+   "note": "目前的交付權重。best_f1_conf valid 0.4985 / test 0.3954",
+   "artifacts": "Train Code/v9/Train_output/Phase4/"
+  },
+  "v10": {
+   "dataset": "v5.5",
+   "classes": 9,
+   "epochs_planned": 100,
+   "epochs_run": 84,
+   "patience": 30,
+   "best_epoch": 54,
+   "reported_weight": "best.pt",
+   "eval": {
+    "val": {
+     "mAP50": 0.79931,
+     "mAP50_95": 0.59268,
+     "precision": 0.85617,
+     "recall": 0.77412,
+     "jaccard": 0.64277,
+     "TP": 556,
+     "FP": 136,
+     "FN": 173
+    },
+    "test": {
+     "mAP50": 0.80928,
+     "mAP50_95": 0.60605,
+     "precision": 0.85456,
+     "recall": 0.77909,
+     "jaccard": 0.71906,
+     "TP": 581,
+     "FP": 119,
+     "FN": 108
+    }
+   },
+   "plateau16_mean": 0.57804,
+   "plateau16_std": 0.00453,
+   "note": "best 高出平台期 2.8σ。發現評估集太小：Scale_Insect valid/test 差 0.308",
+   "artifacts": "Train Code/v10/Train_output/extracted/"
+  },
+  "v11": {
+   "dataset": "v5.6",
+   "classes": 9,
+   "epochs_planned": 100,
+   "patience": 30,
+   "reported_weight": "best.pt",
+   "epochs_run": 99,
+   "best_epoch": 69,
+   "best_mAP50": 0.83638,
+   "best_mAP50_95": 0.62986,
+   "plateau16_mean": 0.62432,
+   "plateau16_std": 0.00202,
+   "total_seconds": 15894.3,
+   "seconds_per_epoch": 160.5,
+   "eval": {
+    "val": {
+     "mAP50": 0.83543,
+     "mAP50_95": 0.62924
+    },
+    "test": {
+     "mAP50": 0.82213,
+     "mAP50_95": 0.61294
+    }
+   },
+   "eval_on_v55_subset": {
+    "val": {
+     "mAP50": 0.83988,
+     "mAP50_95": 0.64173
+    },
+    "test": {
+     "mAP50": 0.80048,
+     "mAP50_95": 0.60306
+    }
+   },
+   "note": "patience=30 → best.pt 由 valid 挑出，valid 不可與 test 併計，只能報 test（最差 ±2SE 0.140）",
+   "artifacts": "Train Code/v11/Train Output/extracted/"
+  },
+  "v11.5": {
+   "dataset": "v5.6",
+   "classes": 9,
+   "epochs_planned": 70,
+   "patience": 0,
+   "reported_weight": "last.pt",
+   "epochs_run": 70,
+   "best_epoch": 53,
+   "best_mAP50": 0.83489,
+   "best_mAP50_95": 0.63899,
+   "plateau16_mean": 0.6319,
+   "plateau16_std": 0.0045,
+   "total_seconds": 11010.2,
+   "seconds_per_epoch": 157.3,
+   "eval": {
+    "val": {
+     "mAP50": 0.82277,
+     "mAP50_95": 0.62974,
+     "precision": 0.86252,
+     "recall": 0.80306,
+     "jaccard": 0.65425,
+     "TP": 685,
+     "FP": 179,
+     "FN": 183,
+     "cross_class": 5
+    },
+    "test": {
+     "mAP50": 0.8095,
+     "mAP50_95": 0.6065,
+     "precision": 0.85639,
+     "recall": 0.79282,
+     "jaccard": 0.68698,
+     "TP": 665,
+     "FP": 148,
+     "FN": 155,
+     "cross_class": 4
+    }
+   },
+   "eval_on_v55_subset": {
+    "val": {
+     "mAP50": 0.8252,
+     "mAP50_95": 0.63881
+    },
+    "test": {
+     "mAP50": 0.78813,
+     "mAP50_95": 0.59883
+    }
+   },
+   "pooled_2se": {
+    "Oily_Spot": {
+     "n_valid": 24,
+     "n_test": 24,
+     "ap50_valid": 0.97055,
+     "ap50_test": 0.94458,
+     "gap": -0.026,
+     "se2_pooled": 0.0156,
+     "meets_target": true
+    },
+    "Canker": {
+     "n_valid": 24,
+     "n_test": 24,
+     "ap50_valid": 0.92823,
+     "ap50_test": 0.86765,
+     "gap": -0.0606,
+     "se2_pooled": 0.0431,
+     "meets_target": true
+    },
+    "Sooty_Mold": {
+     "n_valid": 33,
+     "n_test": 32,
+     "ap50_valid": 0.995,
+     "ap50_test": 0.995,
+     "gap": 0.0,
+     "se2_pooled": 0.021,
+     "meets_target": true
+    },
+    "Black_Spot": {
+     "n_valid": 25,
+     "n_test": 25,
+     "ap50_valid": 0.97984,
+     "ap50_test": 0.9534,
+     "gap": -0.0264,
+     "se2_pooled": 0.0304,
+     "meets_target": true
+    },
+    "Scale_Insect": {
+     "n_valid": 35,
+     "n_test": 35,
+     "ap50_valid": 0.63025,
+     "ap50_test": 0.67041,
+     "gap": 0.0402,
+     "se2_pooled": 0.049,
+     "meets_target": true
+    },
+    "Citrus_Leaf_Miner": {
+     "n_valid": 45,
+     "n_test": 45,
+     "ap50_valid": 0.71571,
+     "ap50_test": 0.67645,
+     "gap": -0.0393,
+     "se2_pooled": 0.099,
+     "meets_target": true
+    },
+    "Thrips": {
+     "n_valid": 60,
+     "n_test": 60,
+     "ap50_valid": 0.70006,
+     "ap50_test": 0.77946,
+     "gap": 0.0794,
+     "se2_pooled": 0.0969,
+     "meets_target": true
+    },
+    "Aphid": {
+     "n_valid": 75,
+     "n_test": 76,
+     "ap50_valid": 0.88801,
+     "ap50_test": 0.94785,
+     "gap": 0.0598,
+     "se2_pooled": 0.0341,
+     "meets_target": true
+    },
+    "Thrips_Damage": {
+     "n_valid": 40,
+     "n_test": 40,
+     "ap50_valid": 0.65323,
+     "ap50_test": 0.45148,
+     "gap": -0.2017,
+     "se2_pooled": 0.0825,
+     "meets_target": true
+    }
+   },
+   "worst_pooled_2se": 0.099,
+   "note": "patience=0 + 固定輪數 → valid 未參與決策，可與 test 併計。九類 ±2SE ≤ 0.10 達成",
+   "artifacts": "Train Code/v11.5/Train Output/extracted/"
+  }
+ },
+ "constants": {
+  "spearman_rho_極差_vs_AP": -0.976,
+  "per_class_雜訊地板_AP50": 0.04,
+  "run間全距_test_mAP50_三版": 0.021,
+  "run間全距_test_mAP5095_三版": 0.007,
+  "最佳輪次": {
+   "v8": 69,
+   "v9_A0": 69,
+   "v10": 54,
+   "v11": 69,
+   "v11.5": 53
+  },
+  "best高出平台期": {
+   "v10": "2.8σ",
+   "v11": "2.7σ",
+   "v11.5": "1.5σ"
+  },
+  "close_mosaic": "v9/v10/v11/v11.5 四次皆確認：train/cls 斷崖式下降、val 指標不動",
+  "ultralytics版本": "8.4.121（釘死）"
+ }
+}
