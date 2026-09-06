@@ -1,0 +1,52 @@
+{
+  "run": "v5.6_v11",
+  "epochs": 100,
+  "patience": 30,
+  "close_mosaic": 19,
+  "dataset": "v5.5",
+  "nc": 9,
+  "imgsz": 640,
+  "overall": {
+    "mAP50": 0.83518,
+    "mAP50_95": 0.6292,
+    "precision": 0.84885,
+    "recall": 0.80732
+  },
+  "plateau": {
+    "mAP50": {
+      "window": 16,
+      "mean": 0.83113,
+      "std": 0.00207,
+      "best": 0.83313
+    },
+    "mAP50_95": {
+      "window": 16,
+      "mean": 0.62432,
+      "std": 0.00202,
+      "best": 0.62727
+    }
+  },
+  "best_f1_conf": 0.3614,
+  "fp_from_background": {
+    "Oily_Spot": 1,
+    "Canker": 10,
+    "Sooty_Mold": 0,
+    "Black_Spot": 3,
+    "Scale_Insect": 92,
+    "Citrus_Leaf_Miner": 7,
+    "Thrips": 12,
+    "Aphid": 28,
+    "Thrips_Damage": 10
+  },
+  "fn_to_background": {
+    "Oily_Spot": 0,
+    "Canker": 7,
+    "Sooty_Mold": 0,
+    "Black_Spot": 0,
+    "Scale_Insect": 68,
+    "Citrus_Leaf_Miner": 11,
+    "Thrips": 39,
+    "Aphid": 36,
+    "Thrips_Damage": 16
+  }
+}

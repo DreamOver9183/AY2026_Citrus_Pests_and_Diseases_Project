@@ -1,0 +1,15 @@
+names:
+- Oily_Spot
+- Canker
+- Sooty_Mold
+- Black_Spot
+- Scale_Insect
+- Citrus_Leaf_Miner
+- Thrips
+- Aphid
+- Thrips_Damage
+nc: 9
+path: D:\Claude Code\AY2026 Citrus Pests and Diseases Project\Datasets\2_處理與切分\v5.6
+test: test/images
+train: train/images
+val: valid/images
