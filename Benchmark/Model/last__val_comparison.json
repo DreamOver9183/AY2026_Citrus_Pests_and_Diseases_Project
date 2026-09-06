@@ -1,0 +1,56 @@
+{
+ "PyTorch last.pt": {
+  "mAP50": 0.80897,
+  "mAP50_95": 0.60527,
+  "precision": 0.85575,
+  "recall": 0.79653,
+  "per_class": {
+   "Oily_Spot": 0.94458,
+   "Canker": 0.86103,
+   "Sooty_Mold": 0.995,
+   "Black_Spot": 0.95026,
+   "Scale_Insect": 0.66824,
+   "Citrus_Leaf_Miner": 0.67947,
+   "Thrips": 0.78278,
+   "Aphid": 0.94787,
+   "Thrips_Damage": 0.45148
+  },
+  "seconds": 72.6
+ },
+ "fp32  .tflite": {
+  "mAP50": 0.81554,
+  "mAP50_95": 0.61014,
+  "precision": 0.83935,
+  "recall": 0.79357,
+  "per_class": {
+   "Oily_Spot": 0.9518,
+   "Canker": 0.87681,
+   "Sooty_Mold": 0.995,
+   "Black_Spot": 0.98151,
+   "Scale_Insect": 0.68168,
+   "Citrus_Leaf_Miner": 0.68834,
+   "Thrips": 0.77602,
+   "Aphid": 0.93101,
+   "Thrips_Damage": 0.45767
+  },
+  "seconds": 47.5
+ },
+ "w8a32 .tflite": {
+  "mAP50": 0.81936,
+  "mAP50_95": 0.60892,
+  "precision": 0.82972,
+  "recall": 0.79806,
+  "per_class": {
+   "Oily_Spot": 0.9518,
+   "Canker": 0.87755,
+   "Sooty_Mold": 0.995,
+   "Black_Spot": 0.98526,
+   "Scale_Insect": 0.68762,
+   "Citrus_Leaf_Miner": 0.68507,
+   "Thrips": 0.76557,
+   "Aphid": 0.93174,
+   "Thrips_Damage": 0.49466
+  },
+  "seconds": 50.0
+ }
+}

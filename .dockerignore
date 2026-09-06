@@ -1,0 +1,5 @@
+# 匯出映像只 COPY 一個檔案（Benchmark/export/requirements.txt），
+# 但 build context 是專案根目錄——裡面有數 GB 的 Datasets 與訓練輸出。
+# 不擋的話光是傳 context 就要好幾分鐘。程式碼一律由 docker run -v 掛進去。
+*
+!Benchmark/export/requirements.txt

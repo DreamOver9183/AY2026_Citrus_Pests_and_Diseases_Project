@@ -1,0 +1,52 @@
+{
+ "weights": "/work/Train Code/v11.5/Train Output/extracted/runs/detect/v5.6_v11_5/weights/last.pt",
+ "dataset": "v5.6",
+ "results": {
+  "fp32": {
+   "exported": true,
+   "file": "last__fp32.tflite",
+   "size_mb": 9.85,
+   "end2end_kept": true,
+   "verify": {
+    "images": 20,
+    "ref_boxes": 40,
+    "tflite_boxes": 38,
+    "matched": 37,
+    "matched_iou_mean": 0.9763,
+    "matched_iou_min": 0.9114,
+    "worst_image": [
+     "Canker_00019.jpg",
+     0.9114
+    ],
+    "class_match": "37/37",
+    "unmatched_ref": 3,
+    "unmatched_tflite": 1,
+    "unmatched_rate": 0.0513,
+    "verdict": "通過"
+   }
+  },
+  "w8a32": {
+   "exported": true,
+   "file": "last__w8a32.tflite",
+   "size_mb": 3.1,
+   "end2end_kept": true,
+   "verify": {
+    "images": 20,
+    "ref_boxes": 40,
+    "tflite_boxes": 38,
+    "matched": 36,
+    "matched_iou_mean": 0.9727,
+    "matched_iou_min": 0.9141,
+    "worst_image": [
+     "Canker_00019.jpg",
+     0.9141
+    ],
+    "class_match": "36/36",
+    "unmatched_ref": 4,
+    "unmatched_tflite": 2,
+    "unmatched_rate": 0.0769,
+    "verdict": "通過"
+   }
+  }
+ }
+}

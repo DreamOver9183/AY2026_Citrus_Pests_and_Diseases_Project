@@ -44,12 +44,18 @@
 ├── docs/                所有文件。索引在 docs/README.md
 │   └── archive/         已失效但仍有用途的舊文件（附封存理由）
 ├── tools/               建置 / 驗收 / 診斷 / 標註流程的腳本
+├── Benchmark/           手機端 TFLite 延遲量測（部署目標 30 FPS ±5）
+│   ├── platform-tools/  ADB 與 benchmark APK（已進版控，clone 即可用）
+│   ├── export/          .pt → .tflite 的 Docker 匯出管線
+│   ├── Model/           待測的 .tflite（*.tflite 未進版控）
+│   └── report/          量測報告
 ├── Train Code/          訓練用的 notebook
 │   ├── yolo26-p2.yaml   官方架構快照（訓練時實際讀的是已安裝的 ultralytics）
 │   ├── v9/              六臂消融與長跑 —— 交付權重的來源
 │   ├── v10/             v5.5 的首次訓練
 │   ├── v11/             v5.6 的首次訓練（patience=30，評估精度報不出來）
-│   └── v11.5/           **目前最新**：patience=0 + 70 輪，±2SE 目標達成
+│   ├── v11.5/           **目前的基準**：patience=0 + 70 輪，±2SE 目標達成
+│   └── v12s/            放大模型的第一次實驗（yolo26**s**-p2），尚未執行
 ├── Train Records/       v8 時代的訓練產出（已封存，數字與現行不可比）
 └── Datasets/            未進版控，約 54 GB。依**處理階段**分三層：
     ├── 1_原始影像/        人工標註過的來源影像，還沒切分、沒增強
@@ -89,6 +95,28 @@
 
 ---
 
+### `Benchmark/` —— 部署端的延遲量測
+
+到 v11.5 為止，這個專案只量得出**精度**。`Benchmark/` 補上另一半：
+模型放到手機上到底跑多快。**部署目標 30 FPS ±5，即每張 28.6–40 ms。**
+
+由 [`DreamOver9183/TFLite_Benchmark_skills`](https://github.com/DreamOver9183/TFLite_Benchmark_skills)
+合併而來（上游 `694b95f`），**不是 submodule**。合併時把上游的 `tools/` 改名成
+`platform-tools/`——本專案根目錄已經有一個 `tools/`，撞名會讓 skill 指到錯的地方。
+
+| 想做什麼 | 看這裡 |
+| --- | --- |
+| 整體流程與本專案的追加規範 | [Benchmark/README.md](Benchmark/README.md) |
+| 把 `.pt` 轉成 `.tflite` | [Benchmark/export/README.md](Benchmark/export/README.md) |
+| 手動跑一次量測 | [Benchmark/Benchmark_process.md](Benchmark/Benchmark_process.md) |
+| Agent 的行為邊界 | [Benchmark/AGENTS.md](Benchmark/AGENTS.md) |
+
+Skill 本體在 `.claude/skills/tflite_mobile_benchmark/`（對 Claude Code 說
+「跑 benchmark」即觸發）。它是 `.claude/` 底下**唯一**進版控的東西，
+靠 `.gitignore` 的一條負向規則放行。
+
+---
+
 ### `tools/` —— 依用途分組
 
 **建置資料集**
@@ -117,6 +145,12 @@
 | `final_eval.py` | 本機跑 valid/test 最終評估（CPU 約 6 分鐘） |
 | `compare_arms.py` | 消融結果比較，自動套用 2σ 判準 |
 | `quantify_leak_impact.py` | 把洩漏對分層指標的影響量化成「洩漏 vs 乾淨」對比 |
+
+**部署**
+
+| 檔案 | 用途 |
+| --- | --- |
+| `export_tflite.py` | `.pt` → `.tflite`（fp32 / w8a32 / int8），含與 PyTorch 的逐框比對。**只能在 `Benchmark/export/` 的容器裡跑**——ultralytics 的 LiteRT 匯出在 Windows 被平台斷言擋住 |
 
 **人工標註流程**
 

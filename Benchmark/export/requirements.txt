@@ -1,0 +1,45 @@
+# TFLite 匯出容器專用相依（本機 venv 一律不裝）
+#
+# ════════════════════════════════════════════════════════════════════
+# 為什麼要有容器
+# ════════════════════════════════════════════════════════════════════
+# ultralytics 的 LiteRT 匯出（PyTorch 直轉，不經 ONNX）在函式第一行就擋平台：
+#     assert MACOS or (LINUX and not ARM64), "LiteRT export only supported on Linux x86 and macOS"
+# 本專案的開發機是 Windows，**不可能**在本機轉。
+#
+# ════════════════════════════════════════════════════════════════════
+# 為什麼不走 ONNX → saved_model → TFLite
+# ════════════════════════════════════════════════════════════════════
+# 這條路看起來比較「標準」，但在本專案是死路，而且是已經有人踩過的死路
+# （記載於 DreamOver9183/Citrus_Pest_and_Disease_Tools 的 requirements-docker.txt）：
+#
+#   ultralytics[export-tensorflow] 要求 numpy<2.0.0（python<3.13），
+#   而 ultralytics 傳遞相依的 opencv-python 5.x 要求 numpy>=2。
+#
+# 兩者在 python 3.12 上無解，pip 只能降級其中一邊。本專案的 venv 是
+# numpy 2.5.2 + opencv 5.0.0，本專案根目錄的 tools/ 有 19 支腳本吃這組相依——
+# 走那條路等於在跑著的推論堆疊底下抽換套件。LiteRT 路徑沒有 numpy 限制。
+#
+# ════════════════════════════════════════════════════════════════════
+# 為什麼 torch 釘 2.12.1
+# ════════════════════════════════════════════════════════════════════
+# litert-torch 0.9.x 要求 torch<2.13.0。本專案本機是 2.13.0+cpu，
+# 這也是不能在本機 venv 裝 litert-torch 的第二個理由。
+#
+# torch 必須從 PyTorch 的 CPU index 裝：預設 PyPI 給的是 CUDA 版，會連帶拉進
+# 16 個 nvidia-* 套件約 2 GB，而這個容器沒有任何 GPU runtime，那些相依永遠用不到。
+# Dockerfile 已把 torch 拆成獨立的一道 pip install 來達成這件事。
+#
+# ════════════════════════════════════════════════════════════════════
+# 架構限制
+# ════════════════════════════════════════════════════════════════════
+# 這些套件沒有 aarch64 輪子，映像必須以 linux/amd64 建置。
+# Dockerfile 的 FROM 已加 --platform=linux/amd64。
+
+# 版本釘死，與訓練端一致。改這個數字前先讀 docs/ 裡任何一份報告的「版本」欄位。
+ultralytics==8.4.121
+
+# LiteRT 匯出三件組
+litert-torch>=0.9.0
+ai-edge-litert>=2.1.4
+ai-edge-quantizer>=0.6.0

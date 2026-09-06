@@ -40,7 +40,11 @@ desktop.ini
 *.tmp
 
 # AI Assistants & Agent directories
-.claude/
+# 註：這裡用 `.claude/*` 而不是 `.claude/`。git 不會遞迴進被忽略的目錄，
+#     寫成 `.claude/` 的話下面的 `!` 負向規則永遠不會生效。
+.claude/*
+# benchmark skill 要進版控（使用者要求：以後作為同 repo）
+!.claude/skills/
 .gemini/
 .agents/
 .cursor/
@@ -66,3 +70,8 @@ Train Code/*/Train*Output/extracted/**
 
 # 為了與舊版比較而複製出來的評估子集（653 張影像，可由 _provenance.json 重建）
 **/v55_subset/
+
+# Benchmark：轉出來的 TFLite 模型每個數十 MB，且可由對應的 last.pt 重現
+Benchmark/Model/*.tflite
+Benchmark/export/out/
+!Benchmark/Model/.gitkeep
