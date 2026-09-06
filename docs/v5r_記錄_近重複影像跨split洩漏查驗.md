@@ -181,7 +181,7 @@ Scale_Insect 的完整標註座標比對見附錄——`BURST010`／`BURST011` �
 把近重複影像群組視為一個不可分割的單位，整群分進同一個 split，從根源杜絕洩漏。
 **代價**：valid/test 的組成整組改變，本文件與 P3、最終評估報告的所有既有數字全部作廢，
 且必須重新訓練 A0 才能拿到可比的新數字。也牽動已交付 Antigravity 建置的 v5.5
-（見 [other/antigravity_v5.5_prompt.md](../other/antigravity_v5.5_prompt.md)）——
+（見 [archive/v5.5_記錄_Antigravity交辦提示.md](archive/v5.5_記錄_Antigravity交辦提示.md)）——
 若採方案 A，v5.5 的切分約束需要整個重寫。
 
 ### 6.2 方案 B（已試跑）· 只從 train 移除洩漏影像
