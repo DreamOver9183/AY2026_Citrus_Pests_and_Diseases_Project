@@ -35,8 +35,12 @@ from pathlib import Path
 if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
     sys.stdout.reconfigure(encoding="utf-8")
 
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).resolve().parent))
+import dataset_paths as _P    # Datasets/ 的版面配置：單一真實來源
+
 ROOT = Path(__file__).resolve().parent.parent
-DATA_ROOT = ROOT / "Datasets" / "Datasets_YOLO26_v5r" / "OutPut"
+DATA_ROOT = _P.split("v5r")
 RUNS_ZIP = ROOT / "Train Code/v9/Train_output/Epoch_160_VER/RESUME2/runs_A0.zip"
 WEIGHT_IN_ZIP = "detect/v5r_A0_160e/weights/best.pt"
 OUT_ROOT = ROOT / "Train Code/v9/Train_output/Phase4"

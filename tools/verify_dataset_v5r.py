@@ -25,8 +25,12 @@ if hasattr(sys.stdout, "reconfigure"):
 
 from PIL import Image
 
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).resolve().parent))
+import dataset_paths as _P    # Datasets/ 的版面配置：單一真實來源
+
 REPO = Path(__file__).resolve().parent.parent
-ROOT = Path(sys.argv[1]) if len(sys.argv) > 1 else REPO / "Datasets" / "Datasets_YOLO26_v5r" / "OutPut"
+ROOT = Path(sys.argv[1]) if len(sys.argv) > 1 else _P.split("v5r")
 IMGSZ_REF = 640
 SPLITS = ("train", "valid", "test")
 

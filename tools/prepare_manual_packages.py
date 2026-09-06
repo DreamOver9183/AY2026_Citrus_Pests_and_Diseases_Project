@@ -26,13 +26,15 @@ if hasattr(sys.stdout, "reconfigure"):
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import dataset_paths as _P    # Datasets/ 的版面配置：單一真實來源
+
 import numpy as np
 
 import build_dataset_v5_6 as B
 from check_dataset_leakage import dhash
 
 REPO = B.REPO
-EXTERNAL = (REPO / "Datasets" / "craft_datasets_undone" / "Datasets" / "外部資料集"
+EXTERNAL = (_P.EXTERNAL / "Datasets" / "外部資料集"
             / "Large-Scale Lemon Leaf Disease and Pest Image Data" / "Citrus_Pest")
 
 A_N = 20

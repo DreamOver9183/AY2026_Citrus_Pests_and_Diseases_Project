@@ -1,7 +1,7 @@
 # Datasets_YOLO26_v5r 建置說明
 
 **產出**：`Datasets/Datasets_YOLO26_v5r/OutPut/`（`train` / `valid` / `test` + `data.yaml`）
-**建置腳本**：[tools/build_dataset_v5r.py](../tools/build_dataset_v5r.py)
+**建置腳本**：[tools/build_dataset_v5r.py](../../tools/build_dataset_v5r.py)
 **方法論基礎**：《柑橘病蟲害 YOLO26 資料集建置技術摘要》(v5.1)
 **日期**：2026-08-22
 

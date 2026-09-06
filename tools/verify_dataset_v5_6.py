@@ -38,6 +38,8 @@ if hasattr(sys.stdout, "reconfigure"):
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import dataset_paths as _P    # Datasets/ 的版面配置：單一真實來源
+
 import numpy as np                        # noqa: E402
 from PIL import Image                     # noqa: E402
 
@@ -45,7 +47,7 @@ from check_dataset_leakage import dhash   # noqa: E402
 import build_dataset_v5_6 as B            # noqa: E402  切分規格的單一真實來源
 
 REPO = Path(__file__).resolve().parent.parent
-V55_ROOT = REPO / "Datasets" / "Datasets_YOLO26_v5.5"
+V55_ROOT = _P.raw("v5.5")
 V56_ROOT = B.V56_ROOT
 OUT = B.OUT_ROOT
 V55_OUT = B.V55_OUT

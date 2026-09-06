@@ -37,9 +37,13 @@ from PIL import Image as PILImage
 # 組態
 # ══════════════════════════════════════════════════════════════════════════
 
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).resolve().parent))
+import dataset_paths as _P    # Datasets/ 的版面配置：單一真實來源
+
 REPO = Path(__file__).resolve().parent.parent
-SRC_ROOT = REPO / "Datasets" / "Datasets_YOLO26_v5r"
-OUT_ROOT = SRC_ROOT / "OutPut"
+SRC_ROOT = _P.raw("v5r")
+OUT_ROOT = _P.split("v5r")
 
 SEED = 0
 SPLIT = (0.80, 0.10, 0.10)          # train / valid / test，先切分後增強

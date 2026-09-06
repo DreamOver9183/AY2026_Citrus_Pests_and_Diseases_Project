@@ -15,7 +15,7 @@
 
 用法：
     .venv/Scripts/python.exe tools/analyze_dataset.py
-    .venv/Scripts/python.exe tools/analyze_dataset.py Datasets/Datasets_YOLO26_v5.5/OutPut
+    .venv/Scripts/python.exe tools/analyze_dataset.py Datasets/2_處理與切分/v5.6
     .venv/Scripts/python.exe tools/analyze_dataset.py <路徑> --csv out.csv
 """
 
@@ -32,6 +32,10 @@ from PIL import Image
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).resolve().parent))
+import dataset_paths as _P    # Datasets/ 的版面配置：單一真實來源
 
 REPO = Path(__file__).resolve().parent.parent
 IMGSZ_REF = 640
@@ -105,7 +109,7 @@ def pct(a: np.ndarray, q: float) -> float:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("root", nargs="?",
-                    default=str(REPO / "Datasets/Datasets_YOLO26_v5.5/OutPut"))
+                    default=str(_P.split("v5.6")))
     ap.add_argument("--csv", default=None, help="把逐類統計另存成 CSV")
     args = ap.parse_args()
     root = Path(args.root)

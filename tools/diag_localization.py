@@ -43,9 +43,13 @@ from PIL import Image
 if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
     sys.stdout.reconfigure(encoding="utf-8")
 
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).resolve().parent))
+import dataset_paths as _P    # Datasets/ 的版面配置：單一真實來源
+
 ROOT = Path(__file__).resolve().parent.parent
-SRC_ROOT = ROOT / "Datasets" / "Datasets_YOLO26_v5r"
-DATA_ROOT = SRC_ROOT / "OutPut"
+SRC_ROOT = _P.raw("v5r")
+DATA_ROOT = _P.split("v5r")
 WEIGHTS = ROOT / "Train Code/v9/Train_output/Phase4/best.pt"
 OUT_DIR = ROOT / "Train Code/v9/Train_output/Phase4/P3_diag"
 

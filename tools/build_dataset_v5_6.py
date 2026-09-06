@@ -53,6 +53,8 @@ if hasattr(sys.stdout, "reconfigure"):
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import dataset_paths as _P    # Datasets/ 的版面配置：單一真實來源
+
 import cv2                                # noqa: E402
 import numpy as np                        # noqa: E402
 from PIL import Image as PILImage         # noqa: E402
@@ -64,10 +66,10 @@ from check_dataset_leakage import dhash   # noqa: E402  與洩漏查驗共用同
 import aug_profiles                       # noqa: E402  逐類增強 profile
 
 REPO = Path(__file__).resolve().parent.parent
-V55_OUT = REPO / "Datasets" / "Datasets_YOLO26_v5.5" / "OutPut"
-V56_ROOT = REPO / "Datasets" / "Datasets_YOLO26_v5.6"
-OUT_ROOT = V56_ROOT / "OutPut"
-MANUAL_ROOT = V56_ROOT / "人工標註"
+V55_OUT = _P.split("v5.5")
+V56_ROOT = _P.raw("v5.6")
+OUT_ROOT = _P.split("v5.6")
+MANUAL_ROOT = _P.MANUAL
 
 SEED = 0
 AUG_MULT = 4

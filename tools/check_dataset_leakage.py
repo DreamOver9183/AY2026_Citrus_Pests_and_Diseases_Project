@@ -41,9 +41,13 @@ from PIL import Image
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).resolve().parent))
+import dataset_paths as _P    # Datasets/ 的版面配置：單一真實來源
+
 ROOT = Path(__file__).resolve().parent.parent
-SRC_ROOT = ROOT / "Datasets" / "Datasets_YOLO26_v5r"
-OUT_ROOT = SRC_ROOT / "OutPut"
+SRC_ROOT = _P.raw("v5r")
+OUT_ROOT = _P.split("v5r")
 IMG_EXT = (".jpg", ".jpeg", ".png")
 
 # (輸出類別名, 來源目錄) —— 與 build_dataset_v5r.py 的 SOURCES 一致

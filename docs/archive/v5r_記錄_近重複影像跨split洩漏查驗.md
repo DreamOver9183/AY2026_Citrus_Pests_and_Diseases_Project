@@ -116,7 +116,7 @@ Scale_Insect 的完整標註座標比對見附錄——`BURST010`／`BURST011` �
 
 ## 4. 對 P3 分層指標的量化影響（2026-09-03 補做）
 
-**查驗工具**：[tools/quantify_leak_impact.py](../tools/quantify_leak_impact.py)。
+**查驗工具**：[tools/quantify_leak_impact.py](../../tools/quantify_leak_impact.py)。
 把每張 valid/test 影像標記成「洩漏」（與某張 train 影像 dHash 距離 ≤ 6）或「乾淨」，
 在 P3 §1.3 定義的**同一個分層**內分開算中位 IoU / AP50-95 / R@0.75，直接比較兩個子集。
 
@@ -181,7 +181,7 @@ Scale_Insect 的完整標註座標比對見附錄——`BURST010`／`BURST011` �
 把近重複影像群組視為一個不可分割的單位，整群分進同一個 split，從根源杜絕洩漏。
 **代價**：valid/test 的組成整組改變，本文件與 P3、最終評估報告的所有既有數字全部作廢，
 且必須重新訓練 A0 才能拿到可比的新數字。也牽動已交付 Antigravity 建置的 v5.5
-（見 [archive/v5.5_記錄_Antigravity交辦提示.md](archive/v5.5_記錄_Antigravity交辦提示.md)）——
+（見 [archive/v5.5_記錄_Antigravity交辦提示.md](v5.5_記錄_Antigravity交辦提示.md)）——
 若採方案 A，v5.5 的切分約束需要整個重寫。
 
 ### 6.2 方案 B（已試跑）· 只從 train 移除洩漏影像
@@ -191,7 +191,7 @@ Scale_Insect 的完整標註座標比對見附錄——`BURST010`／`BURST011` �
 「下一次訓練」會用到修正後的 train 集；代價：不如方案 A 嚴謹（見下方殘留風險），
 但成本極小。
 
-**工具**：[tools/dedupe_leaked_train_images.py](../tools/dedupe_leaked_train_images.py)，
+**工具**：[tools/dedupe_leaked_train_images.py](../../tools/dedupe_leaked_train_images.py)，
 預設 dry-run，加 `--apply` 才會真的刪除。`Datasets/` 整個被 `.gitignore` 排除、
 不進版控，用 `build_dataset_v5r.py` 以同一個 `SEED` 重新產生輸出即可完全復原，
 因此刪除操作本身可逆風險極低。
@@ -239,7 +239,7 @@ Thrips_Leaf_Damage」是同一個 v5.5 版本號但範圍不同的兩件事—�
 重標後 Scale_Insect 降到 15.5%，不再是問題類別，因此**移除了這個特例**，
 改走與其他類別相同的標準增強路徑（`min(4×raw, 1200)`）。
 
-**新增建置腳本**：[tools/build_dataset_v5_5.py](../tools/build_dataset_v5_5.py)。
+**新增建置腳本**：[tools/build_dataset_v5_5.py](../../tools/build_dataset_v5_5.py)。
 `build_dataset_v5r.py` 本身完全未改動，v5r 的既有產出與可重現性不受影響。
 關鍵設計差異：**每個類別改用各自獨立的 `random.Random(SEED)` 切分**，
 不再像 v5r 那樣共用一顆 rng 依序穿過所有類別——因為 Scale_Insect／Canker 的

@@ -59,6 +59,8 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import dataset_paths as _P    # Datasets/ 的版面配置：單一真實來源
 from build_dataset_v5r import (          # noqa: E402  重用 v5r 的解析/寫出邏輯，方法論保持一致
     AUG, IMG_EXT, equiv_px, find_image, parse_label, write_augmented, write_sample,
 )
@@ -68,9 +70,9 @@ from PIL import Image as PILImage        # noqa: E402
 import numpy as np                       # noqa: E402
 
 REPO = Path(__file__).resolve().parent.parent
-V5R_ROOT = REPO / "Datasets" / "Datasets_YOLO26_v5r"
-V55_ROOT = REPO / "Datasets" / "Datasets_YOLO26_v5.5"
-OUT_ROOT = V55_ROOT / "OutPut"
+V5R_ROOT = _P.raw("v5r")
+V55_ROOT = _P.raw("v5.5")
+OUT_ROOT = _P.split("v5.5")
 
 SEED = 0
 SPLIT = (0.80, 0.10, 0.10)          # 與 v5r 相同的切分比例，但每類獨立取種子
