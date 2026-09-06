@@ -59,6 +59,7 @@ Train Code/*/Train*Output/extracted/**
 !Train Code/*/Train*Output/extracted/
 !Train Code/*/Train*Output/extracted/**/
 !Train Code/*/Train*Output/extracted/**/best.pt
+!Train Code/*/Train*Output/extracted/**/last.pt
 !Train Code/*/Train*Output/extracted/**/args.yaml
 !Train Code/*/Train*Output/extracted/**/*.json
 !Train Code/*/Train*Output/extracted/**/*.csv
