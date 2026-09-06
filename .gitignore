@@ -52,3 +52,16 @@ desktop.ini
 # final_eval.py 每次執行自動產生，內含本機絕對路徑
 Train Code/v9/Train_output/Phase4/v5r_local.yaml
 Train Code/v10/Train_output/extracted/data_local.yaml
+
+# 訓練輸出的解壓縮工作區：可由同目錄的 zip 完整重現，不進版控。
+# 只保留 best.pt、超參數與評估數據（沿用 v9/v10 的慣例）。
+Train Code/*/Train*Output/extracted/**
+!Train Code/*/Train*Output/extracted/
+!Train Code/*/Train*Output/extracted/**/
+!Train Code/*/Train*Output/extracted/**/best.pt
+!Train Code/*/Train*Output/extracted/**/args.yaml
+!Train Code/*/Train*Output/extracted/**/*.json
+!Train Code/*/Train*Output/extracted/**/*.csv
+
+# 為了與舊版比較而複製出來的評估子集（653 張影像，可由 _provenance.json 重建）
+**/v55_subset/
