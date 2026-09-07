@@ -12,30 +12,54 @@ r"""把 YOLO26 的 `.pt` 權重轉成手機端要用的 `.tflite`，並驗證轉
 
     docker build -t citrus-tflite-export -f Benchmark/export/Dockerfile .
     docker run --rm -v "%cd%":/work citrus-tflite-export \
-        python tools/export_tflite.py --weights "<某個 .pt>" --verify
+        python tools/export_tflite.py --weights "<某個 .pt>" \
+            --variants fp32,w8a32 --imgsz-list 640,416 --verify --val
 
 ──────────────────────────────────────────────────────────────────────
-三種變體，以及一個**會影響 benchmark 解讀**的差異
+三個可掃的軸，以及它們的交互作用
 ──────────────────────────────────────────────────────────────────────
+**1. `--variants`（量化方式）**
+
 ultralytics/engine/exporter.py 有這一段：
 
     if fmt == "litert" and self.args.quantize in {8, "w8a16"}:
         # Static activation quantization collapses the end2end class-index output
         model.end2end = False
 
-也就是說：
+| variant | quantize | 校正資料 | `end2end` |
+| --- | --- | --- | --- |
+| `fp32`  | None    | 不需要 | 可自選 |
+| `w8a32` | `w8a32` | 不需要 | 可自選 |
+| `int8`  | `8`     | **需要** | **一定關掉** |
+| `w8a16` | `w8a16` | **需要** | **一定關掉** |
 
-| 變體 | quantize | 校正資料 | `end2end` | 量到的延遲包含 NMS 嗎 |
-| --- | --- | --- | --- | --- |
-| `fp32`  | None     | 不需要 | **保留** | **包含**（topk 在圖裡） |
-| `w8a32` | `w8a32`  | 不需要 | **保留** | **包含** |
-| `int8`  | `8`      | **需要** | **被關掉** | **不包含**——輸出是原始張量，NMS 要在 App 端另外做 |
+`quantize=16`（FP16）**對 litert 不支援** —— `litert` 不在 `FP16_FORMATS`，
+`validate_args` 會 assert。LiteRT 的 FP16 是**執行期**行為（GPU delegate 預設 FP16，
+或 XNNPACK 的 `FORCE_FP16` 旗標），不是另外匯出一個檔。
 
-所以 `int8` 那一列的 FPS **不能直接**跟另外兩列比：它少做了一段工作。
-真正的 apples-to-apples INT8 選項是 **`w8a32`**（權重 INT8、啟動值 FP32，
-不需校正，且保留 end2end）。這件事在計畫階段被當成「退路」，實際上它是主力。
+**2. `--imgsz-list`（輸入解析度）**
 
-輸出檔名一律 `<stem>__<variant>.tflite`，放進 `Benchmark/Model/`。
+`imgsz` 不在任何格式的 Arguments 清單裡，所以 `validate_args` 不檢查它，是通用參數。
+單獨降解析度**補不上 6.8 倍的缺口**（實測 640 是 272 ms，依 GFLOPs 外推 320 也還要 67 ms），
+必須與量化相乘。
+
+**3. `--end2end-list`（要不要保留 NMS-free 的 topk 頭）**
+
+`end2end` **不在官方文件的參數表裡**，但它存在：`DEFAULT_CFG_DICT["end2end"]` 預設 None，
+`exporter.py:663` 會 `model.end2end = self.args.end2end`。因為它不在任何格式的
+Arguments 清單裡，`validate_args` 不會擋。
+
+這很重要：在此之前只能靠 `quantize=8` **間接**關掉 end2end，於是
+「INT8 的效果」與「拿掉 topk 的效果」永遠綁在一起分不開。
+
+**為什麼要拿掉 topk**：平台 1 實測 GPU delegate 只吃得下 54/559 個節點（9.7%），
+不支援的算子是 `GATHER_ND` / `FLOOR_MOD` / `CAST INT64` / `SELECT_V2` / `LESS` / `NOT_EQUAL`
+—— 正是 end2end 頭的實作。
+
+> ⚠ **`end2end=False` 的圖不含 NMS**，App 端必須自己做。
+> 它的延遲與保留 end2end 的變體**不可直接比較**。
+
+輸出檔名 `<stem>__<variant>__i<imgsz>__e2e{1,0}.tflite`，三個軸都寫進名字避免互相覆蓋。
 """
 
 from __future__ import annotations
@@ -54,7 +78,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 import dataset_paths as P  # noqa: E402
 
-# variant → (quantize 參數, 是否需要校正資料, end2end 是否保留)
+# variant → (quantize 參數, 是否需要校正資料, end2end 能不能自選)
 VARIANTS = {
     "fp32": (None, False, True),
     "w8a32": ("w8a32", False, True),
@@ -64,6 +88,33 @@ VARIANTS = {
 
 DEFAULT_DATASET = "v5.6"
 OUT_DIR = P.REPO / "Benchmark" / "Model"
+
+
+class Cfg:
+    """一個待匯出的組合。`tag` 是它在所有產出裡的唯一識別。"""
+
+    def __init__(self, variant: str, imgsz: int, e2e_req: str):
+        self.variant = variant
+        self.imgsz = imgsz
+        quantize, needs_calib, e2e_selectable = VARIANTS[variant]
+        self.quantize = quantize
+        self.needs_calib = needs_calib
+        # 靜態量化的變體不論要求什麼，exporter 都會強制關掉 end2end
+        if not e2e_selectable:
+            self.end2end = False
+            self.e2e_forced = True
+        else:
+            self.end2end = {"auto": True, "true": True, "false": False}[e2e_req]
+            self.e2e_forced = False
+        # auto 就不要顯式傳 end2end，讓 exporter 走它自己的預設路徑
+        self.pass_end2end = (not self.e2e_forced) and e2e_req != "auto"
+
+    @property
+    def tag(self) -> str:
+        return f"{self.variant}__i{self.imgsz}__e2e{1 if self.end2end else 0}"
+
+    def __repr__(self) -> str:
+        return self.tag
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -122,44 +173,47 @@ def local_data_yaml(version: str, workdir: Path) -> Path:
 # ══════════════════════════════════════════════════════════════════════
 #  匯出
 # ══════════════════════════════════════════════════════════════════════
-def export_one(pt: Path, variant: str, workdir: Path, data_yaml: Path | None,
-               fraction: float, imgsz: int | None) -> Path:
-    """轉一個變體，回傳最終的 .tflite 路徑。"""
+def export_one(pt: Path, cfg: Cfg, workdir: Path, data_yaml: Path,
+               fraction: float, split: str) -> Path:
+    """轉一個組合，回傳最終的 .tflite 路徑。"""
     from ultralytics import YOLO
-
-    quantize, needs_calib, keeps_e2e = VARIANTS[variant]
 
     # exporter 把產物寫在**來源 .pt 旁邊**，所以先複製到專屬目錄，
     # 免得在 Train Output/ 底下留下一堆 .tflite。
-    staged = workdir / variant / pt.name
+    staged = workdir / cfg.tag / pt.name
     staged.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(pt, staged)
 
-    kw = dict(format="litert", device="cpu", verbose=False)
-    if quantize is not None:
-        kw["quantize"] = quantize
-    if needs_calib:
+    kw = dict(format="litert", device="cpu", verbose=False, imgsz=cfg.imgsz)
+    if cfg.quantize is not None:
+        kw["quantize"] = cfg.quantize
+    if cfg.needs_calib:
+        # split 必須是 train：v5.6 的 valid/test 就是我們的評估集，
+        # 拿評估集當校正資料會洩漏。ultralytics 的預設是 'val'，所以一定要顯式指定。
         kw["data"] = str(data_yaml)
         kw["fraction"] = fraction
-    if imgsz is not None:
-        kw["imgsz"] = imgsz
-    # 不傳 imgsz 時 export() 會從 model.args["imgsz"] 取訓練解析度——那才是對的預設。
+        kw["split"] = split
+    if cfg.pass_end2end:
+        kw["end2end"] = cfg.end2end
 
-    print(f"\n{'─' * 66}")
-    print(f"  變體 {variant}   quantize={quantize!r}   end2end={'保留' if keeps_e2e else '會被關掉'}")
-    if needs_calib:
-        print(f"  校正資料 {data_yaml.name}  fraction={fraction}")
-    print(f"{'─' * 66}")
+    e2e_note = ("被 exporter 強制關閉" if cfg.e2e_forced
+                else ("保留" if cfg.end2end else "以 end2end=False 顯式關閉"))
+    print(f"\n{'─' * 70}")
+    print(f"  {cfg.tag}")
+    print(f"    quantize={cfg.quantize!r}  imgsz={cfg.imgsz}  end2end={e2e_note}")
+    if cfg.needs_calib:
+        print(f"    校正 {data_yaml.name}  split={split}  fraction={fraction}")
+    print(f"{'─' * 70}")
 
     t0 = time.time()
     produced = Path(YOLO(str(staged)).export(**kw))
     dt = time.time() - t0
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    final = OUT_DIR / f"{pt.stem}__{variant}.tflite"
+    final = OUT_DIR / f"{pt.stem}__{cfg.tag}.tflite"
     shutil.move(str(produced), final)
     mb = final.stat().st_size / 1024 / 1024
-    print(f"  ✓ {final.name}   {mb:.1f} MB   耗時 {dt:.0f} s")
+    print(f"  ✓ {final.name}   {mb:.2f} MB   耗時 {dt:.0f} s")
     return final
 
 
@@ -175,7 +229,7 @@ def _iou(a, b) -> float:
     return inter / ua if ua > 0 else 0.0
 
 
-def _predict(model, images, conf: float):
+def _predict(model, images, conf: float, imgsz: int):
     """回傳每張影像的 [(x1,y1,x2,y2,score,cls), ...]，依分數遞減。
 
     **一次只餵一張。** litert-torch 轉出來的圖 batch 維度是**固定的 1**
@@ -190,7 +244,7 @@ def _predict(model, images, conf: float):
     """
     out = []
     for p in images:
-        r = model.predict(p, conf=conf, verbose=False, device="cpu")[0]
+        r = model.predict(p, conf=conf, imgsz=imgsz, verbose=False, device="cpu")[0]
         b = r.boxes
         rows = [] if b is None or len(b) == 0 else [
             (*map(float, xy), float(c), int(k))
@@ -223,17 +277,18 @@ def _greedy_match(ref, got):
             [j for j in range(len(got)) if j not in used_g])
 
 
-def verify(pt: Path, tflite: Path, version: str, n: int, conf: float) -> dict:
+def verify(pt: Path, tflite: Path, version: str, n: int, conf: float, imgsz: int) -> dict:
     """同一批影像跑 PyTorch 與 tflite，把所有框貪婪配對後比對幾何與類別。
 
-    這一關的用途是**擋住壞掉的產物**，不是量精度。量化本來就會掉一點，
-    但「框都對不上」就代表轉換過程出了事，那種東西拿去 benchmark 只是在量垃圾。
+    這一關的用途是**擋住壞掉的產物**，不是量精度——量化本來就會掉一點。
+    要回答「這對部署有沒有影響」必須跑完整的 val()（見 --val）。
+
+    **PyTorch 端也用同一個 imgsz**，否則比的是兩個不同解析度的模型。
     """
     from ultralytics import YOLO
 
     # **等距取樣，不是取前 n 張。** 檔名帶類別前綴，排序後同類別會連在一起——
     # 取前 20 張會全部落在 Aphid（實測就是這樣），等於只驗了九分之一的類別。
-    # 等距抽樣讓這 20 張橫跨全部九類。
     all_imgs = sorted((P.split(version) / "test" / "images").iterdir())
     if not all_imgs:
         raise SystemExit(f"✗ {version} 的 test/images 是空的")
@@ -241,12 +296,12 @@ def verify(pt: Path, tflite: Path, version: str, n: int, conf: float) -> dict:
     test_imgs = all_imgs[::step][:n]
     paths = [str(p) for p in test_imgs]
     covered = sorted({p.name.rsplit("_", 1)[0] for p in test_imgs})
-    print(f"    取樣 {len(paths)}/{len(all_imgs)} 張，涵蓋 {len(covered)} 類：{'、'.join(covered)}")
+    print(f"    取樣 {len(paths)}/{len(all_imgs)} 張，涵蓋 {len(covered)} 類")
 
-    ref = _predict(YOLO(str(pt)), paths, conf)
-    got = _predict(YOLO(str(tflite)), paths, conf)
+    ref = _predict(YOLO(str(pt)), paths, conf, imgsz)
+    got = _predict(YOLO(str(tflite)), paths, conf, imgsz)
 
-    ious, cls_ok, miss, extra, worst_img = [], 0, 0, 0, None
+    ious, cls_ok, miss, extra, worst = [], 0, 0, 0, None
     for p, r, g in zip(paths, ref, got):
         pairs, ur, ug = _greedy_match(r, g)
         miss += len(ur)
@@ -254,73 +309,108 @@ def verify(pt: Path, tflite: Path, version: str, n: int, conf: float) -> dict:
         for i, j, v in pairs:
             ious.append(v)
             cls_ok += int(r[i][5] == g[j][5])
-            if worst_img is None or v < worst_img[1]:
-                worst_img = (Path(p).name, round(v, 4))
+            if worst is None or v < worst[1]:
+                worst = (Path(p).name, round(v, 4))
 
-    n_ref = sum(len(r) for r in ref)
-    n_got = sum(len(g) for g in got)
+    n_ref, n_got = sum(len(r) for r in ref), sum(len(g) for g in got)
+    unmatched_rate = (miss + extra) / max(n_ref + n_got, 1)
     res = dict(
-        images=len(paths),
-        ref_boxes=n_ref,
-        tflite_boxes=n_got,
-        matched=len(ious),
+        images=len(paths), ref_boxes=n_ref, tflite_boxes=n_got, matched=len(ious),
         matched_iou_mean=round(sum(ious) / len(ious), 4) if ious else None,
         matched_iou_min=round(min(ious), 4) if ious else None,
-        worst_image=worst_img,
+        worst_image=worst,
         class_match=f"{cls_ok}/{len(ious)}" if ious else "0/0",
-        unmatched_ref=miss,      # PyTorch 有、tflite 沒有（通常是重複框被合併掉）
-        unmatched_tflite=extra,  # tflite 多出來的
+        unmatched_ref=miss, unmatched_tflite=extra,
+        unmatched_rate=round(unmatched_rate, 4),
     )
 
     # 判準三條，全部要過：
     #   1. 配對框的平均 IoU ≥ 0.90。比偵測常用的 0.50 嚴得多，因為這裡比的是
-    #      **同一個模型的兩種序列化**，不是兩個模型。fp32 實測 0.9996、
-    #      w8a32 實測全部 ≥ 0.967——掉到 0.90 以下就不是量化雜訊了。
+    #      **同一個模型的兩種序列化**，不是兩個模型。
     #   2. 配對框的類別 100% 一致。量化不該改變分類結果。
-    #   3. 未配對框 ≤ 10%。留這個餘裕是因為 end2end 偶爾會對同一物件吐兩個框
-    #      （實測 Aphid_00008 就是），量化把它們合併掉反而是好事，不該因此擋掉。
-    unmatched_rate = (miss + extra) / max(n_ref + n_got, 1)
-    res["unmatched_rate"] = round(unmatched_rate, 4)
-    ok = (res["matched_iou_mean"] is not None
-          and res["matched_iou_mean"] >= 0.90
-          and cls_ok == len(ious) and len(ious) > 0
-          and unmatched_rate <= 0.10)
+    #   3. 未配對框 ≤ 10%。end2end 偶爾會對同一物件吐兩個框，量化把它們合併掉
+    #      反而是好事，不該因此擋掉。
+    ok = (res["matched_iou_mean"] is not None and res["matched_iou_mean"] >= 0.90
+          and cls_ok == len(ious) and len(ious) > 0 and unmatched_rate <= 0.10)
     res["verdict"] = "通過" if ok else "不通過"
     return res
 
 
 # ══════════════════════════════════════════════════════════════════════
+#  完整 mAP：唯一能回答「這對部署有沒有影響」的東西
+# ══════════════════════════════════════════════════════════════════════
+def run_val(model_path: Path, data_yaml: Path, imgsz: int) -> dict:
+    """在完整的 test split 上跑 val()。
+
+    `batch=1` 是必要的，不是保守：litert 追蹤時把 batch 維度寫死成 1。
+    PyTorch 基準也要用 batch=1 才是同一條量測路徑。
+    """
+    from ultralytics import YOLO
+
+    t0 = time.time()
+    m = YOLO(str(model_path)).val(data=str(data_yaml), split="test", imgsz=imgsz,
+                                  batch=1, plots=False, verbose=False)
+    nm = m.names if isinstance(m.names, dict) else dict(enumerate(m.names))
+    return {
+        "mAP50": round(float(m.box.map50), 5),
+        "mAP50_95": round(float(m.box.map), 5),
+        "precision": round(float(m.box.mp), 5),
+        "recall": round(float(m.box.mr), 5),
+        "per_class_ap50": {nm[int(c)]: round(float(m.box.ap50[i]), 5)
+                           for i, c in enumerate(m.box.ap_class_index)},
+        "seconds": round(time.time() - t0, 1),
+    }
+
+
+# ══════════════════════════════════════════════════════════════════════
 def main() -> None:
     ap = argparse.ArgumentParser(
-        description="YOLO26 .pt → .tflite（LiteRT），含與 PyTorch 的比對驗證",
+        description="YOLO26 .pt → .tflite（LiteRT）參數掃描，含驗收與完整 mAP",
         formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--weights", required=True, help="來源 .pt（相對於專案根目錄或絕對路徑）")
     ap.add_argument("--variants", default="fp32",
-                    help="逗號分隔，可用 " + "、".join(VARIANTS) + "（預設只轉 fp32）")
-    ap.add_argument("--dataset", default=DEFAULT_DATASET, help="校正與驗證用的資料集版本")
+                    help="逗號分隔，可用 " + "、".join(VARIANTS))
+    ap.add_argument("--imgsz-list", default="640", help="逗號分隔的輸入解析度")
+    ap.add_argument("--end2end-list", default="auto",
+                    help="逗號分隔的 auto/true/false。靜態量化的變體一律被強制 false")
+    ap.add_argument("--dataset", default=DEFAULT_DATASET, help="校正與評估用的資料集版本")
     ap.add_argument("--fraction", type=float, default=0.05,
                     help="靜態量化的校正取樣比例（v5.6 train 7,264 張，0.05 ≈ 363 張）")
-    ap.add_argument("--imgsz", type=int, default=None,
-                    help="不指定則沿用訓練時的解析度（建議不要指定）")
-    ap.add_argument("--verify", action="store_true", help="轉完後與 PyTorch 比對")
+    ap.add_argument("--split", default="train",
+                    help="校正資料的 split。**預設刻意是 train**——ultralytics 預設 val，"
+                         "但 v5.6 的 valid/test 是評估集，拿來校正會洩漏")
+    ap.add_argument("--verify", action="store_true", help="轉完後與 PyTorch 逐框比對")
+    ap.add_argument("--val", action="store_true", help="跑完整 test 的 mAP（每組約 40 s）")
     ap.add_argument("--verify-only", action="store_true",
-                    help="跳過轉換，只驗 Benchmark/Model/ 裡已存在的檔案（隱含 --verify）")
-    ap.add_argument("--verify-n", type=int, default=20, help="比對用幾張 test 影像")
-    ap.add_argument("--conf", type=float, default=0.25, help="比對時的信心門檻")
+                    help="跳過轉換，只驗 Benchmark/Model/ 裡已存在的檔案")
+    ap.add_argument("--verify-n", type=int, default=20, help="逐框比對用幾張 test 影像")
+    ap.add_argument("--conf", type=float, default=0.25, help="逐框比對的信心門檻")
     ap.add_argument("--workdir", default="/tmp/tflite_export")
     a = ap.parse_args()
 
     variants = [v.strip() for v in a.variants.split(",") if v.strip()]
-    bad = [v for v in variants if v not in VARIANTS]
-    if bad:
+    if bad := [v for v in variants if v not in VARIANTS]:
         raise SystemExit(f"✗ 未知的變體：{bad}。可用：{list(VARIANTS)}")
+    imgszs = [int(x) for x in a.imgsz_list.split(",") if x.strip()]
+    e2es = [x.strip() for x in a.end2end_list.split(",") if x.strip()]
+    if bad := [x for x in e2es if x not in {"auto", "true", "false"}]:
+        raise SystemExit(f"✗ --end2end-list 只接受 auto/true/false，收到 {bad}")
+
+    # 交叉相乘後去重：int8/w8a16 的 auto 與 false 會產生同一個 tag
+    cfgs, seen = [], set()
+    for v in variants:
+        for s in imgszs:
+            for e in e2es:
+                c = Cfg(v, s, e)
+                if c.tag not in seen:
+                    seen.add(c.tag)
+                    cfgs.append(c)
 
     if a.verify_only:
         a.verify = True
-    # --verify-only 不轉換，所以不需要平台閘（但仍要 litert 才讀得回 .tflite）
     if not a.verify_only:
         platform_gate()
-    dependency_gate(any(VARIANTS[v][1] for v in variants) and not a.verify_only)
+    dependency_gate(any(c.needs_calib for c in cfgs) and not a.verify_only)
 
     pt = Path(a.weights)
     if not pt.is_absolute():
@@ -330,73 +420,109 @@ def main() -> None:
 
     workdir = Path(a.workdir)
     workdir.mkdir(parents=True, exist_ok=True)
-    data_yaml = (local_data_yaml(a.dataset, workdir)
-                 if any(VARIANTS[v][1] for v in variants) else None)
+    data_yaml = local_data_yaml(a.dataset, workdir)
 
-    print("═" * 66)
+    print("═" * 70)
     print(f"  來源   {pt.relative_to(P.REPO) if pt.is_relative_to(P.REPO) else pt}")
-    print(f"  變體   {'、'.join(variants)}")
+    print(f"  組合   {len(cfgs)} 個：{'、'.join(c.tag for c in cfgs)}")
     print(f"  輸出   {OUT_DIR.relative_to(P.REPO)}/")
-    print("═" * 66)
+    print("═" * 70)
 
-    report = {"weights": str(pt), "dataset": a.dataset, "results": {}}
+    report = {"weights": str(pt), "dataset": a.dataset,
+              "calibration_split": a.split, "fraction": a.fraction, "results": {}}
     failed = []
 
-    for v in variants:
+    # PyTorch 基準：每個用到的 imgsz 各量一次，才能算出「量化掉了多少」
+    if a.val:
+        report["pytorch_baseline"] = {}
+        for s in sorted(set(imgszs)):
+            print(f"\n▷ PyTorch 基準 @ imgsz={s} …")
+            r = run_val(pt, data_yaml, s)
+            report["pytorch_baseline"][str(s)] = r
+            print(f"    mAP50 {r['mAP50']:.5f}   mAP50-95 {r['mAP50_95']:.5f}   ({r['seconds']:.0f} s)")
+
+    for cfg in cfgs:
         if a.verify_only:
-            out = OUT_DIR / f"{pt.stem}__{v}.tflite"
+            out = OUT_DIR / f"{pt.stem}__{cfg.tag}.tflite"
             if not out.is_file():
-                print(f"  ✗ {v}：找不到 {out.name}，--verify-only 需要檔案已存在")
-                report["results"][v] = {"exported": False, "error": "檔案不存在"}
-                failed.append(v)
+                print(f"  ✗ {cfg.tag}：找不到 {out.name}")
+                report["results"][cfg.tag] = {"exported": False, "error": "檔案不存在"}
+                failed.append(cfg.tag)
                 continue
-            print(f"\n{'─' * 66}")
-            print(f"  變體 {v}（--verify-only，沿用既有檔案）")
-            print(f"{'─' * 66}")
+            print(f"\n{'─' * 70}\n  {cfg.tag}（--verify-only，沿用既有檔案）\n{'─' * 70}")
         else:
             try:
-                out = export_one(pt, v, workdir, data_yaml, a.fraction, a.imgsz)
+                out = export_one(pt, cfg, workdir, data_yaml, a.fraction, a.split)
             except Exception as e:                               # noqa: BLE001
-                print(f"  ✗ {v} 匯出失敗：{type(e).__name__}: {e}")
-                report["results"][v] = {"exported": False, "error": f"{type(e).__name__}: {e}"}
-                failed.append(v)
+                print(f"  ✗ {cfg.tag} 匯出失敗：{type(e).__name__}: {e}")
+                report["results"][cfg.tag] = {"exported": False,
+                                              "error": f"{type(e).__name__}: {e}"}
+                failed.append(cfg.tag)
                 continue
 
-        entry = {"exported": True, "file": out.name,
-                 "size_mb": round(out.stat().st_size / 1024 / 1024, 2),
-                 "end2end_kept": VARIANTS[v][2]}
+        entry = {"exported": True, "file": out.name, "variant": cfg.variant,
+                 "imgsz": cfg.imgsz, "end2end": cfg.end2end,
+                 "end2end_forced_off": cfg.e2e_forced,
+                 "size_mb": round(out.stat().st_size / 1024 / 1024, 2)}
+
         if a.verify:
-            print(f"  驗證中（{a.verify_n} 張 {a.dataset} test 影像）…")
+            print(f"  逐框驗收（{a.verify_n} 張 {a.dataset} test 影像 @ imgsz={cfg.imgsz}）…")
             try:
-                entry["verify"] = verify(pt, out, a.dataset, a.verify_n, a.conf)
-                r = entry["verify"]
+                r = verify(pt, out, a.dataset, a.verify_n, a.conf, cfg.imgsz)
+                entry["verify"] = r
                 print(f"    PyTorch {r['ref_boxes']} 框 / tflite {r['tflite_boxes']} 框"
                       f"   配對 {r['matched']} 對")
-                print(f"    配對框 IoU 平均 {r['matched_iou_mean']}"
-                      f"（最低 {r['matched_iou_min']} @ {r['worst_image'][0] if r['worst_image'] else '—'}）")
-                print(f"    類別一致 {r['class_match']}"
-                      f"   未配對 ref {r['unmatched_ref']} / tflite {r['unmatched_tflite']}"
-                      f"（{r['unmatched_rate']:.1%}）")
+                print(f"    配對 IoU 平均 {r['matched_iou_mean']}（最低 {r['matched_iou_min']}）"
+                      f"   類別一致 {r['class_match']}   未配對 {r['unmatched_rate']:.1%}")
                 print(f"    → {r['verdict']}")
                 if r["verdict"] != "通過":
-                    failed.append(f"{v}(驗證)")
+                    failed.append(f"{cfg.tag}(驗收)")
             except Exception as e:                               # noqa: BLE001
-                print(f"    ✗ 驗證失敗：{type(e).__name__}: {e}")
+                print(f"    ✗ 驗收失敗：{type(e).__name__}: {e}")
                 entry["verify"] = {"error": f"{type(e).__name__}: {e}"}
-                failed.append(f"{v}(驗證)")
-        report["results"][v] = entry
+                failed.append(f"{cfg.tag}(驗收)")
+
+        if a.val:
+            print(f"  完整 mAP（401 張 @ imgsz={cfg.imgsz}）…")
+            try:
+                r = run_val(out, data_yaml, cfg.imgsz)
+                entry["val"] = r
+                base = (report.get("pytorch_baseline", {}) or {}).get(str(cfg.imgsz))
+                d = f"   Δ {r['mAP50'] - base['mAP50']:+.5f}" if base else ""
+                print(f"    mAP50 {r['mAP50']:.5f}{d}   mAP50-95 {r['mAP50_95']:.5f}"
+                      f"   ({r['seconds']:.0f} s)")
+            except Exception as e:                               # noqa: BLE001
+                print(f"    ✗ val 失敗：{type(e).__name__}: {e}")
+                entry["val"] = {"error": f"{type(e).__name__}: {e}"}
+
+        report["results"][cfg.tag] = entry
 
     rp = OUT_DIR / f"{pt.stem}__export_report.json"
     rp.write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
 
-    print("\n" + "═" * 66)
+    # ── 總表 ──────────────────────────────────────────────────────────
+    print("\n" + "═" * 88)
+    print(f"  {'組合':<28}{'MB':>7}{'mAP50':>9}{'Δ':>9}{'驗收':>8}{'end2end':>10}")
+    print("═" * 88)
+    for tag, e in report["results"].items():
+        if not e.get("exported"):
+            print(f"  {tag:<28}  ✗ {e.get('error', '')[:44]}")
+            continue
+        v = e.get("val", {})
+        m = v.get("mAP50")
+        base = (report.get("pytorch_baseline", {}) or {}).get(str(e["imgsz"]), {}).get("mAP50")
+        d = f"{m - base:+.5f}" if (m is not None and base is not None) else "—"
+        print(f"  {tag:<28}{e['size_mb']:>7.2f}"
+              f"{(f'{m:.5f}' if m is not None else '—'):>9}{d:>9}"
+              f"{e.get('verify', {}).get('verdict', '—'):>8}"
+              f"{('保留' if e['end2end'] else ('強制關' if e['end2end_forced_off'] else '關')):>10}")
+    print("═" * 88)
     print(f"  報告   {rp.relative_to(P.REPO)}")
     if failed:
-        print(f"  ✗ 有問題的變體：{'、'.join(failed)}")
-        print("    **不要**把沒通過驗證的檔案拿去 benchmark——那只是在量壞掉的圖。")
+        print(f"  ✗ 有問題：{'、'.join(failed)}")
+        print("    **不要**把沒通過驗收的檔案拿去 benchmark。")
         sys.exit(1)
     print("  ✓ 全部通過。可以進 Benchmark 流程了。")
-    print("═" * 66)
 
 
 if __name__ == "__main__":

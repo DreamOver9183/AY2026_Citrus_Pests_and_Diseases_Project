@@ -39,6 +39,11 @@ RUN pip install --no-cache-dir --timeout 180 --retries 10 \
 COPY Benchmark/export/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir --timeout 180 --retries 10 -r /tmp/requirements.txt
 
+# ncnn 必須 --no-deps：它的相依含 opencv-python，會覆蓋掉映像裡由 ultralytics
+# 帶進來的 opencv 5.x。ultralytics 自己呼叫 check_requirements("ncnn", cmds="--no-deps")
+# 也是同樣理由，這裡只是把它預先裝好（YOLO_AUTOINSTALL=0 時它不會自己裝）。
+RUN pip install --no-cache-dir --timeout 180 --retries 10 --no-deps ncnn
+
 # 程式碼由 -v 掛進來，映像本身不含專案檔案——
 # 改一行腳本不必重建映像（重建要 10 分鐘以上）。
 CMD ["python", "tools/export_tflite.py", "--help"]

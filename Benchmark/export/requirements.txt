@@ -43,3 +43,25 @@ ultralytics==8.4.121
 litert-torch>=0.9.0
 ai-edge-litert>=2.1.4
 ai-edge-quantizer>=0.6.0
+
+# ════════════════════════════════════════════════════════════════════
+# 其他匯出格式（ONNX / MNN / NCNN）
+# ════════════════════════════════════════════════════════════════════
+# 這些**沒有**上面說的 numpy 衝突 —— 那條死路只存在於
+# ultralytics[export-tensorflow]（saved_model 路徑），不是 ONNX 本身。
+#
+# 加進來之後務必重驗 litert 路徑沒被動到：重跑 fp32/w8a32 的完整 val，
+# mAP50 必須仍是 0.81554 / 0.81936。對不上就把這一段拆成第二個映像。
+onnx>=1.17.0
+onnxslim>=0.1.59
+onnxruntime>=1.20.0
+
+# MNN 走 ONNX 中轉（ultralytics.utils.export.mnn.onnx2mnn）
+MNN>=2.9.6
+
+# NCNN 走 PNNX（ultralytics.utils.export.ncnn.torch2ncnn）。
+# 版本由 ultralytics 釘死：PNNX 20260704 有 NCNN 推論 segfault
+# （https://github.com/pnnx/pnnx/issues/293），所以是 20260526。
+pnnx==20260526
+# 註：`ncnn` 套件本身要用 --no-deps 裝，否則會拉進 opencv-python 覆蓋掉
+#     本專案的 opencv 5.x。見 Dockerfile 最後一道 RUN。
