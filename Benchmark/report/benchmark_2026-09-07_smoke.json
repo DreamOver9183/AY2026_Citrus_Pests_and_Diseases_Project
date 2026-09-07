@@ -1,0 +1,49 @@
+{
+ "device": {
+  "serial": "ebe3968d",
+  "ro.product.model": "CPH2641",
+  "ro.product.manufacturer": "OPPO",
+  "ro.board.platform": "bengal",
+  "ro.soc.model": "SM6115",
+  "ro.build.version.release": "14",
+  "ro.product.cpu.abi": "arm64-v8a"
+ },
+ "settings": [
+  "cpu"
+ ],
+ "num_runs": 25,
+ "threads": 4,
+ "extra_flags": "",
+ "repeat": 1,
+ "results": [
+  {
+   "model": "last__w8a32__i640__e2e1.tflite",
+   "setting": "cpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 290.01,
+   "fps": 3.45,
+   "all_ms": [
+    290.01
+   ],
+   "init_ms": 147.48,
+   "first_ms": 392.15,
+   "min_ms": 276.06,
+   "max_ms": 379.66,
+   "std_ms": 23.54,
+   "delegates": [
+    {
+     "name": "TfLiteXNNPackDelegate",
+     "replaced": 500,
+     "total": 559,
+     "rate": 89.4
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [],
+   "mem_overall_mb": 103.086,
+   "meets_target": false
+  }
+ ]
+}

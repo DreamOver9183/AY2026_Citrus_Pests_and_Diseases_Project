@@ -26,10 +26,20 @@ r"""在實體 Android 裝置上量測 `.tflite` 的推論延遲，並產出報�
 所以本腳本一律用 `subprocess` 直接呼叫 adb.exe（繞過 shell），
 且**推送後一定用 `adb shell ls` 實際確認**，不相信 push 的回報。
 
-**2. `--es args` 的引號**
+**2. `--es args` 仍然要自己加引號**
 
-benchmark activity 要的是「一整串參數當成單一 token」。用 subprocess 的 list 形式
-傳參可以完全避開 shell 的引號問題——這也是不用 `shell=True` 的理由之一。
+一開始以為用 subprocess 的 list 形式就能避開引號問題。**不對。**
+`adb shell` 不保留參數邊界：它把 argv 用空白接成一個字串丟給**裝置端的 shell**
+重新解析。所以那一整串 benchmark 參數到了手機上會被拆開，`am` 只收到
+`--graph=...`，其餘變成散落的 token —— benchmark 根本沒啟動，logcat 空的，
+而且**沒有任何錯誤訊息**。
+
+正確寫法是把整串包一層引號，讓裝置端的 shell 還原成單一 token：
+
+    adb("shell", "am", "start", "-S", "-n", ACTIVITY, "--es", "args", f'"{args}"')
+
+subprocess 的 list 形式仍然值得用，但它擋掉的是**本機**的 shell，
+不是裝置端那一層。
 
 ──────────────────────────────────────────────────────────────────────
 熱漂移
@@ -146,8 +156,12 @@ def run_once(remote: str, setting: str, num_runs: int, threads: int,
     args = (f"--graph={remote} --num_runs={num_runs} --num_threads={threads} "
             f"{SETTINGS[setting]} {extra}").strip()
     adb("logcat", "-c")
-    # subprocess 的 list 形式：args 整串當單一參數傳給 am，不經任何 shell 解析
-    adb("shell", "am", "start", "-S", "-n", ACTIVITY, "--es", "args", args)
+    # **必須自己加引號。** `adb shell` 不會保留參數邊界：它把 argv 用空白接成
+    # 一個字串丟給裝置端的 shell 重新解析。所以即使用 subprocess 的 list 形式，
+    # args 那一整串到了手機上仍會被拆開，`am` 只會收到 `--graph=...`，
+    # 其餘變成散落的 token —— 結果是 benchmark 根本沒跑，logcat 空的。
+    # 包一層雙引號讓裝置端的 shell 把它還原成單一 token。
+    adb("shell", "am", "start", "-S", "-n", ACTIVITY, "--es", "args", f'"{args}"')
     time.sleep(wait_s)
     log = adb("logcat", "-d", "-s", "tflite").stdout
     return parse_log(log), log
@@ -169,6 +183,12 @@ def parse_log(log: str) -> dict:
                           r"max=([\d.e+]+) avg=([\d.e+]+) std=([\d.e+]+)", s):
             if int(m.group(1)) >= 25:               # 只取正式那一輪，不要 warmup
                 r["min_us"], r["max_us"], r["std_us"] = (float(m.group(i)) for i in (2, 3, 5))
+        # 極慢的模型連 warmup 都跑不完 25 輪（benchmark 工具本身有 150 秒上限）。
+        # 這種情況下只有 `count=1 curr=...`，沒有 "Inference timings" 那行。
+        # 抓下來當**下界**回報，比「無結果」有用得多——w8a16 就是這樣被發現
+        # 每張要 7.2 秒（XNNPACK 沒有 INT16 啟動值的核心，整張圖退回參考實作）。
+        if m := re.search(r"count=1 curr=([\d.e+]+)", s):
+            r["warmup_only_us"] = float(m.group(1))
         if m := re.search(r"Memory footprint delta.*init=([\d.]+) overall=([\d.]+)", s):
             r["mem_init_mb"], r["mem_overall_mb"] = float(m.group(1)), float(m.group(2))
         # delegate 沒吃下整張圖時，這一行說明了為什麼
@@ -257,7 +277,16 @@ def main() -> None:
     for (name, st), reps in samples.items():
         ok = [r for r in reps if "avg_us" in r]
         if not ok:
-            rows.append({"model": name, "setting": st, "ok": False})
+            # 沒跑完 25 輪，但可能有 warmup 的單次計時可以當下界
+            slow = [r["warmup_only_us"] for r in reps if "warmup_only_us" in r]
+            row = {"model": name, "setting": st, "ok": False}
+            if slow:
+                lb = min(slow) / 1000
+                row.update(too_slow=True, lower_bound_ms=round(lb, 1),
+                           delegates=reps[0].get("delegates", []),
+                           note=("連 warmup 都跑不完 25 輪（工具上限 150 秒）。"
+                                 "下界取自單次 warmup 計時"))
+            rows.append(row)
             continue
         avg_ms = statistics.median(r["avg_us"] / 1000 for r in ok)
         best = min(ok, key=lambda r: abs(r["avg_us"] / 1000 - avg_ms))
@@ -278,13 +307,21 @@ def main() -> None:
             "meets_target": TARGET_LO_MS <= avg_ms <= TARGET_HI_MS,
         })
 
-    rows.sort(key=lambda r: r.get("avg_ms", 1e9))
+    rows.sort(key=lambda r: r.get("avg_ms", r.get("lower_bound_ms", 1e9)))
     print("\n" + "═" * 96)
     print(f"  {'模型':<40}{'設定':<8}{'平均ms':>9}{'FPS':>8}{'節點替換':>26}{'達標':>6}")
     print("═" * 96)
     for r in rows:
         if not r["ok"]:
-            print(f"  {r['model']:<40}{r['setting']:<8}  ✗ 無結果")
+            if r.get("too_slow"):
+                dg = (" / ".join(f"{d['name'].replace('TfLite', '').replace('Delegate', '')}"
+                                 f" {d['rate']:.0f}%" for d in r.get("delegates", []))
+                      or "無（整張圖走參考實作）")
+                print(f"  {r['model']:<40}{r['setting']:<8}"
+                      f"{'>' + str(r['lower_bound_ms']):>9}{'—':>8}{dg[:24]:>26}{'✗':>6}"
+                      f"  太慢，未完成 25 輪")
+            else:
+                print(f"  {r['model']:<40}{r['setting']:<8}  ✗ 無結果")
             continue
         dg = " / ".join(f"{d['name'].replace('TfLite', '').replace('Delegate', '')} {d['rate']:.0f}%"
                         for d in r["delegates"]) or "無"

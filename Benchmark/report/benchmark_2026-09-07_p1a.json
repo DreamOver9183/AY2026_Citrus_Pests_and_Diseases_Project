@@ -1,0 +1,365 @@
+{
+ "device": {
+  "serial": "ebe3968d",
+  "ro.product.model": "CPH2641",
+  "ro.product.manufacturer": "OPPO",
+  "ro.board.platform": "bengal",
+  "ro.soc.model": "SM6115",
+  "ro.build.version.release": "14",
+  "ro.product.cpu.abi": "arm64-v8a"
+ },
+ "settings": [
+  "cpu",
+  "gpu"
+ ],
+ "num_runs": 25,
+ "threads": 4,
+ "extra_flags": "",
+ "repeat": 1,
+ "results": [
+  {
+   "model": "last__int8__i640__e2e0.tflite",
+   "setting": "cpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 147.34,
+   "fps": 6.79,
+   "all_ms": [
+    147.34
+   ],
+   "init_ms": 90.03,
+   "first_ms": 210.0,
+   "min_ms": 138.71,
+   "max_ms": 201.29,
+   "std_ms": 12.54,
+   "delegates": [
+    {
+     "name": "TfLiteXNNPackDelegate",
+     "replaced": 541,
+     "total": 550,
+     "rate": 98.4
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [],
+   "mem_overall_mb": 71.918,
+   "meets_target": false
+  },
+  {
+   "model": "last__fp32__i640__e2e1.tflite",
+   "setting": "cpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 266.31,
+   "fps": 3.75,
+   "all_ms": [
+    266.31
+   ],
+   "init_ms": 114.95,
+   "first_ms": 317.13,
+   "min_ms": 262.05,
+   "max_ms": 291.55,
+   "std_ms": 7.23,
+   "delegates": [
+    {
+     "name": "TfLiteXNNPackDelegate",
+     "replaced": 510,
+     "total": 559,
+     "rate": 91.2
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [],
+   "mem_overall_mb": 122.461,
+   "meets_target": false
+  },
+  {
+   "model": "last__w8a32__i640__e2e1.tflite",
+   "setting": "gpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 276.14,
+   "fps": 3.62,
+   "all_ms": [
+    276.14
+   ],
+   "init_ms": 2068.64,
+   "first_ms": 307.05,
+   "min_ms": 270.36,
+   "max_ms": 296.88,
+   "std_ms": 5.0,
+   "delegates": [
+    {
+     "name": "TfLiteGpuDelegateV2",
+     "replaced": 54,
+     "total": 559,
+     "rate": 9.7
+    },
+    {
+     "name": "TfLiteXNNPackDelegate",
+     "replaced": 448,
+     "total": 506,
+     "rate": 88.5
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [
+    "ADD: Max version supported: 2. Requested version 4.",
+    "CAST: Not supported Cast case. Input type: INT32 and output type: INT64",
+    "CAST: Not supported Cast case. Input type: INT64 and output type: FLOAT32",
+    "CAST: Not supported Cast case. Input type: INT64 and output type: INT32",
+    "CONCATENATION: OP is supported, but tensor type/shape isn't compatible.",
+    "DIV: OP is supported, but tensor type/shape isn't compatible.",
+    "FLOOR_MOD: OP is supported, but tensor type/shape isn't compatible.",
+    "GATHER_ND: Operation is not supported.",
+    "LESS: Not supported logical op case.",
+    "NOT_EQUAL: Not supported logical op case.",
+    "RESHAPE: OP is supported, but tensor type/shape isn't compatible.",
+    "SELECT: OP is supported, but tensor type/shape isn't compatible.",
+    "SELECT_V2: Cond must be float or bool type, if, else tensors must be either be same the shape as output or constant, scalar.",
+    "SIGN: OP is supported, but tensor type/shape isn't compatible.",
+    "SUB: OP is supported, but tensor type/shape isn't compatib"
+   ],
+   "mem_overall_mb": 163.379,
+   "meets_target": false
+  },
+  {
+   "model": "last__fp32__i640__e2e1.tflite",
+   "setting": "gpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 277.36,
+   "fps": 3.61,
+   "all_ms": [
+    277.36
+   ],
+   "init_ms": 2038.7,
+   "first_ms": 304.1,
+   "min_ms": 273.58,
+   "max_ms": 293.75,
+   "std_ms": 4.25,
+   "delegates": [
+    {
+     "name": "TfLiteGpuDelegateV2",
+     "replaced": 54,
+     "total": 559,
+     "rate": 9.7
+    },
+    {
+     "name": "TfLiteXNNPackDelegate",
+     "replaced": 456,
+     "total": 506,
+     "rate": 90.1
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [
+    "ADD: Max version supported: 2. Requested version 4.",
+    "CAST: Not supported Cast case. Input type: INT32 and output type: INT64",
+    "CAST: Not supported Cast case. Input type: INT64 and output type: FLOAT32",
+    "CAST: Not supported Cast case. Input type: INT64 and output type: INT32",
+    "CONCATENATION: OP is supported, but tensor type/shape isn't compatible.",
+    "DIV: OP is supported, but tensor type/shape isn't compatible.",
+    "FLOOR_MOD: OP is supported, but tensor type/shape isn't compatible.",
+    "GATHER_ND: Operation is not supported.",
+    "LESS: Not supported logical op case.",
+    "NOT_EQUAL: Not supported logical op case.",
+    "RESHAPE: OP is supported, but tensor type/shape isn't compatible.",
+    "SELECT: OP is supported, but tensor type/shape isn't compatible.",
+    "SELECT_V2: Cond must be float or bool type, if, else tensors must be either be same the shape as output or constant, scalar.",
+    "SIGN: OP is supported, but tensor type/shape isn't compatible.",
+    "SUB: OP is supported, but tensor type/shape isn't compatib"
+   ],
+   "mem_overall_mb": 155.484,
+   "meets_target": false
+  },
+  {
+   "model": "last__fp32__i640__e2e0.tflite",
+   "setting": "cpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 277.47,
+   "fps": 3.6,
+   "all_ms": [
+    277.47
+   ],
+   "init_ms": 113.24,
+   "first_ms": 308.07,
+   "min_ms": 271.92,
+   "max_ms": 297.67,
+   "std_ms": 7.59,
+   "delegates": [
+    {
+     "name": "TfLiteXNNPackDelegate",
+     "replaced": 508,
+     "total": 511,
+     "rate": 99.4
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [],
+   "mem_overall_mb": 123.676,
+   "meets_target": false
+  },
+  {
+   "model": "last__w8a32__i640__e2e1.tflite",
+   "setting": "cpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 279.5,
+   "fps": 3.58,
+   "all_ms": [
+    279.5
+   ],
+   "init_ms": 115.57,
+   "first_ms": 345.52,
+   "min_ms": 270.17,
+   "max_ms": 333.75,
+   "std_ms": 15.15,
+   "delegates": [
+    {
+     "name": "TfLiteXNNPackDelegate",
+     "replaced": 500,
+     "total": 559,
+     "rate": 89.4
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [],
+   "mem_overall_mb": 103.402,
+   "meets_target": false
+  },
+  {
+   "model": "last__w8a32__i640__e2e0.tflite",
+   "setting": "gpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 281.8,
+   "fps": 3.55,
+   "all_ms": [
+    281.8
+   ],
+   "init_ms": 5273.17,
+   "first_ms": 276.47,
+   "min_ms": 272.45,
+   "max_ms": 288.33,
+   "std_ms": 3.82,
+   "delegates": [
+    {
+     "name": "TfLiteGpuDelegateV2",
+     "replaced": 511,
+     "total": 511,
+     "rate": 100.0
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [],
+   "mem_overall_mb": 113.578,
+   "meets_target": false
+  },
+  {
+   "model": "last__fp32__i640__e2e0.tflite",
+   "setting": "gpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 285.41,
+   "fps": 3.5,
+   "all_ms": [
+    285.41
+   ],
+   "init_ms": 5427.66,
+   "first_ms": 278.76,
+   "min_ms": 270.24,
+   "max_ms": 390.78,
+   "std_ms": 21.82,
+   "delegates": [
+    {
+     "name": "TfLiteGpuDelegateV2",
+     "replaced": 511,
+     "total": 511,
+     "rate": 100.0
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [],
+   "mem_overall_mb": 132.188,
+   "meets_target": false
+  },
+  {
+   "model": "last__w8a32__i640__e2e0.tflite",
+   "setting": "cpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 296.38,
+   "fps": 3.37,
+   "all_ms": [
+    296.38
+   ],
+   "init_ms": 115.38,
+   "first_ms": 368.44,
+   "min_ms": 268.97,
+   "max_ms": 401.83,
+   "std_ms": 34.76,
+   "delegates": [
+    {
+     "name": "TfLiteXNNPackDelegate",
+     "replaced": 498,
+     "total": 511,
+     "rate": 97.5
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [],
+   "mem_overall_mb": 104.242,
+   "meets_target": false
+  },
+  {
+   "model": "last__int8__i640__e2e0.tflite",
+   "setting": "gpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 305.51,
+   "fps": 3.27,
+   "all_ms": [
+    305.51
+   ],
+   "init_ms": 5513.97,
+   "first_ms": 307.35,
+   "min_ms": 296.2,
+   "max_ms": 320.45,
+   "std_ms": 5.02,
+   "delegates": [
+    {
+     "name": "TfLiteGpuDelegateV2",
+     "replaced": 550,
+     "total": 550,
+     "rate": 100.0
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [],
+   "mem_overall_mb": 117.727,
+   "meets_target": false
+  },
+  {
+   "model": "last__w8a16__i640__e2e0.tflite",
+   "setting": "cpu",
+   "ok": false
+  },
+  {
+   "model": "last__w8a16__i640__e2e0.tflite",
+   "setting": "gpu",
+   "ok": false
+  }
+ ]
+}

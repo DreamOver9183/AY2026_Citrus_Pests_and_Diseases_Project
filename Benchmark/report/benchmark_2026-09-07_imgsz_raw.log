@@ -1,0 +1,160 @@
+======================================================================
+last__fp32__i512__e2e1.tflite @ cpu
+======================================================================
+--------- beginning of main
+09-07 12:57:19.990 31049 31049 I tflite  : Log parameter values verbosely: [0]
+09-07 12:57:19.991 31049 31049 I tflite  : Min num runs: [25]
+09-07 12:57:19.991 31049 31049 I tflite  : Num threads: [4]
+09-07 12:57:19.991 31049 31049 I tflite  : Graph: [/data/local/tmp/last__fp32__i512__e2e1.tflite]
+09-07 12:57:19.991 31049 31049 I tflite  : Signature to run: []
+09-07 12:57:19.991 31049 31049 I tflite  : #threads used for CPU inference: [4]
+09-07 12:57:19.991 31049 31049 I tflite  : Use gpu: [0]
+09-07 12:57:19.991 31049 31049 I tflite  : Use NNAPI: [0]
+09-07 12:57:19.992 31049 31049 I tflite  : Loaded model /data/local/tmp/last__fp32__i512__e2e1.tflite
+09-07 12:57:19.993 31049 31049 I tflite  : Initialized TensorFlow Lite runtime.
+09-07 12:57:20.002 31049 31049 I tflite  : Created TensorFlow Lite XNNPACK delegate for CPU.
+09-07 12:57:20.004 31049 31049 I tflite  : Replacing 510 out of 559 node(s) with delegate (TfLiteXNNPackDelegate) node, yielding 11 partitions for subgraph 0.
+09-07 12:57:20.083 31049 31049 I tflite  : The input model file size (MB): 10.1801
+09-07 12:57:20.083 31049 31049 I tflite  : Initialized session in 91.662ms.
+09-07 12:57:20.099 31049 31049 I tflite  : Running benchmark for at least 1 iterations and at least 0.5 seconds but terminate if exceeding 150 seconds.
+09-07 12:57:20.671 31049 31049 I tflite  : count=3 first=198740 curr=185650 min=184005 max=198740 avg=189465 std=6592 p5=184005 median=185650 p95=198740
+09-07 12:57:20.671 31049 31049 I tflite  : Running benchmark for at least 25 iterations and at least 1 seconds but terminate if exceeding 150 seconds.
+09-07 12:57:24.978 31049 31049 I tflite  : count=25 first=182321 curr=180774 min=165703 max=198430 avg=171680 std=8738 p5=165810 median=166341 p95=184863
+09-07 12:57:24.979 31049 31049 I tflite  : Inference timings in us: Init: 91662, First inference: 198740, Warmup (avg): 189465, Inference (avg): 171680
+09-07 12:57:24.979 31049 31049 I tflite  : Note: as the benchmark tool itself affects memory footprint, the following is only APPROXIMATE to the actual memory footprint of the model at runtime. Take the information at your discretion.
+09-07 12:57:24.979 31049 31049 I tflite  : Memory footprint delta from the start of the tool (MB): init=74.6094 overall=94.4844
+
+
+======================================================================
+last__fp32__i416__e2e1.tflite @ cpu
+======================================================================
+--------- beginning of main
+09-07 12:58:18.881 31286 31286 I tflite  : Log parameter values verbosely: [0]
+09-07 12:58:18.881 31286 31286 I tflite  : Min num runs: [25]
+09-07 12:58:18.881 31286 31286 I tflite  : Num threads: [4]
+09-07 12:58:18.881 31286 31286 I tflite  : Graph: [/data/local/tmp/last__fp32__i416__e2e1.tflite]
+09-07 12:58:18.881 31286 31286 I tflite  : Signature to run: []
+09-07 12:58:18.881 31286 31286 I tflite  : #threads used for CPU inference: [4]
+09-07 12:58:18.881 31286 31286 I tflite  : Use gpu: [0]
+09-07 12:58:18.881 31286 31286 I tflite  : Use NNAPI: [0]
+09-07 12:58:18.883 31286 31286 I tflite  : Loaded model /data/local/tmp/last__fp32__i416__e2e1.tflite
+09-07 12:58:18.883 31286 31286 I tflite  : Initialized TensorFlow Lite runtime.
+09-07 12:58:18.893 31286 31286 I tflite  : Created TensorFlow Lite XNNPACK delegate for CPU.
+09-07 12:58:18.894 31286 31286 I tflite  : Replacing 510 out of 559 node(s) with delegate (TfLiteXNNPackDelegate) node, yielding 11 partitions for subgraph 0.
+09-07 12:58:18.957 31286 31286 I tflite  : The input model file size (MB): 10.0914
+09-07 12:58:18.957 31286 31286 I tflite  : Initialized session in 74.868ms.
+09-07 12:58:18.967 31286 31286 I tflite  : Running benchmark for at least 1 iterations and at least 0.5 seconds but terminate if exceeding 150 seconds.
+09-07 12:58:19.581 31286 31286 I tflite  : count=5 first=127483 curr=118526 min=117829 max=127483 avg=121941 std=3774 p5=117829 median=120699 p95=127483
+09-07 12:58:19.581 31286 31286 I tflite  : Running benchmark for at least 25 iterations and at least 1 seconds but terminate if exceeding 150 seconds.
+09-07 12:58:22.403 31286 31286 I tflite  : count=25 first=120632 curr=108721 min=107959 max=127300 avg=112435 std=5457 p5=107975 median=108721 p95=120632
+09-07 12:58:22.403 31286 31286 I tflite  : Inference timings in us: Init: 74868, First inference: 127483, Warmup (avg): 121941, Inference (avg): 112435
+09-07 12:58:22.403 31286 31286 I tflite  : Note: as the benchmark tool itself affects memory footprint, the following is only APPROXIMATE to the actual memory footprint of the model at runtime. Take the information at your discretion.
+09-07 12:58:22.403 31286 31286 I tflite  : Memory footprint delta from the start of the tool (MB): init=56.7344 overall=71.457
+
+
+======================================================================
+last__fp32__i320__e2e1.tflite @ cpu
+======================================================================
+--------- beginning of main
+09-07 12:59:17.726 31524 31524 I tflite  : Log parameter values verbosely: [0]
+09-07 12:59:17.726 31524 31524 I tflite  : Min num runs: [25]
+09-07 12:59:17.726 31524 31524 I tflite  : Num threads: [4]
+09-07 12:59:17.726 31524 31524 I tflite  : Graph: [/data/local/tmp/last__fp32__i320__e2e1.tflite]
+09-07 12:59:17.726 31524 31524 I tflite  : Signature to run: []
+09-07 12:59:17.727 31524 31524 I tflite  : #threads used for CPU inference: [4]
+09-07 12:59:17.727 31524 31524 I tflite  : Use gpu: [0]
+09-07 12:59:17.727 31524 31524 I tflite  : Use NNAPI: [0]
+09-07 12:59:17.728 31524 31524 I tflite  : Loaded model /data/local/tmp/last__fp32__i320__e2e1.tflite
+09-07 12:59:17.729 31524 31524 I tflite  : Initialized TensorFlow Lite runtime.
+09-07 12:59:17.738 31524 31524 I tflite  : Created TensorFlow Lite XNNPACK delegate for CPU.
+09-07 12:59:17.739 31524 31524 I tflite  : Replacing 510 out of 559 node(s) with delegate (TfLiteXNNPackDelegate) node, yielding 11 partitions for subgraph 0.
+09-07 12:59:17.788 31524 31524 I tflite  : The input model file size (MB): 10.021
+09-07 12:59:17.788 31524 31524 I tflite  : Initialized session in 61.387ms.
+09-07 12:59:17.796 31524 31524 I tflite  : Running benchmark for at least 1 iterations and at least 0.5 seconds but terminate if exceeding 150 seconds.
+09-07 12:59:18.313 31524 31524 I tflite  : count=7 first=84062 curr=70462 min=69409 max=84062 avg=73559.9 std=4895 p5=69409 median=70561 p95=84062
+09-07 12:59:18.313 31524 31524 I tflite  : Running benchmark for at least 25 iterations and at least 1 seconds but terminate if exceeding 150 seconds.
+09-07 12:59:20.030 31524 31524 I tflite  : count=25 first=70281 curr=62861 min=62595 max=81735 avg=68418 std=4913 p5=62671 median=69227 p95=78616
+09-07 12:59:20.030 31524 31524 I tflite  : Inference timings in us: Init: 61387, First inference: 84062, Warmup (avg): 73559.9, Inference (avg): 68418
+09-07 12:59:20.030 31524 31524 I tflite  : Note: as the benchmark tool itself affects memory footprint, the following is only APPROXIMATE to the actual memory footprint of the model at runtime. Take the information at your discretion.
+09-07 12:59:20.030 31524 31524 I tflite  : Memory footprint delta from the start of the tool (MB): init=45.1328 overall=52.9648
+
+
+======================================================================
+last__fp32__i512__e2e0.tflite @ cpu
+======================================================================
+--------- beginning of main
+09-07 13:00:16.717 31655 31655 I tflite  : Log parameter values verbosely: [0]
+09-07 13:00:16.717 31655 31655 I tflite  : Min num runs: [25]
+09-07 13:00:16.717 31655 31655 I tflite  : Num threads: [4]
+09-07 13:00:16.717 31655 31655 I tflite  : Graph: [/data/local/tmp/last__fp32__i512__e2e0.tflite]
+09-07 13:00:16.717 31655 31655 I tflite  : Signature to run: []
+09-07 13:00:16.717 31655 31655 I tflite  : #threads used for CPU inference: [4]
+09-07 13:00:16.717 31655 31655 I tflite  : Use gpu: [0]
+09-07 13:00:16.717 31655 31655 I tflite  : Use NNAPI: [0]
+09-07 13:00:16.719 31655 31655 I tflite  : Loaded model /data/local/tmp/last__fp32__i512__e2e0.tflite
+09-07 13:00:16.719 31655 31655 I tflite  : Initialized TensorFlow Lite runtime.
+09-07 13:00:16.728 31655 31655 I tflite  : Created TensorFlow Lite XNNPACK delegate for CPU.
+09-07 13:00:16.730 31655 31655 I tflite  : Replacing 508 out of 511 node(s) with delegate (TfLiteXNNPackDelegate) node, yielding 7 partitions for subgraph 0.
+09-07 13:00:16.806 31655 31655 I tflite  : The input model file size (MB): 10.1639
+09-07 13:00:16.807 31655 31655 I tflite  : Initialized session in 88.773ms.
+09-07 13:00:16.823 31655 31655 I tflite  : Running benchmark for at least 1 iterations and at least 0.5 seconds but terminate if exceeding 150 seconds.
+09-07 13:00:17.371 31655 31655 I tflite  : count=3 first=191416 curr=177310 min=175572 max=191416 avg=181433 std=7094 p5=175572 median=177310 p95=191416
+09-07 13:00:17.371 31655 31655 I tflite  : Running benchmark for at least 25 iterations and at least 1 seconds but terminate if exceeding 150 seconds.
+09-07 13:00:21.561 31655 31655 I tflite  : count=25 first=180357 curr=173328 min=162015 max=181950 avg=166931 std=6395 p5=162140 median=163368 p95=180357
+09-07 13:00:21.561 31655 31655 I tflite  : Inference timings in us: Init: 88773, First inference: 191416, Warmup (avg): 181433, Inference (avg): 166931
+09-07 13:00:21.561 31655 31655 I tflite  : Note: as the benchmark tool itself affects memory footprint, the following is only APPROXIMATE to the actual memory footprint of the model at runtime. Take the information at your discretion.
+09-07 13:00:21.561 31655 31655 I tflite  : Memory footprint delta from the start of the tool (MB): init=71.2109 overall=90.8945
+
+
+======================================================================
+last__fp32__i416__e2e0.tflite @ cpu
+======================================================================
+--------- beginning of main
+09-07 13:01:15.577 31712 31712 I tflite  : Log parameter values verbosely: [0]
+09-07 13:01:15.577 31712 31712 I tflite  : Min num runs: [25]
+09-07 13:01:15.577 31712 31712 I tflite  : Num threads: [4]
+09-07 13:01:15.577 31712 31712 I tflite  : Graph: [/data/local/tmp/last__fp32__i416__e2e0.tflite]
+09-07 13:01:15.577 31712 31712 I tflite  : Signature to run: []
+09-07 13:01:15.578 31712 31712 I tflite  : #threads used for CPU inference: [4]
+09-07 13:01:15.578 31712 31712 I tflite  : Use gpu: [0]
+09-07 13:01:15.578 31712 31712 I tflite  : Use NNAPI: [0]
+09-07 13:01:15.579 31712 31712 I tflite  : Loaded model /data/local/tmp/last__fp32__i416__e2e0.tflite
+09-07 13:01:15.580 31712 31712 I tflite  : Initialized TensorFlow Lite runtime.
+09-07 13:01:15.590 31712 31712 I tflite  : Created TensorFlow Lite XNNPACK delegate for CPU.
+09-07 13:01:15.591 31712 31712 I tflite  : Replacing 508 out of 511 node(s) with delegate (TfLiteXNNPackDelegate) node, yielding 7 partitions for subgraph 0.
+09-07 13:01:15.652 31712 31712 I tflite  : The input model file size (MB): 10.0751
+09-07 13:01:15.652 31712 31712 I tflite  : Initialized session in 73.879ms.
+09-07 13:01:15.663 31712 31712 I tflite  : Running benchmark for at least 1 iterations and at least 0.5 seconds but terminate if exceeding 150 seconds.
+09-07 13:01:16.269 31712 31712 I tflite  : count=5 first=133826 curr=115920 min=115591 max=133826 avg=120524 std=6821 p5=115591 median=117400 p95=133826
+09-07 13:01:16.269 31712 31712 I tflite  : Running benchmark for at least 25 iterations and at least 1 seconds but terminate if exceeding 150 seconds.
+09-07 13:01:19.030 31712 31712 I tflite  : count=25 first=117270 curr=105755 min=105755 max=117270 avg=109912 std=4314 p5=105926 median=107394 p95=117149
+09-07 13:01:19.030 31712 31712 I tflite  : Inference timings in us: Init: 73879, First inference: 133826, Warmup (avg): 120524, Inference (avg): 109912
+09-07 13:01:19.030 31712 31712 I tflite  : Note: as the benchmark tool itself affects memory footprint, the following is only APPROXIMATE to the actual memory footprint of the model at runtime. Take the information at your discretion.
+09-07 13:01:19.030 31712 31712 I tflite  : Memory footprint delta from the start of the tool (MB): init=56.7305 overall=71.8516
+
+
+======================================================================
+last__fp32__i320__e2e0.tflite @ cpu
+======================================================================
+--------- beginning of main
+09-07 13:02:14.563 31782 31782 I tflite  : Log parameter values verbosely: [0]
+09-07 13:02:14.564 31782 31782 I tflite  : Min num runs: [25]
+09-07 13:02:14.564 31782 31782 I tflite  : Num threads: [4]
+09-07 13:02:14.564 31782 31782 I tflite  : Graph: [/data/local/tmp/last__fp32__i320__e2e0.tflite]
+09-07 13:02:14.564 31782 31782 I tflite  : Signature to run: []
+09-07 13:02:14.564 31782 31782 I tflite  : #threads used for CPU inference: [4]
+09-07 13:02:14.564 31782 31782 I tflite  : Use gpu: [0]
+09-07 13:02:14.564 31782 31782 I tflite  : Use NNAPI: [0]
+09-07 13:02:14.566 31782 31782 I tflite  : Loaded model /data/local/tmp/last__fp32__i320__e2e0.tflite
+09-07 13:02:14.566 31782 31782 I tflite  : Initialized TensorFlow Lite runtime.
+09-07 13:02:14.575 31782 31782 I tflite  : Created TensorFlow Lite XNNPACK delegate for CPU.
+09-07 13:02:14.576 31782 31782 I tflite  : Replacing 508 out of 511 node(s) with delegate (TfLiteXNNPackDelegate) node, yielding 7 partitions for subgraph 0.
+09-07 13:02:14.624 31782 31782 I tflite  : The input model file size (MB): 10.0048
+09-07 13:02:14.624 31782 31782 I tflite  : Initialized session in 59.874ms.
+09-07 13:02:14.631 31782 31782 I tflite  : Running benchmark for at least 1 iterations and at least 0.5 seconds but terminate if exceeding 150 seconds.
+09-07 13:02:15.192 31782 31782 I tflite  : count=8 first=77977 curr=68635 min=67866 max=77977 avg=69696 std=3155 p5=67866 median=68635 p95=77977
+09-07 13:02:15.192 31782 31782 I tflite  : Running benchmark for at least 25 iterations and at least 1 seconds but terminate if exceeding 150 seconds.
+09-07 13:02:16.822 31782 31782 I tflite  : count=25 first=68365 curr=60619 min=60450 max=76887 avg=64832.7 std=4552 p5=60455 median=61674 p95=72581
+09-07 13:02:16.822 31782 31782 I tflite  : Inference timings in us: Init: 59874, First inference: 77977, Warmup (avg): 69696, Inference (avg): 64832.7
+09-07 13:02:16.822 31782 31782 I tflite  : Note: as the benchmark tool itself affects memory footprint, the following is only APPROXIMATE to the actual memory footprint of the model at runtime. Take the information at your discretion.
+09-07 13:02:16.822 31782 31782 I tflite  : Memory footprint delta from the start of the tool (MB): init=43.1328 overall=50.9844

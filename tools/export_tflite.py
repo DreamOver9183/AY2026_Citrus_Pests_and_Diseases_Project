@@ -76,6 +76,20 @@ Arguments 清單裡，`validate_args` 不會擋。
 
 輸出檔名 `<stem>__<variant>__i<imgsz>__e2e{1,0}[__md<max_det>].tflite`。
 `max_det` 只在非預設時進檔名，既有產物的名字因此不受影響。
+
+──────────────────────────────────────────────────────────────────────
+⚠ 靜態量化的校正集：`fraction` 是個陷阱
+──────────────────────────────────────────────────────────────────────
+`fraction` 看起來像「隨機抽樣比例」，實際是 **排序後取前 N 個**
+（`ultralytics/data/base.py` 的 `get_img_files`）。本專案檔名帶類別前綴，
+所以 `fraction=0.05` 在 v5.6 train 上抽到的 363 張**全部是 Aphid**。
+
+拿單一類別校正 INT8 的後果實測過：mAP50 掉 0.118，而且最慘的是
+Canker（−0.331）與 Scale_Insect（−0.234）—— 正是完全沒進校正集的類別。
+
+**所以 `--calib-per-class` 預設是啟用的**（每類 60 張），會建一份逐類均衡的
+校正集再以 `fraction=1.0` 使用它。要回到原生行為請顯式傳 `--calib-per-class 0`，
+但那之前先確認你的檔名排序不會造成單一類別。
 """
 
 from __future__ import annotations
@@ -175,6 +189,72 @@ def dependency_gate(need_quantizer: bool) -> None:
 # ══════════════════════════════════════════════════════════════════════
 #  資料集：容器內要一份絕對路徑的 data.yaml
 # ══════════════════════════════════════════════════════════════════════
+def balanced_calib_yaml(version: str, workdir: Path, per_class: int) -> Path:
+    r"""建一份**逐類均衡**的校正資料集，並回傳指向它的 data.yaml。
+
+    ══════════════════════════════════════════════════════════════════
+    為什麼一定要這樣做：`fraction` 是「排序後取前 N 個」，不是隨機抽樣
+    ══════════════════════════════════════════════════════════════════
+    ultralytics/data/base.py 的 `get_img_files`：
+
+        im_files = sorted(...)
+        if self.fraction < 1:
+            im_files = im_files[: round(len(im_files) * self.fraction)]
+
+    本專案的檔名帶類別前綴（`Aphid_00001.jpg`、`Canker_00002.jpg`…），
+    排序後同類會連在一起。於是在 v5.6 train 上：
+
+        fraction=0.05 → 363 張 → **全部都是 Aphid**
+        fraction=0.10 → 726 張 → 只有 Aphid 與 Aphid_aug
+        fraction=0.50 → 3632 張 → 19 個前綴裡只涵蓋 10 個
+
+    拿單一類別去校正 INT8，其他八類的啟動值範圍完全沒被看到。
+    實測後果：mAP50 掉 0.118，且 Canker −0.331、Scale_Insect −0.234
+    （兩個完全沒進校正集的類別）最慘。
+
+    `fraction=1.0` 雖然正確，但要跑完 7,264 張，每次匯出要一小時以上。
+    這個函式改成**逐類等量抽樣**：每類取 `per_class` 張，覆蓋全部類別，
+    總量控制在幾百張，兼顧正確性與速度。
+
+    抽樣依「去掉 `_aug` 之後的基礎類名」分組，所以原圖與增強圖都會進來。
+    """
+    import yaml
+
+    src = P.split(version)
+    img_dir, lab_dir = src / "train" / "images", src / "train" / "labels"
+    groups: dict[str, list[Path]] = {}
+    for p in sorted(img_dir.iterdir()):
+        base = p.name.rsplit("_", 1)[0].removesuffix("_aug")
+        groups.setdefault(base, []).append(p)
+
+    out = workdir / f"calib_{version}_{per_class}"
+    ci, cl = out / "images", out / "labels"
+    if out.exists():
+        shutil.rmtree(out)
+    ci.mkdir(parents=True)
+    cl.mkdir(parents=True)
+
+    picked = 0
+    for base, files in sorted(groups.items()):
+        # 等距抽樣而非取前 N 張：同一類裡原圖排在增強圖前面，
+        # 取前 N 張會全部是原圖，又是同一個陷阱的縮小版
+        step = max(1, len(files) // per_class)
+        for p in files[::step][:per_class]:
+            shutil.copy2(p, ci / p.name)
+            lp = lab_dir / (p.stem + ".txt")
+            if lp.is_file():
+                shutil.copy2(lp, cl / lp.name)
+            picked += 1
+
+    base_yaml = yaml.safe_load((src / "data.yaml").read_text(encoding="utf-8"))
+    d = {"path": str(out.resolve()), "train": "images", "val": "images",
+         "nc": base_yaml["nc"], "names": base_yaml["names"]}
+    yp = workdir / f"calib_{version}_{per_class}.yaml"
+    yp.write_text(yaml.safe_dump(d, allow_unicode=True, sort_keys=False), encoding="utf-8")
+    print(f"▷ 校正集：{len(groups)} 類 × 最多 {per_class} 張 = {picked} 張  → {yp.name}")
+    return yp
+
+
 def local_data_yaml(version: str, workdir: Path) -> Path:
     """產生一份 path 為絕對路徑的 data.yaml。
 
@@ -198,7 +278,7 @@ def local_data_yaml(version: str, workdir: Path) -> Path:
 #  匯出
 # ══════════════════════════════════════════════════════════════════════
 def export_one(pt: Path, cfg: Cfg, workdir: Path, data_yaml: Path,
-               fraction: float, split: str) -> Path:
+               fraction: float, split: str, calib_yaml: Path | None = None) -> Path:
     """轉一個組合，回傳最終的 .tflite 路徑。"""
     from ultralytics import YOLO
 
@@ -220,11 +300,20 @@ def export_one(pt: Path, cfg: Cfg, workdir: Path, data_yaml: Path,
     if cfg.quantize is not None:
         kw["quantize"] = cfg.quantize
     if cfg.needs_calib:
-        # split 必須是 train：v5.6 的 valid/test 就是我們的評估集，
-        # 拿評估集當校正資料會洩漏。ultralytics 的預設是 'val'，所以一定要顯式指定。
-        kw["data"] = str(data_yaml)
-        kw["fraction"] = fraction
-        kw["split"] = split
+        if calib_yaml is not None:
+            # 逐類均衡的校正集，整份都要用（fraction=1.0）。
+            # 它的 train 與 val 都指向同一個抽樣目錄，所以 split 傳什麼都一樣。
+            kw["data"] = str(calib_yaml)
+            kw["fraction"] = 1.0
+            kw["split"] = "train"
+        else:
+            # split 必須是 train：v5.6 的 valid/test 就是我們的評估集，
+            # 拿評估集當校正資料會洩漏。ultralytics 預設是 'val'，所以要顯式指定。
+            # ⚠ 但 fraction 是「排序後取前 N」，檔名帶類別前綴時會只取到單一類別。
+            #   除非你確定不會踩到，否則用 --calib-per-class。
+            kw["data"] = str(data_yaml)
+            kw["fraction"] = fraction
+            kw["split"] = split
     if cfg.pass_end2end:
         kw["end2end"] = cfg.end2end
 
@@ -234,7 +323,10 @@ def export_one(pt: Path, cfg: Cfg, workdir: Path, data_yaml: Path,
     print(f"  {cfg.tag}")
     print(f"    quantize={cfg.quantize!r}  imgsz={cfg.imgsz}  end2end={e2e_note}")
     if cfg.needs_calib:
-        print(f"    校正 {data_yaml.name}  split={split}  fraction={fraction}")
+        if calib_yaml is not None:
+            print(f"    校正 {calib_yaml.name}（逐類均衡，fraction=1.0）")
+        else:
+            print(f"    校正 {data_yaml.name}  split={split}  fraction={fraction}")
     print(f"{'─' * 70}")
 
     t0 = time.time()
@@ -411,6 +503,10 @@ def main() -> None:
     ap.add_argument("--dataset", default=DEFAULT_DATASET, help="校正與評估用的資料集版本")
     ap.add_argument("--fraction", type=float, default=0.05,
                     help="靜態量化的校正取樣比例（v5.6 train 7,264 張，0.05 ≈ 363 張）")
+    ap.add_argument("--calib-per-class", type=int, default=60,
+                    help="靜態量化的校正集每類取幾張（0 = 改用 --fraction 的原生行為）。"
+                         "**預設啟用**，因為 fraction 是排序後取前 N，"
+                         "本專案檔名帶類別前綴會導致校正集只有單一類別")
     ap.add_argument("--split", default="train",
                     help="校正資料的 split。**預設刻意是 train**——ultralytics 預設 val，"
                          "但 v5.6 的 valid/test 是評估集，拿來校正會洩漏")
@@ -458,6 +554,9 @@ def main() -> None:
     workdir = Path(a.workdir)
     workdir.mkdir(parents=True, exist_ok=True)
     data_yaml = local_data_yaml(a.dataset, workdir)
+    calib_yaml = None
+    if a.calib_per_class > 0 and any(c.needs_calib for c in cfgs):
+        calib_yaml = balanced_calib_yaml(a.dataset, workdir, a.calib_per_class)
 
     print("═" * 70)
     print(f"  來源   {pt.relative_to(P.REPO) if pt.is_relative_to(P.REPO) else pt}")
@@ -466,7 +565,9 @@ def main() -> None:
     print("═" * 70)
 
     report = {"weights": str(pt), "dataset": a.dataset,
-              "calibration_split": a.split, "fraction": a.fraction, "results": {}}
+              "calibration_split": a.split, "fraction": a.fraction,
+              "calib_per_class": a.calib_per_class,
+              "calib_balanced": calib_yaml is not None, "results": {}}
     failed = []
 
     # PyTorch 基準：每個用到的 imgsz 各量一次，才能算出「量化掉了多少」
@@ -489,7 +590,7 @@ def main() -> None:
             print(f"\n{'─' * 70}\n  {cfg.tag}（--verify-only，沿用既有檔案）\n{'─' * 70}")
         else:
             try:
-                out = export_one(pt, cfg, workdir, data_yaml, a.fraction, a.split)
+                out = export_one(pt, cfg, workdir, data_yaml, a.fraction, a.split, calib_yaml)
             except Exception as e:                               # noqa: BLE001
                 print(f"  ✗ {cfg.tag} 匯出失敗：{type(e).__name__}: {e}")
                 report["results"][cfg.tag] = {"exported": False,

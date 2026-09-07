@@ -1,0 +1,194 @@
+{
+ "device": {
+  "serial": "ebe3968d",
+  "ro.product.model": "CPH2641",
+  "ro.product.manufacturer": "OPPO",
+  "ro.board.platform": "bengal",
+  "ro.soc.model": "SM6115",
+  "ro.build.version.release": "14",
+  "ro.product.cpu.abi": "arm64-v8a"
+ },
+ "settings": [
+  "cpu"
+ ],
+ "num_runs": 25,
+ "threads": 4,
+ "extra_flags": "",
+ "repeat": 1,
+ "results": [
+  {
+   "model": "last__fp32__i320__e2e0.tflite",
+   "setting": "cpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 64.83,
+   "fps": 15.42,
+   "all_ms": [
+    64.83
+   ],
+   "init_ms": 59.87,
+   "first_ms": 77.98,
+   "min_ms": 60.45,
+   "max_ms": 76.89,
+   "std_ms": 4.55,
+   "delegates": [
+    {
+     "name": "TfLiteXNNPackDelegate",
+     "replaced": 508,
+     "total": 511,
+     "rate": 99.4
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [],
+   "mem_overall_mb": 50.9844,
+   "meets_target": false
+  },
+  {
+   "model": "last__fp32__i320__e2e1.tflite",
+   "setting": "cpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 68.42,
+   "fps": 14.62,
+   "all_ms": [
+    68.42
+   ],
+   "init_ms": 61.39,
+   "first_ms": 84.06,
+   "min_ms": 62.59,
+   "max_ms": 81.73,
+   "std_ms": 4.91,
+   "delegates": [
+    {
+     "name": "TfLiteXNNPackDelegate",
+     "replaced": 510,
+     "total": 559,
+     "rate": 91.2
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [],
+   "mem_overall_mb": 52.9648,
+   "meets_target": false
+  },
+  {
+   "model": "last__fp32__i416__e2e0.tflite",
+   "setting": "cpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 109.91,
+   "fps": 9.1,
+   "all_ms": [
+    109.91
+   ],
+   "init_ms": 73.88,
+   "first_ms": 133.83,
+   "min_ms": 105.75,
+   "max_ms": 117.27,
+   "std_ms": 4.31,
+   "delegates": [
+    {
+     "name": "TfLiteXNNPackDelegate",
+     "replaced": 508,
+     "total": 511,
+     "rate": 99.4
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [],
+   "mem_overall_mb": 71.8516,
+   "meets_target": false
+  },
+  {
+   "model": "last__fp32__i416__e2e1.tflite",
+   "setting": "cpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 112.44,
+   "fps": 8.89,
+   "all_ms": [
+    112.44
+   ],
+   "init_ms": 74.87,
+   "first_ms": 127.48,
+   "min_ms": 107.96,
+   "max_ms": 127.3,
+   "std_ms": 5.46,
+   "delegates": [
+    {
+     "name": "TfLiteXNNPackDelegate",
+     "replaced": 510,
+     "total": 559,
+     "rate": 91.2
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [],
+   "mem_overall_mb": 71.457,
+   "meets_target": false
+  },
+  {
+   "model": "last__fp32__i512__e2e0.tflite",
+   "setting": "cpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 166.93,
+   "fps": 5.99,
+   "all_ms": [
+    166.93
+   ],
+   "init_ms": 88.77,
+   "first_ms": 191.42,
+   "min_ms": 162.01,
+   "max_ms": 181.95,
+   "std_ms": 6.39,
+   "delegates": [
+    {
+     "name": "TfLiteXNNPackDelegate",
+     "replaced": 508,
+     "total": 511,
+     "rate": 99.4
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [],
+   "mem_overall_mb": 90.8945,
+   "meets_target": false
+  },
+  {
+   "model": "last__fp32__i512__e2e1.tflite",
+   "setting": "cpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 171.68,
+   "fps": 5.82,
+   "all_ms": [
+    171.68
+   ],
+   "init_ms": 91.66,
+   "first_ms": 198.74,
+   "min_ms": 165.7,
+   "max_ms": 198.43,
+   "std_ms": 8.74,
+   "delegates": [
+    {
+     "name": "TfLiteXNNPackDelegate",
+     "replaced": 510,
+     "total": 559,
+     "rate": 91.2
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [],
+   "mem_overall_mb": 94.4844,
+   "meets_target": false
+  }
+ ]
+}
