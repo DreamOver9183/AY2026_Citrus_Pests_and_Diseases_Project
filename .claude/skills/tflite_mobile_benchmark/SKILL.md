@@ -79,7 +79,39 @@ APK 路徑    : .\Benchmark\platform-tools\android_aarch64_benchmark_model.apk
 **30 FPS ±5，即每張 28.6–40 ms。** 摘要表格每一列都要標「達標 / 未達標」，
 並以 **CPU-only 那一列**作為判定依據。
 
-### D. 模型從哪來
+### D. ⚠ 從 Git Bash 執行時必須設 `MSYS_NO_PATHCONV=1`
+
+上游文件假設是 PowerShell / CMD。**如果你在 Git Bash（本專案的 Bash 工具）裡跑 adb，
+MSYS 會把 `/data/local/tmp/` 這種裝置端路徑改寫成 Windows 路徑**，例如
+`C:/Program Files/Git/data/local/tmp/`。
+
+**這個失敗是靜默的**：
+
+```
+$ adb push ./Benchmark/Model/last__fp32.tflite /data/local/tmp/
+./Benchmark/Model/last__fp32.tflite: 1 file pushed, 0 skipped. 25.4 MB/s
+$ adb shell ls /data/local/tmp/*.tflite
+（推上去的檔案不在裡面）
+```
+
+`push` 回報 success，檔案卻不在該在的地方。**每一個帶裝置端路徑的 adb 指令都要加**：
+
+```bash
+MSYS_NO_PATHCONV=1 adb push "./Benchmark/Model/<model>.tflite" "/data/local/tmp/<model>.tflite"
+MSYS_NO_PATHCONV=1 adb shell "ls -l /data/local/tmp/*.tflite"
+```
+
+**驗收要看實際的 `ls`，不要相信 `push` 的 success 訊息。**
+
+另外在 Bash 裡啟動 benchmark 時，`--es args` 的引號要這樣寫
+（單引號包住雙引號，讓裝置端的 shell 去解析成單一 token）：
+
+```bash
+adb shell am start -S -n org.tensorflow.lite.benchmark/.BenchmarkModelActivity \
+    --es args '"--graph=/data/local/tmp/<model>.tflite --num_runs=25 --num_threads=4 --use_gpu=false --use_nnapi=false"'
+```
+
+### E. 模型從哪來
 
 `Benchmark\Model\` 預設為空，且 `*.tflite` 已被 gitignore。
 本專案的 `.pt` 要先經 `Benchmark\export\` 的 Docker 管線轉換：
