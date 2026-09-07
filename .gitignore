@@ -71,7 +71,10 @@ Train Code/*/Train*Output/extracted/**
 # 為了與舊版比較而複製出來的評估子集（653 張影像，可由 _provenance.json 重建）
 **/v55_subset/
 
-# Benchmark：轉出來的 TFLite 模型每個數十 MB，且可由對應的 last.pt 重現
+# Benchmark：轉出來的模型每個數 MB 到數十 MB，且都可由對應的 last.pt 一行指令重現。
+# 只保留 JSON 報告（小、且是實驗結果本身）。
 Benchmark/Model/*.tflite
+Benchmark/Model/other/**
+!Benchmark/Model/other/*.json
 Benchmark/export/out/
 !Benchmark/Model/.gitkeep

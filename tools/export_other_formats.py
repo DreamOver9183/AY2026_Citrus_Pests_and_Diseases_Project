@@ -36,6 +36,29 @@ r"""把 YOLO26 權重匯出成 LiteRT 以外的格式，並在桌機上量精度
 
 **NCNN 的 end2end 被強制關掉**，所以它的輸出是 raw tensor、延遲不含 NMS，
 與保留 end2end 的格式**不可直接比較**。
+（實測 ncnn 的 mAP 與 `fp32__e2e0` 完全相同 —— 因為它們就是同一個模型。）
+
+──────────────────────────────────────────────────────────────────────
+兩個實測踩到的坑
+──────────────────────────────────────────────────────────────────────
+**1. ultralytics 用「路徑字尾」判斷格式**
+
+AutoBackend 是靠 `_ncnn_model`、`_saved_model` 這種字尾認格式的。
+把產出目錄改名時若沒保留字尾，`YOLO(<path>)` 會直接
+
+    TypeError: model='...' is not a supported model format
+
+模型檔本身完全正常（`model.ncnn.param` / `model.ncnn.bin` 都在），
+純粹是名字認不出來。所以 `export_one` 改名時會把字尾接回去。
+
+**2. MNN 在本容器裡載入失敗（環境問題，不是模型問題）**
+
+    ImportError: _mnncengine.cpython-312-x86_64-linux-gnu.so:
+                 cannot enable executable stack as shared object requires: Invalid argument
+
+MNN 的原生擴充要求可執行堆疊（executable stack），而現代核心／容器預設拒絕。
+這與 YOLO26 或 end2end 無關，是 MNN wheel 自身的建置方式。
+要解需要 `execstack -c` 或 `patchelf` 清掉那個旗標並重建映像 —— **本輪未做**。
 """
 
 from __future__ import annotations
@@ -122,7 +145,12 @@ def export_one(pt: Path, fmt: str, imgsz: int, workdir: Path) -> Path:
     dt = time.time() - t0
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    dest = OUT_DIR / f"{pt.stem}__{fmt}__i{imgsz}{produced.suffix or ''}"
+    # ⚠ ultralytics 是**用路徑字尾判斷格式**的（AutoBackend 找 "_ncnn_model"、
+    #   "_saved_model" 等），所以改名時必須把那個字尾保留下來，
+    #   否則 YOLO(<path>) 會直接 TypeError: not a supported model format。
+    suffix = produced.suffix or ""
+    tail = "_ncnn_model" if produced.name.endswith("_ncnn_model") else ""
+    dest = OUT_DIR / f"{pt.stem}__{fmt}__i{imgsz}{tail}{suffix}"
     if dest.exists():
         shutil.rmtree(dest) if dest.is_dir() else dest.unlink()
     shutil.move(str(produced), dest)

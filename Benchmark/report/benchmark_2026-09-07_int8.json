@@ -1,0 +1,136 @@
+{
+ "device": {
+  "serial": "ebe3968d",
+  "ro.product.model": "CPH2641",
+  "ro.product.manufacturer": "OPPO",
+  "ro.board.platform": "bengal",
+  "ro.soc.model": "SM6115",
+  "ro.build.version.release": "14",
+  "ro.product.cpu.abi": "arm64-v8a"
+ },
+ "settings": [
+  "cpu"
+ ],
+ "num_runs": 25,
+ "threads": 4,
+ "extra_flags": "",
+ "repeat": 1,
+ "results": [
+  {
+   "model": "last__int8__i320__e2e0.tflite",
+   "setting": "cpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 43.52,
+   "fps": 22.98,
+   "all_ms": [
+    43.52
+   ],
+   "init_ms": 46.09,
+   "first_ms": 65.92,
+   "min_ms": 35.9,
+   "max_ms": 80.47,
+   "std_ms": 10.5,
+   "delegates": [
+    {
+     "name": "TfLiteXNNPackDelegate",
+     "replaced": 542,
+     "total": 551,
+     "rate": 98.4
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [],
+   "mem_overall_mb": 31.9414,
+   "meets_target": false
+  },
+  {
+   "model": "last__int8__i416__e2e0.tflite",
+   "setting": "cpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 67.43,
+   "fps": 14.83,
+   "all_ms": [
+    67.43
+   ],
+   "init_ms": 56.01,
+   "first_ms": 103.39,
+   "min_ms": 61.76,
+   "max_ms": 103.91,
+   "std_ms": 11.62,
+   "delegates": [
+    {
+     "name": "TfLiteXNNPackDelegate",
+     "replaced": 541,
+     "total": 550,
+     "rate": 98.4
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [],
+   "mem_overall_mb": 41.1094,
+   "meets_target": false
+  },
+  {
+   "model": "last__int8__i512__e2e0.tflite",
+   "setting": "cpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 95.53,
+   "fps": 10.47,
+   "all_ms": [
+    95.53
+   ],
+   "init_ms": 70.29,
+   "first_ms": 136.37,
+   "min_ms": 90.47,
+   "max_ms": 129.77,
+   "std_ms": 9.95,
+   "delegates": [
+    {
+     "name": "TfLiteXNNPackDelegate",
+     "replaced": 541,
+     "total": 550,
+     "rate": 98.4
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [],
+   "mem_overall_mb": 52.7695,
+   "meets_target": false
+  },
+  {
+   "model": "last__int8__i640__e2e0.tflite",
+   "setting": "cpu",
+   "ok": true,
+   "repeats": 1,
+   "avg_ms": 149.96,
+   "fps": 6.67,
+   "all_ms": [
+    149.96
+   ],
+   "init_ms": 91.24,
+   "first_ms": 210.42,
+   "min_ms": 138.89,
+   "max_ms": 218.9,
+   "std_ms": 17.66,
+   "delegates": [
+    {
+     "name": "TfLiteXNNPackDelegate",
+     "replaced": 542,
+     "total": 551,
+     "rate": 98.4
+    }
+   ],
+   "delegate_inactive": false,
+   "nnapi_accelerators": null,
+   "unsupported_ops": [],
+   "mem_overall_mb": 72.7383,
+   "meets_target": false
+  }
+ ]
+}

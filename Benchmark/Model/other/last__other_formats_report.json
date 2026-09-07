@@ -1,0 +1,270 @@
+{
+ "weights": "/work/Train Code/v11.5/Train Output/extracted/runs/detect/v5.6_v11_5/weights/last.pt",
+ "dataset": "v5.6",
+ "results": {
+  "onnx__i640": {
+   "format": "onnx",
+   "imgsz": 640,
+   "supported_args": [
+    "batch",
+    "data",
+    "dynamic",
+    "quantize",
+    "opset",
+    "simplify",
+    "nms",
+    "fraction"
+   ],
+   "end2end_forced_off": false,
+   "exported": true,
+   "file": "last__onnx__i640.onnx",
+   "size_mb": 9.98,
+   "val": {
+    "mAP50": 0.81554,
+    "mAP50_95": 0.61014,
+    "precision": 0.83935,
+    "recall": 0.79357,
+    "desktop_ms": {
+     "preprocess": 16.713,
+     "inference": 50.94,
+     "loss": 0.002,
+     "postprocess": 0.166
+    },
+    "per_class_ap50": {
+     "Oily_Spot": 0.9518,
+     "Canker": 0.87681,
+     "Sooty_Mold": 0.995,
+     "Black_Spot": 0.98151,
+     "Scale_Insect": 0.68168,
+     "Citrus_Leaf_Miner": 0.68834,
+     "Thrips": 0.77602,
+     "Aphid": 0.93101,
+     "Thrips_Damage": 0.45767
+    }
+   }
+  },
+  "onnx__i320": {
+   "format": "onnx",
+   "imgsz": 320,
+   "supported_args": [
+    "batch",
+    "data",
+    "dynamic",
+    "quantize",
+    "opset",
+    "simplify",
+    "nms",
+    "fraction"
+   ],
+   "end2end_forced_off": false,
+   "exported": true,
+   "file": "last__onnx__i320.onnx",
+   "size_mb": 9.49,
+   "val": {
+    "mAP50": 0.78012,
+    "mAP50_95": 0.56693,
+    "precision": 0.85021,
+    "recall": 0.74347,
+    "desktop_ms": {
+     "preprocess": 15.675,
+     "inference": 14.06,
+     "loss": 0.001,
+     "postprocess": 0.174
+    },
+    "per_class_ap50": {
+     "Oily_Spot": 0.98556,
+     "Canker": 0.86746,
+     "Sooty_Mold": 0.995,
+     "Black_Spot": 0.97322,
+     "Scale_Insect": 0.54886,
+     "Citrus_Leaf_Miner": 0.62233,
+     "Thrips": 0.7206,
+     "Aphid": 0.87264,
+     "Thrips_Damage": 0.43536
+    }
+   }
+  },
+  "torchscript__i640": {
+   "format": "torchscript",
+   "imgsz": 640,
+   "supported_args": [
+    "batch",
+    "quantize",
+    "nms",
+    "dynamic"
+   ],
+   "end2end_forced_off": false,
+   "exported": true,
+   "file": "last__torchscript__i640.torchscript",
+   "size_mb": 10.16,
+   "val": {
+    "mAP50": 0.81554,
+    "mAP50_95": 0.61014,
+    "precision": 0.83935,
+    "recall": 0.79357,
+    "desktop_ms": {
+     "preprocess": 1.023,
+     "inference": 74.644,
+     "loss": 0.001,
+     "postprocess": 0.147
+    },
+    "per_class_ap50": {
+     "Oily_Spot": 0.9518,
+     "Canker": 0.87681,
+     "Sooty_Mold": 0.995,
+     "Black_Spot": 0.98151,
+     "Scale_Insect": 0.68168,
+     "Citrus_Leaf_Miner": 0.68834,
+     "Thrips": 0.77602,
+     "Aphid": 0.93101,
+     "Thrips_Damage": 0.45767
+    }
+   }
+  },
+  "torchscript__i320": {
+   "format": "torchscript",
+   "imgsz": 320,
+   "supported_args": [
+    "batch",
+    "quantize",
+    "nms",
+    "dynamic"
+   ],
+   "end2end_forced_off": false,
+   "exported": true,
+   "file": "last__torchscript__i320.torchscript",
+   "size_mb": 9.88,
+   "val": {
+    "mAP50": 0.78012,
+    "mAP50_95": 0.56693,
+    "precision": 0.85021,
+    "recall": 0.74347,
+    "desktop_ms": {
+     "preprocess": 0.16,
+     "inference": 19.404,
+     "loss": 0.002,
+     "postprocess": 0.128
+    },
+    "per_class_ap50": {
+     "Oily_Spot": 0.98556,
+     "Canker": 0.86746,
+     "Sooty_Mold": 0.995,
+     "Black_Spot": 0.97322,
+     "Scale_Insect": 0.54886,
+     "Citrus_Leaf_Miner": 0.62233,
+     "Thrips": 0.7206,
+     "Aphid": 0.87264,
+     "Thrips_Damage": 0.43536
+    }
+   }
+  },
+  "mnn__i640": {
+   "format": "mnn",
+   "imgsz": 640,
+   "supported_args": [
+    "batch",
+    "dynamic",
+    "quantize",
+    "opset",
+    "simplify",
+    "nms"
+   ],
+   "end2end_forced_off": false,
+   "exported": false,
+   "error": "ImportError: /usr/local/lib/python3.12/site-packages/_mnncengine.cpython-312-x86_64-linux-gnu.so: cannot enable executable stack as shared object requires: Invalid argument"
+  },
+  "mnn__i320": {
+   "format": "mnn",
+   "imgsz": 320,
+   "supported_args": [
+    "batch",
+    "dynamic",
+    "quantize",
+    "opset",
+    "simplify",
+    "nms"
+   ],
+   "end2end_forced_off": false,
+   "exported": false,
+   "error": "ImportError: /usr/local/lib/python3.12/site-packages/_mnncengine.cpython-312-x86_64-linux-gnu.so: cannot enable executable stack as shared object requires: Invalid argument"
+  },
+  "ncnn__i640": {
+   "format": "ncnn",
+   "imgsz": 640,
+   "supported_args": [
+    "batch",
+    "quantize"
+   ],
+   "end2end_forced_off": true,
+   "exported": true,
+   "file": "last__ncnn__i640",
+   "size_mb": 9.68,
+   "val": {
+    "error": "TypeError: model='/work/Benchmark/Model/other/last__ncnn__i640' is not a supported model format. Ultralytics supports: ('PyTorch', 'TorchScript', 'ONNX', 'OpenVINO', 'TensorRT', 'CoreML', 'TensorFlow SavedModel', 'TensorFlow GraphDef', 'TensorFlow Edge TPU', 'PaddlePaddle', 'MNN', 'NCNN', 'IMX', 'RKNN', 'ExecuTorch', 'Axelera AI', 'DEEPX', 'Qualcomm QNN', 'LiteRT', 'Hailo', 'Huawei Ascend')\nSee https://docs.ultralytics.com/modes/predict for help."
+   }
+  },
+  "ncnn__i320": {
+   "format": "ncnn",
+   "imgsz": 320,
+   "supported_args": [
+    "batch",
+    "quantize"
+   ],
+   "end2end_forced_off": true,
+   "exported": true,
+   "file": "last__ncnn__i320",
+   "size_mb": 9.39,
+   "val": {
+    "error": "TypeError: model='/work/Benchmark/Model/other/last__ncnn__i320' is not a supported model format. Ultralytics supports: ('PyTorch', 'TorchScript', 'ONNX', 'OpenVINO', 'TensorRT', 'CoreML', 'TensorFlow SavedModel', 'TensorFlow GraphDef', 'TensorFlow Edge TPU', 'PaddlePaddle', 'MNN', 'NCNN', 'IMX', 'RKNN', 'ExecuTorch', 'Axelera AI', 'DEEPX', 'Qualcomm QNN', 'LiteRT', 'Hailo', 'Huawei Ascend')\nSee https://docs.ultralytics.com/modes/predict for help."
+   }
+  }
+ },
+ "pytorch_baseline": {
+  "320": {
+   "mAP50": 0.77663,
+   "mAP50_95": 0.55717,
+   "precision": 0.85656,
+   "recall": 0.72348,
+   "desktop_ms": {
+    "preprocess": 0.228,
+    "inference": 41.866,
+    "loss": 0.002,
+    "postprocess": 0.153
+   },
+   "per_class_ap50": {
+    "Oily_Spot": 0.96125,
+    "Canker": 0.8711,
+    "Sooty_Mold": 0.995,
+    "Black_Spot": 0.93478,
+    "Scale_Insect": 0.52595,
+    "Citrus_Leaf_Miner": 0.61316,
+    "Thrips": 0.71486,
+    "Aphid": 0.90397,
+    "Thrips_Damage": 0.46961
+   }
+  },
+  "640": {
+   "mAP50": 0.80897,
+   "mAP50_95": 0.60527,
+   "precision": 0.85575,
+   "recall": 0.79653,
+   "desktop_ms": {
+    "preprocess": 0.705,
+    "inference": 81.04,
+    "loss": 0.001,
+    "postprocess": 0.194
+   },
+   "per_class_ap50": {
+    "Oily_Spot": 0.94458,
+    "Canker": 0.86103,
+    "Sooty_Mold": 0.995,
+    "Black_Spot": 0.95026,
+    "Scale_Insect": 0.66824,
+    "Citrus_Leaf_Miner": 0.67947,
+    "Thrips": 0.78278,
+    "Aphid": 0.94787,
+    "Thrips_Damage": 0.45148
+   }
+  }
+ }
+}

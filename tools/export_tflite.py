@@ -635,7 +635,20 @@ def main() -> None:
 
         report["results"][cfg.tag] = entry
 
+    # **合併而不是覆寫。** 掃描是分好幾輪跑的（先固定 imgsz 掃量化、再掃解析度…），
+    # 每輪都整份覆寫的話，最後只剩最後一輪的結果，前面幾輪的精度數字全部遺失
+    # ——第一版就是這樣，事後只能回去翻 log 重建。
     rp = OUT_DIR / f"{pt.stem}__export_report.json"
+    if rp.is_file():
+        try:
+            prev = json.loads(rp.read_text(encoding="utf-8"))
+            merged = {**prev.get("results", {}), **report["results"]}
+            base = {**prev.get("pytorch_baseline", {}), **report.get("pytorch_baseline", {})}
+            report["results"] = merged
+            if base:
+                report["pytorch_baseline"] = base
+        except Exception as e:                                   # noqa: BLE001
+            print(f"  ⚠ 舊報告讀不回來，這次會覆寫：{type(e).__name__}: {e}")
     rp.write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
 
     # ── 總表 ──────────────────────────────────────────────────────────

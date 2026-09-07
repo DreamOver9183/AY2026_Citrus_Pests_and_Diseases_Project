@@ -45,8 +45,13 @@ subprocess 的 list 形式仍然值得用，但它擋掉的是**本機**的 shel
 熱漂移
 ──────────────────────────────────────────────────────────────────────
 連續量測會讓機身升溫，後面的組別偏慢。差距是數倍時無所謂，
-但**要比較接近的組合就必須 `--repeat 2` 以上**：本腳本會把同一組設定
-分散在不同輪次執行（而不是連著跑兩次），再取中位數。
+但**要比較接近的組合就必須 `--repeat 3` 以上**：本腳本會把同一組設定
+分散在不同輪次執行（而不是連著跑兩次），再**取最小值**。
+
+取最小值而非中位數，是因為干擾只會讓數字變大不會變小。
+實測 `md50@320` 兩輪是 `[67.58, 94.17]`（散佈 39%）——n=2 時中位數等於平均數，
+一次熱尖峰就能憑空造出一個 20% 的「差異」。散佈超過 10% 的列會標 ⚠，
+那種數字不可用於接近組合的比較。
 """
 
 from __future__ import annotations
@@ -54,7 +59,6 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import statistics
 import subprocess
 import sys
 import time
@@ -288,11 +292,19 @@ def main() -> None:
                                  "下界取自單次 warmup 計時"))
             rows.append(row)
             continue
-        avg_ms = statistics.median(r["avg_us"] / 1000 for r in ok)
-        best = min(ok, key=lambda r: abs(r["avg_us"] / 1000 - avg_ms))
+        # **取最小值，不是中位數。** 量測干擾（升溫、背景程式）只會讓數字變大，
+        # 不會讓它變小，所以最小值才是最接近「乾淨」的一次。
+        # 實測 md50@320 兩輪是 [67.58, 94.17]——散佈 39%，而 n=2 時中位數就是平均數，
+        # 一次熱尖峰就把結果拉到 80.9 ms，足以憑空造出一個不存在的差異。
+        all_ms = sorted(r["avg_us"] / 1000 for r in ok)
+        avg_ms = all_ms[0]
+        spread = (all_ms[-1] - all_ms[0]) / all_ms[0] if len(all_ms) > 1 else 0.0
+        best = min(ok, key=lambda r: r["avg_us"])
         rows.append({
             "model": name, "setting": st, "ok": True, "repeats": len(ok),
             "avg_ms": round(avg_ms, 2), "fps": round(1000 / avg_ms, 2),
+            "stat": "min of repeats",
+            "spread": round(spread, 4),
             "all_ms": [round(r["avg_us"] / 1000, 2) for r in ok],
             "init_ms": round(best["init_us"] / 1000, 2),
             "first_ms": round(best["first_us"] / 1000, 2),
@@ -327,6 +339,9 @@ def main() -> None:
                         for d in r["delegates"]) or "無"
         mark = "✓" if r["meets_target"] else "✗"
         note = " ⚠未生效" if r["delegate_inactive"] else ""
+        # 散佈太大代表這次量測受了干擾，該列不能拿去做接近的比較
+        if r.get("spread", 0) > 0.10:
+            note += f" ⚠散佈{r['spread']:.0%}"
         print(f"  {r['model']:<40}{r['setting']:<8}{r['avg_ms']:>9.1f}{r['fps']:>8.2f}"
               f"{dg[:24]:>26}{mark:>6}{note}")
     print("═" * 96)

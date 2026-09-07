@@ -3,15 +3,18 @@
  "dataset": "v5.6",
  "calibration_split": "train",
  "fraction": 0.05,
+ "calib_per_class": 60,
+ "calib_balanced": false,
  "results": {
-  "fp32__i640__e2e1": {
+  "fp32__i640__e2e1__md100": {
    "exported": true,
-   "file": "last__fp32__i640__e2e1.tflite",
+   "file": "last__fp32__i640__e2e1__md100.tflite",
    "variant": "fp32",
    "imgsz": 640,
    "end2end": true,
+   "max_det": 100,
    "end2end_forced_off": false,
-   "size_mb": 9.85,
+   "size_mb": 9.82,
    "verify": {
     "images": 20,
     "ref_boxes": 40,
@@ -30,8 +33,8 @@
     "verdict": "通過"
    },
    "val": {
-    "mAP50": 0.81554,
-    "mAP50_95": 0.61014,
+    "mAP50": 0.81528,
+    "mAP50_95": 0.61001,
     "precision": 0.83935,
     "recall": 0.79357,
     "per_class_ap50": {
@@ -39,237 +42,467 @@
      "Canker": 0.87681,
      "Sooty_Mold": 0.995,
      "Black_Spot": 0.98151,
-     "Scale_Insect": 0.68168,
+     "Scale_Insect": 0.67933,
      "Citrus_Leaf_Miner": 0.68834,
      "Thrips": 0.77602,
      "Aphid": 0.93101,
      "Thrips_Damage": 0.45767
     },
-    "seconds": 51.7
-   }
+    "seconds": 44.2
+   },
+   "reconstructed_from_log": "p1e.log",
+   "phone_cpu_ms": 267.6,
+   "phone_cpu_fps": 3.74
   },
-  "fp32__i640__e2e0": {
+  "fp32__i640__e2e1__md50": {
    "exported": true,
-   "file": "last__fp32__i640__e2e0.tflite",
+   "file": "last__fp32__i640__e2e1__md50.tflite",
    "variant": "fp32",
    "imgsz": 640,
-   "end2end": false,
-   "end2end_forced_off": false,
-   "size_mb": 9.83,
-   "verify": {
-    "images": 20,
-    "ref_boxes": 40,
-    "tflite_boxes": 40,
-    "matched": 37,
-    "matched_iou_mean": 0.9582,
-    "matched_iou_min": 0.7211,
-    "worst_image": [
-     "Scale_Insect_00026.jpg",
-     0.7211
-    ],
-    "class_match": "37/37",
-    "unmatched_ref": 3,
-    "unmatched_tflite": 3,
-    "unmatched_rate": 0.075,
-    "verdict": "通過"
-   },
-   "val": {
-    "mAP50": 0.82603,
-    "mAP50_95": 0.61806,
-    "precision": 0.86485,
-    "recall": 0.79167,
-    "per_class_ap50": {
-     "Oily_Spot": 0.9518,
-     "Canker": 0.88877,
-     "Sooty_Mold": 0.995,
-     "Black_Spot": 0.98418,
-     "Scale_Insect": 0.70866,
-     "Citrus_Leaf_Miner": 0.69274,
-     "Thrips": 0.78075,
-     "Aphid": 0.9491,
-     "Thrips_Damage": 0.48325
-    },
-    "seconds": 46.5
-   }
-  },
-  "w8a32__i640__e2e1": {
-   "exported": true,
-   "file": "last__w8a32__i640__e2e1.tflite",
-   "variant": "w8a32",
-   "imgsz": 640,
    "end2end": true,
+   "max_det": 50,
    "end2end_forced_off": false,
-   "size_mb": 3.1,
+   "size_mb": 9.81,
    "verify": {
     "images": 20,
     "ref_boxes": 40,
     "tflite_boxes": 38,
-    "matched": 36,
-    "matched_iou_mean": 0.9727,
-    "matched_iou_min": 0.9141,
+    "matched": 37,
+    "matched_iou_mean": 0.9763,
+    "matched_iou_min": 0.9114,
     "worst_image": [
      "Canker_00019.jpg",
-     0.9141
+     0.9114
     ],
-    "class_match": "36/36",
-    "unmatched_ref": 4,
-    "unmatched_tflite": 2,
-    "unmatched_rate": 0.0769,
+    "class_match": "37/37",
+    "unmatched_ref": 3,
+    "unmatched_tflite": 1,
+    "unmatched_rate": 0.0513,
     "verdict": "通過"
    },
    "val": {
-    "mAP50": 0.81936,
-    "mAP50_95": 0.60892,
-    "precision": 0.82972,
-    "recall": 0.79806,
+    "mAP50": 0.81549,
+    "mAP50_95": 0.60959,
+    "precision": 0.83935,
+    "recall": 0.79357,
     "per_class_ap50": {
      "Oily_Spot": 0.9518,
-     "Canker": 0.87755,
+     "Canker": 0.87681,
      "Sooty_Mold": 0.995,
-     "Black_Spot": 0.98526,
-     "Scale_Insect": 0.68762,
-     "Citrus_Leaf_Miner": 0.68507,
-     "Thrips": 0.76557,
-     "Aphid": 0.93174,
-     "Thrips_Damage": 0.49466
+     "Black_Spot": 0.98151,
+     "Scale_Insect": 0.68089,
+     "Citrus_Leaf_Miner": 0.68834,
+     "Thrips": 0.77629,
+     "Aphid": 0.9311,
+     "Thrips_Damage": 0.45767
     },
-    "seconds": 52.5
-   }
+    "seconds": 41.3
+   },
+   "reconstructed_from_log": "p1e.log",
+   "phone_cpu_ms": 266.6,
+   "phone_cpu_fps": 3.75
+  },
+  "fp32__i320__e2e1__md100": {
+   "exported": true,
+   "file": "last__fp32__i320__e2e1__md100.tflite",
+   "variant": "fp32",
+   "imgsz": 320,
+   "end2end": true,
+   "max_det": 100,
+   "end2end_forced_off": false,
+   "size_mb": 9.52,
+   "verify": {
+    "images": 20,
+    "ref_boxes": 40,
+    "tflite_boxes": 42,
+    "matched": 39,
+    "matched_iou_mean": 0.9783,
+    "matched_iou_min": 0.8587,
+    "worst_image": [
+     "Thrips_00059.jpg",
+     0.8587
+    ],
+    "class_match": "39/39",
+    "unmatched_ref": 1,
+    "unmatched_tflite": 3,
+    "unmatched_rate": 0.0488,
+    "verdict": "通過"
+   },
+   "val": {
+    "mAP50": 0.7795,
+    "mAP50_95": 0.56673,
+    "precision": 0.85021,
+    "recall": 0.74347,
+    "per_class_ap50": {
+     "Oily_Spot": 0.98556,
+     "Canker": 0.86203,
+     "Sooty_Mold": 0.995,
+     "Black_Spot": 0.97322,
+     "Scale_Insect": 0.54852,
+     "Citrus_Leaf_Miner": 0.62233,
+     "Thrips": 0.7206,
+     "Aphid": 0.87264,
+     "Thrips_Damage": 0.43556
+    },
+    "seconds": 16.4
+   },
+   "reconstructed_from_log": "p1e.log",
+   "phone_cpu_ms": 67.3,
+   "phone_cpu_fps": 14.85
+  },
+  "fp32__i320__e2e1__md50": {
+   "exported": true,
+   "file": "last__fp32__i320__e2e1__md50.tflite",
+   "variant": "fp32",
+   "imgsz": 320,
+   "end2end": true,
+   "max_det": 50,
+   "end2end_forced_off": false,
+   "size_mb": 9.52,
+   "verify": {
+    "images": 20,
+    "ref_boxes": 40,
+    "tflite_boxes": 42,
+    "matched": 39,
+    "matched_iou_mean": 0.9783,
+    "matched_iou_min": 0.8587,
+    "worst_image": [
+     "Thrips_00059.jpg",
+     0.8587
+    ],
+    "class_match": "39/39",
+    "unmatched_ref": 1,
+    "unmatched_tflite": 3,
+    "unmatched_rate": 0.0488,
+    "verdict": "通過"
+   },
+   "val": {
+    "mAP50": 0.77941,
+    "mAP50_95": 0.56631,
+    "precision": 0.85021,
+    "recall": 0.74347,
+    "per_class_ap50": {
+     "Oily_Spot": 0.98556,
+     "Canker": 0.85878,
+     "Sooty_Mold": 0.995,
+     "Black_Spot": 0.97322,
+     "Scale_Insect": 0.54907,
+     "Citrus_Leaf_Miner": 0.62278,
+     "Thrips": 0.7206,
+     "Aphid": 0.87345,
+     "Thrips_Damage": 0.43624
+    },
+    "seconds": 15.6
+   },
+   "reconstructed_from_log": "p1e.log",
+   "phone_cpu_ms": 67.6,
+   "phone_cpu_fps": 14.8
+  },
+  "fp32__i640__e2e1": {
+   "exported": true,
+   "size_mb": 9.85,
+   "variant": "fp32",
+   "imgsz": 640,
+   "end2end": true,
+   "reconstructed_from_log": "p1a.log",
+   "val": {
+    "mAP50": 0.81554
+   },
+   "verify": {
+    "verdict": "通過"
+   },
+   "phone_cpu_ms": 266.3,
+   "phone_cpu_fps": 3.76,
+   "phone_gpu_ms": 277.4
+  },
+  "fp32__i640__e2e0": {
+   "exported": true,
+   "size_mb": 9.83,
+   "variant": "fp32",
+   "imgsz": 640,
+   "end2end": false,
+   "reconstructed_from_log": "p1a.log",
+   "val": {
+    "mAP50": 0.82603
+   },
+   "verify": {
+    "verdict": "通過"
+   },
+   "phone_cpu_ms": 277.5,
+   "phone_cpu_fps": 3.6,
+   "phone_gpu_ms": 285.4
+  },
+  "w8a32__i640__e2e1": {
+   "exported": true,
+   "size_mb": 3.1,
+   "variant": "w8a32",
+   "imgsz": 640,
+   "end2end": true,
+   "reconstructed_from_log": "p1a.log",
+   "val": {
+    "mAP50": 0.81936
+   },
+   "verify": {
+    "verdict": "通過"
+   },
+   "phone_cpu_ms": 279.5,
+   "phone_cpu_fps": 3.58,
+   "phone_gpu_ms": 276.1
   },
   "w8a32__i640__e2e0": {
    "exported": true,
-   "file": "last__w8a32__i640__e2e0.tflite",
+   "size_mb": 3.08,
    "variant": "w8a32",
    "imgsz": 640,
    "end2end": false,
-   "end2end_forced_off": false,
-   "size_mb": 3.08,
+   "reconstructed_from_log": "p1a.log",
+   "val": {
+    "mAP50": 0.82766
+   },
    "verify": {
-    "images": 20,
-    "ref_boxes": 40,
-    "tflite_boxes": 41,
-    "matched": 37,
-    "matched_iou_mean": 0.9567,
-    "matched_iou_min": 0.7211,
-    "worst_image": [
-     "Scale_Insect_00026.jpg",
-     0.7211
-    ],
-    "class_match": "37/37",
-    "unmatched_ref": 3,
-    "unmatched_tflite": 4,
-    "unmatched_rate": 0.0864,
     "verdict": "通過"
    },
-   "val": {
-    "mAP50": 0.82766,
-    "mAP50_95": 0.61781,
-    "precision": 0.86741,
-    "recall": 0.78671,
-    "per_class_ap50": {
-     "Oily_Spot": 0.9518,
-     "Canker": 0.88891,
-     "Sooty_Mold": 0.995,
-     "Black_Spot": 0.98418,
-     "Scale_Insect": 0.71199,
-     "Citrus_Leaf_Miner": 0.70403,
-     "Thrips": 0.76766,
-     "Aphid": 0.95437,
-     "Thrips_Damage": 0.49101
-    },
-    "seconds": 33.1
-   }
+   "phone_cpu_ms": 296.4,
+   "phone_cpu_fps": 3.37,
+   "phone_gpu_ms": 281.8
   },
   "int8__i640__e2e0": {
    "exported": true,
-   "file": "last__int8__i640__e2e0.tflite",
+   "size_mb": 2.92,
    "variant": "int8",
    "imgsz": 640,
    "end2end": false,
-   "end2end_forced_off": true,
-   "size_mb": 2.92,
+   "reconstructed_from_log": "p1d.log",
+   "val": {
+    "mAP50": 0.66642
+   },
    "verify": {
-    "images": 20,
-    "ref_boxes": 40,
-    "tflite_boxes": 51,
-    "matched": 37,
-    "matched_iou_mean": 0.8482,
-    "matched_iou_min": 0.6222,
-    "worst_image": [
-     "Scale_Insect_00026.jpg",
-     0.6222
-    ],
-    "class_match": "37/37",
-    "unmatched_ref": 3,
-    "unmatched_tflite": 14,
-    "unmatched_rate": 0.1868,
     "verdict": "不通過"
    },
-   "val": {
-    "mAP50": 0.69123,
-    "mAP50_95": 0.44422,
-    "precision": 0.7026,
-    "recall": 0.7757,
-    "per_class_ap50": {
-     "Oily_Spot": 0.91745,
-     "Canker": 0.53048,
-     "Sooty_Mold": 0.995,
-     "Black_Spot": 0.92601,
-     "Scale_Insect": 0.43387,
-     "Citrus_Leaf_Miner": 0.55657,
-     "Thrips": 0.66414,
-     "Aphid": 0.80734,
-     "Thrips_Damage": 0.39019
-    },
-    "seconds": 22.4
-   }
+   "phone_cpu_ms": 147.3,
+   "phone_cpu_fps": 6.79,
+   "phone_gpu_ms": 305.5
   },
   "w8a16__i640__e2e0": {
    "exported": true,
-   "file": "last__w8a16__i640__e2e0.tflite",
+   "size_mb": 3.05,
    "variant": "w8a16",
    "imgsz": 640,
    "end2end": false,
-   "end2end_forced_off": true,
-   "size_mb": 3.05,
+   "reconstructed_from_log": "p1a.log",
+   "val": {
+    "mAP50": 0.82435
+   },
    "verify": {
-    "images": 20,
-    "ref_boxes": 40,
-    "tflite_boxes": 40,
-    "matched": 37,
-    "matched_iou_mean": 0.951,
-    "matched_iou_min": 0.7223,
-    "worst_image": [
-     "Scale_Insect_00026.jpg",
-     0.7223
-    ],
-    "class_match": "37/37",
-    "unmatched_ref": 3,
-    "unmatched_tflite": 3,
-    "unmatched_rate": 0.075,
+    "verdict": "通過"
+   }
+  },
+  "fp32__i512__e2e1": {
+   "exported": true,
+   "size_mb": 9.71,
+   "variant": "fp32",
+   "imgsz": 512,
+   "end2end": true,
+   "reconstructed_from_log": "p1b.log",
+   "val": {
+    "mAP50": 0.81361
+   },
+   "verify": {
     "verdict": "通過"
    },
+   "phone_cpu_ms": 171.7,
+   "phone_cpu_fps": 5.82
+  },
+  "fp32__i512__e2e0": {
+   "exported": true,
+   "size_mb": 9.69,
+   "variant": "fp32",
+   "imgsz": 512,
+   "end2end": false,
+   "reconstructed_from_log": "p1b.log",
    "val": {
-    "mAP50": 0.82435,
-    "mAP50_95": 0.60403,
-    "precision": 0.8705,
-    "recall": 0.78477,
-    "per_class_ap50": {
-     "Oily_Spot": 0.95006,
-     "Canker": 0.88458,
-     "Sooty_Mold": 0.995,
-     "Black_Spot": 0.98418,
-     "Scale_Insect": 0.70001,
-     "Citrus_Leaf_Miner": 0.69865,
-     "Thrips": 0.77463,
-     "Aphid": 0.9508,
-     "Thrips_Damage": 0.48127
-    },
-    "seconds": 601.5
+    "mAP50": 0.82528
+   },
+   "verify": {
+    "verdict": "通過"
+   },
+   "phone_cpu_ms": 166.9,
+   "phone_cpu_fps": 5.99
+  },
+  "fp32__i416__e2e1": {
+   "exported": true,
+   "size_mb": 9.62,
+   "variant": "fp32",
+   "imgsz": 416,
+   "end2end": true,
+   "reconstructed_from_log": "p1b.log",
+   "val": {
+    "mAP50": 0.79988
+   },
+   "verify": {
+    "verdict": "通過"
+   },
+   "phone_cpu_ms": 112.4,
+   "phone_cpu_fps": 8.89
+  },
+  "fp32__i416__e2e0": {
+   "exported": true,
+   "size_mb": 9.61,
+   "variant": "fp32",
+   "imgsz": 416,
+   "end2end": false,
+   "reconstructed_from_log": "p1b.log",
+   "val": {
+    "mAP50": 0.81482
+   },
+   "verify": {
+    "verdict": "通過"
+   },
+   "phone_cpu_ms": 109.9,
+   "phone_cpu_fps": 9.1
+  },
+  "fp32__i320__e2e1": {
+   "exported": true,
+   "size_mb": 9.56,
+   "variant": "fp32",
+   "imgsz": 320,
+   "end2end": true,
+   "reconstructed_from_log": "p1b.log",
+   "val": {
+    "mAP50": 0.78012
+   },
+   "verify": {
+    "verdict": "通過"
+   },
+   "phone_cpu_ms": 66.4,
+   "phone_cpu_fps": 15.06
+  },
+  "fp32__i320__e2e0": {
+   "exported": true,
+   "size_mb": 9.54,
+   "variant": "fp32",
+   "imgsz": 320,
+   "end2end": false,
+   "reconstructed_from_log": "p1b.log",
+   "val": {
+    "mAP50": 0.78511
+   },
+   "verify": {
+    "verdict": "通過"
+   },
+   "phone_cpu_ms": 64.8,
+   "phone_cpu_fps": 15.42
+  },
+  "w8a16__i512__e2e0": {
+   "exported": true,
+   "size_mb": 2.98,
+   "variant": "w8a16",
+   "imgsz": 512,
+   "end2end": false,
+   "reconstructed_from_log": "p1b.log",
+   "val": {
+    "mAP50": 0.82691
+   },
+   "verify": {
+    "verdict": "通過"
    }
+  },
+  "w8a16__i416__e2e0": {
+   "exported": true,
+   "size_mb": 2.94,
+   "variant": "w8a16",
+   "imgsz": 416,
+   "end2end": false,
+   "reconstructed_from_log": "p1b.log",
+   "val": {
+    "mAP50": 0.81565
+   },
+   "verify": {
+    "verdict": "通過"
+   }
+  },
+  "w8a16__i320__e2e0": {
+   "exported": true,
+   "size_mb": 2.91,
+   "variant": "w8a16",
+   "imgsz": 320,
+   "end2end": false,
+   "reconstructed_from_log": "p1b.log",
+   "val": {
+    "mAP50": 0.78626
+   },
+   "verify": {
+    "verdict": "通過"
+   }
+  },
+  "int8__i512__e2e0": {
+   "exported": true,
+   "size_mb": 2.89,
+   "variant": "int8",
+   "imgsz": 512,
+   "end2end": false,
+   "reconstructed_from_log": "p1c.log",
+   "val": {
+    "mAP50": 0.77652
+   },
+   "verify": {
+    "verdict": "不通過"
+   },
+   "phone_cpu_ms": 95.5,
+   "phone_cpu_fps": 10.47
+  },
+  "int8__i416__e2e0": {
+   "exported": true,
+   "size_mb": 2.87,
+   "variant": "int8",
+   "imgsz": 416,
+   "end2end": false,
+   "reconstructed_from_log": "p1c.log",
+   "val": {
+    "mAP50": 0.72814
+   },
+   "verify": {
+    "verdict": "不通過"
+   },
+   "phone_cpu_ms": 67.4,
+   "phone_cpu_fps": 14.83
+  },
+  "int8__i320__e2e0": {
+   "exported": true,
+   "size_mb": 2.85,
+   "variant": "int8",
+   "imgsz": 320,
+   "end2end": false,
+   "reconstructed_from_log": "p1d.log",
+   "val": {
+    "mAP50": 0.71873
+   },
+   "verify": {
+    "verdict": "不通過"
+   },
+   "phone_cpu_ms": 43.5,
+   "phone_cpu_fps": 22.98
   }
  },
  "pytorch_baseline": {
+  "320": {
+   "mAP50": 0.77663,
+   "mAP50_95": 0.55717,
+   "precision": 0.85656,
+   "recall": 0.72348,
+   "per_class_ap50": {
+    "Oily_Spot": 0.96125,
+    "Canker": 0.8711,
+    "Sooty_Mold": 0.995,
+    "Black_Spot": 0.93478,
+    "Scale_Insect": 0.52595,
+    "Citrus_Leaf_Miner": 0.61316,
+    "Thrips": 0.71486,
+    "Aphid": 0.90397,
+    "Thrips_Damage": 0.46961
+   },
+   "seconds": 35.2
+  },
   "640": {
    "mAP50": 0.80897,
    "mAP50_95": 0.60527,
@@ -286,7 +519,14 @@
     "Aphid": 0.94787,
     "Thrips_Damage": 0.45148
    },
-   "seconds": 72.5
+   "seconds": 59.0
   }
- }
+ },
+ "pytorch_baseline_mAP50_by_imgsz": {
+  "640": 0.80897,
+  "512": 0.80752,
+  "416": 0.80294,
+  "320": 0.77663
+ },
+ "note": "本檔曾因每輪覆寫而遺失前幾輪的結果，已從 scratchpad 的執行 log 重建，並標記 reconstructed_from_log。工具已改為合併寫入。"
 }
