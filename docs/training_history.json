@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-06",
+ "generated": "2026-09-07",
  "note": "本檔由 scratchpad 的 build_history.py 從各版本的原始輸出直接讀出，非手動抄寫。v5 時代的部分欄位為 null，因為來源文件用圖片嵌入數字、無法解析。",
  "datasets": {
   "v5": {
@@ -336,6 +336,43 @@
    "worst_pooled_2se": 0.099,
    "note": "patience=0 + 固定輪數 → valid 未參與決策，可與 test 併計。九類 ±2SE ≤ 0.10 達成",
    "artifacts": "Train Code/v11.5/Train Output/extracted/"
+  },
+  "v12s": {
+   "dataset": "v5.6",
+   "classes": 9,
+   "epochs_planned": 70,
+   "epochs_run": 70,
+   "patience": 0,
+   "best_epoch": 69,
+   "reported_weight": "last.pt",
+   "scale": "s",
+   "params": 9667624,
+   "gflops_640": 26.67,
+   "total_seconds": 17675.4,
+   "seconds_per_epoch": 252.5,
+   "eval": {
+    "val": {
+     "mAP50": 0.83652,
+     "mAP50_95": 0.64345,
+     "precision": 0.86186,
+     "recall": 0.82734
+    },
+    "test": {
+     "mAP50": 0.81266,
+     "mAP50_95": 0.61836,
+     "precision": 0.86643,
+     "recall": 0.80441
+    }
+   },
+   "plateau16_mean": 0.64032,
+   "plateau16_std": 0.00423,
+   "best_vs_plateau": 0.00241,
+   "worst_pooled_2se": 0.099,
+   "pre_registered_pass_mark": 0.83959,
+   "passed": false,
+   "delta_vs_v11_5_test_mAP50": 0.00307,
+   "note": "只改模型尺度 n→s（3.84x 參數 / 3.49x GFLOPs），其餘與 v11.5 逐字相同。預先登記判準 test mAP50 >= 0.83959，實得 0.81266（+0.003），**未通過**。結論：容量不是瓶頸。依 v12.1 推估平台 1 約 950 ms/張，非部署候選。",
+   "artifacts": "Train Code/v12s/Train Output/extracted/"
   }
  },
  "constants": {
