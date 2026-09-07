@@ -1,12 +1,17 @@
 {
  "weights": "/work/Train Code/v11.5/Train Output/extracted/runs/detect/v5.6_v11_5/weights/last.pt",
  "dataset": "v5.6",
+ "calibration_split": "train",
+ "fraction": 0.05,
  "results": {
-  "fp32": {
+  "fp32__i640__e2e1": {
    "exported": true,
-   "file": "last__fp32.tflite",
+   "file": "last__fp32__i640__e2e1.tflite",
+   "variant": "fp32",
+   "imgsz": 640,
+   "end2end": true,
+   "end2end_forced_off": false,
    "size_mb": 9.85,
-   "end2end_kept": true,
    "verify": {
     "images": 20,
     "ref_boxes": 40,
@@ -23,13 +28,78 @@
     "unmatched_tflite": 1,
     "unmatched_rate": 0.0513,
     "verdict": "通過"
+   },
+   "val": {
+    "mAP50": 0.81554,
+    "mAP50_95": 0.61014,
+    "precision": 0.83935,
+    "recall": 0.79357,
+    "per_class_ap50": {
+     "Oily_Spot": 0.9518,
+     "Canker": 0.87681,
+     "Sooty_Mold": 0.995,
+     "Black_Spot": 0.98151,
+     "Scale_Insect": 0.68168,
+     "Citrus_Leaf_Miner": 0.68834,
+     "Thrips": 0.77602,
+     "Aphid": 0.93101,
+     "Thrips_Damage": 0.45767
+    },
+    "seconds": 51.7
    }
   },
-  "w8a32": {
+  "fp32__i640__e2e0": {
    "exported": true,
-   "file": "last__w8a32.tflite",
+   "file": "last__fp32__i640__e2e0.tflite",
+   "variant": "fp32",
+   "imgsz": 640,
+   "end2end": false,
+   "end2end_forced_off": false,
+   "size_mb": 9.83,
+   "verify": {
+    "images": 20,
+    "ref_boxes": 40,
+    "tflite_boxes": 40,
+    "matched": 37,
+    "matched_iou_mean": 0.9582,
+    "matched_iou_min": 0.7211,
+    "worst_image": [
+     "Scale_Insect_00026.jpg",
+     0.7211
+    ],
+    "class_match": "37/37",
+    "unmatched_ref": 3,
+    "unmatched_tflite": 3,
+    "unmatched_rate": 0.075,
+    "verdict": "通過"
+   },
+   "val": {
+    "mAP50": 0.82603,
+    "mAP50_95": 0.61806,
+    "precision": 0.86485,
+    "recall": 0.79167,
+    "per_class_ap50": {
+     "Oily_Spot": 0.9518,
+     "Canker": 0.88877,
+     "Sooty_Mold": 0.995,
+     "Black_Spot": 0.98418,
+     "Scale_Insect": 0.70866,
+     "Citrus_Leaf_Miner": 0.69274,
+     "Thrips": 0.78075,
+     "Aphid": 0.9491,
+     "Thrips_Damage": 0.48325
+    },
+    "seconds": 46.5
+   }
+  },
+  "w8a32__i640__e2e1": {
+   "exported": true,
+   "file": "last__w8a32__i640__e2e1.tflite",
+   "variant": "w8a32",
+   "imgsz": 640,
+   "end2end": true,
+   "end2end_forced_off": false,
    "size_mb": 3.1,
-   "end2end_kept": true,
    "verify": {
     "images": 20,
     "ref_boxes": 40,
@@ -46,7 +116,177 @@
     "unmatched_tflite": 2,
     "unmatched_rate": 0.0769,
     "verdict": "通過"
+   },
+   "val": {
+    "mAP50": 0.81936,
+    "mAP50_95": 0.60892,
+    "precision": 0.82972,
+    "recall": 0.79806,
+    "per_class_ap50": {
+     "Oily_Spot": 0.9518,
+     "Canker": 0.87755,
+     "Sooty_Mold": 0.995,
+     "Black_Spot": 0.98526,
+     "Scale_Insect": 0.68762,
+     "Citrus_Leaf_Miner": 0.68507,
+     "Thrips": 0.76557,
+     "Aphid": 0.93174,
+     "Thrips_Damage": 0.49466
+    },
+    "seconds": 52.5
    }
+  },
+  "w8a32__i640__e2e0": {
+   "exported": true,
+   "file": "last__w8a32__i640__e2e0.tflite",
+   "variant": "w8a32",
+   "imgsz": 640,
+   "end2end": false,
+   "end2end_forced_off": false,
+   "size_mb": 3.08,
+   "verify": {
+    "images": 20,
+    "ref_boxes": 40,
+    "tflite_boxes": 41,
+    "matched": 37,
+    "matched_iou_mean": 0.9567,
+    "matched_iou_min": 0.7211,
+    "worst_image": [
+     "Scale_Insect_00026.jpg",
+     0.7211
+    ],
+    "class_match": "37/37",
+    "unmatched_ref": 3,
+    "unmatched_tflite": 4,
+    "unmatched_rate": 0.0864,
+    "verdict": "通過"
+   },
+   "val": {
+    "mAP50": 0.82766,
+    "mAP50_95": 0.61781,
+    "precision": 0.86741,
+    "recall": 0.78671,
+    "per_class_ap50": {
+     "Oily_Spot": 0.9518,
+     "Canker": 0.88891,
+     "Sooty_Mold": 0.995,
+     "Black_Spot": 0.98418,
+     "Scale_Insect": 0.71199,
+     "Citrus_Leaf_Miner": 0.70403,
+     "Thrips": 0.76766,
+     "Aphid": 0.95437,
+     "Thrips_Damage": 0.49101
+    },
+    "seconds": 33.1
+   }
+  },
+  "int8__i640__e2e0": {
+   "exported": true,
+   "file": "last__int8__i640__e2e0.tflite",
+   "variant": "int8",
+   "imgsz": 640,
+   "end2end": false,
+   "end2end_forced_off": true,
+   "size_mb": 2.92,
+   "verify": {
+    "images": 20,
+    "ref_boxes": 40,
+    "tflite_boxes": 51,
+    "matched": 37,
+    "matched_iou_mean": 0.8482,
+    "matched_iou_min": 0.6222,
+    "worst_image": [
+     "Scale_Insect_00026.jpg",
+     0.6222
+    ],
+    "class_match": "37/37",
+    "unmatched_ref": 3,
+    "unmatched_tflite": 14,
+    "unmatched_rate": 0.1868,
+    "verdict": "不通過"
+   },
+   "val": {
+    "mAP50": 0.69123,
+    "mAP50_95": 0.44422,
+    "precision": 0.7026,
+    "recall": 0.7757,
+    "per_class_ap50": {
+     "Oily_Spot": 0.91745,
+     "Canker": 0.53048,
+     "Sooty_Mold": 0.995,
+     "Black_Spot": 0.92601,
+     "Scale_Insect": 0.43387,
+     "Citrus_Leaf_Miner": 0.55657,
+     "Thrips": 0.66414,
+     "Aphid": 0.80734,
+     "Thrips_Damage": 0.39019
+    },
+    "seconds": 22.4
+   }
+  },
+  "w8a16__i640__e2e0": {
+   "exported": true,
+   "file": "last__w8a16__i640__e2e0.tflite",
+   "variant": "w8a16",
+   "imgsz": 640,
+   "end2end": false,
+   "end2end_forced_off": true,
+   "size_mb": 3.05,
+   "verify": {
+    "images": 20,
+    "ref_boxes": 40,
+    "tflite_boxes": 40,
+    "matched": 37,
+    "matched_iou_mean": 0.951,
+    "matched_iou_min": 0.7223,
+    "worst_image": [
+     "Scale_Insect_00026.jpg",
+     0.7223
+    ],
+    "class_match": "37/37",
+    "unmatched_ref": 3,
+    "unmatched_tflite": 3,
+    "unmatched_rate": 0.075,
+    "verdict": "通過"
+   },
+   "val": {
+    "mAP50": 0.82435,
+    "mAP50_95": 0.60403,
+    "precision": 0.8705,
+    "recall": 0.78477,
+    "per_class_ap50": {
+     "Oily_Spot": 0.95006,
+     "Canker": 0.88458,
+     "Sooty_Mold": 0.995,
+     "Black_Spot": 0.98418,
+     "Scale_Insect": 0.70001,
+     "Citrus_Leaf_Miner": 0.69865,
+     "Thrips": 0.77463,
+     "Aphid": 0.9508,
+     "Thrips_Damage": 0.48127
+    },
+    "seconds": 601.5
+   }
+  }
+ },
+ "pytorch_baseline": {
+  "640": {
+   "mAP50": 0.80897,
+   "mAP50_95": 0.60527,
+   "precision": 0.85575,
+   "recall": 0.79653,
+   "per_class_ap50": {
+    "Oily_Spot": 0.94458,
+    "Canker": 0.86103,
+    "Sooty_Mold": 0.995,
+    "Black_Spot": 0.95026,
+    "Scale_Insect": 0.66824,
+    "Citrus_Leaf_Miner": 0.67947,
+    "Thrips": 0.78278,
+    "Aphid": 0.94787,
+    "Thrips_Damage": 0.45148
+   },
+   "seconds": 72.5
   }
  }
 }

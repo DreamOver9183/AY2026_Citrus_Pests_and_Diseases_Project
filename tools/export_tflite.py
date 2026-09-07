@@ -16,7 +16,7 @@ r"""把 YOLO26 的 `.pt` 權重轉成手機端要用的 `.tflite`，並驗證轉
             --variants fp32,w8a32 --imgsz-list 640,416 --verify --val
 
 ──────────────────────────────────────────────────────────────────────
-三個可掃的軸，以及它們的交互作用
+四個可掃的軸，以及它們的交互作用
 ──────────────────────────────────────────────────────────────────────
 **1. `--variants`（量化方式）**
 
@@ -59,7 +59,23 @@ Arguments 清單裡，`validate_args` 不會擋。
 > ⚠ **`end2end=False` 的圖不含 NMS**，App 端必須自己做。
 > 它的延遲與保留 end2end 的變體**不可直接比較**。
 
-輸出檔名 `<stem>__<variant>__i<imgsz>__e2e{1,0}.tflite`，三個軸都寫進名字避免互相覆蓋。
+**4. `--max-det-list`（end2end 圖裡 TopK 的 k）**
+
+`max_det` 在官方文件的參數表裡是「輸出保留的最大偵測數」，看起來只跟 NMS 有關，
+但對 end2end 模型它**直接決定圖裡烘進去的 TopK k**：
+
+    exporter.py:866   m.max_det = min(self.args.max_det, available)   ← 無條件執行
+    exporter.py:1291  "end2end graphs bake TopK k=max_det"
+
+預設 300 對本資料集是純浪費 —— v5.6 單張最多只有 **58** 個框（train）/ 44（valid）/
+32（test），而 imgsz=640 時要從 **34,000 個 anchor** 裡挑 300。
+
+> ⚠ **這是精度換延遲，不是免費的。** `val()` 算 mAP 時用 `conf=0.001`，
+> 會產生大量低分偵測；把 k 砍小會截掉低分尾巴而壓低召回。
+> **每個 max_det 都必須量 mAP**，不能只看延遲就下結論。
+
+輸出檔名 `<stem>__<variant>__i<imgsz>__e2e{1,0}[__md<max_det>].tflite`。
+`max_det` 只在非預設時進檔名，既有產物的名字因此不受影響。
 """
 
 from __future__ import annotations
@@ -90,12 +106,16 @@ DEFAULT_DATASET = "v5.6"
 OUT_DIR = P.REPO / "Benchmark" / "Model"
 
 
+DEFAULT_MAX_DET = 300           # ultralytics 的預設
+
+
 class Cfg:
     """一個待匯出的組合。`tag` 是它在所有產出裡的唯一識別。"""
 
-    def __init__(self, variant: str, imgsz: int, e2e_req: str):
+    def __init__(self, variant: str, imgsz: int, e2e_req: str, max_det: int = DEFAULT_MAX_DET):
         self.variant = variant
         self.imgsz = imgsz
+        self.max_det = max_det
         quantize, needs_calib, e2e_selectable = VARIANTS[variant]
         self.quantize = quantize
         self.needs_calib = needs_calib
@@ -111,7 +131,11 @@ class Cfg:
 
     @property
     def tag(self) -> str:
-        return f"{self.variant}__i{self.imgsz}__e2e{1 if self.end2end else 0}"
+        t = f"{self.variant}__i{self.imgsz}__e2e{1 if self.end2end else 0}"
+        # max_det 只在非預設時進檔名，這樣既有產物的名字不會變
+        if self.max_det != DEFAULT_MAX_DET:
+            t += f"__md{self.max_det}"
+        return t
 
     def __repr__(self) -> str:
         return self.tag
@@ -185,6 +209,14 @@ def export_one(pt: Path, cfg: Cfg, workdir: Path, data_yaml: Path,
     shutil.copy2(pt, staged)
 
     kw = dict(format="litert", device="cpu", verbose=False, imgsz=cfg.imgsz)
+    # max_det 直接決定 end2end 圖裡烘進去的 TopK k：
+    #   exporter.py:866   m.max_det = min(self.args.max_det, available)
+    #   exporter.py:1291  "end2end graphs bake TopK k=max_det"
+    # 預設 300 對本資料集是浪費——v5.6 單張最多才 58 個框（train）/ 32（test）。
+    # 但**這是精度換延遲**：val 的 mAP 用 conf=0.001，截斷會砍掉低分尾巴而影響召回，
+    # 所以每個 max_det 都要量 mAP，不能只看延遲。
+    if cfg.max_det != DEFAULT_MAX_DET:
+        kw["max_det"] = cfg.max_det
     if cfg.quantize is not None:
         kw["quantize"] = cfg.quantize
     if cfg.needs_calib:
@@ -373,6 +405,9 @@ def main() -> None:
     ap.add_argument("--imgsz-list", default="640", help="逗號分隔的輸入解析度")
     ap.add_argument("--end2end-list", default="auto",
                     help="逗號分隔的 auto/true/false。靜態量化的變體一律被強制 false")
+    ap.add_argument("--max-det-list", default=str(DEFAULT_MAX_DET),
+                    help="逗號分隔。直接決定 end2end 圖裡的 TopK k（exporter.py:1291）。"
+                         "v5.6 單張最多 58 個框，預設 300 是浪費——但截斷會影響 mAP，要量")
     ap.add_argument("--dataset", default=DEFAULT_DATASET, help="校正與評估用的資料集版本")
     ap.add_argument("--fraction", type=float, default=0.05,
                     help="靜態量化的校正取樣比例（v5.6 train 7,264 張，0.05 ≈ 363 張）")
@@ -397,14 +432,16 @@ def main() -> None:
         raise SystemExit(f"✗ --end2end-list 只接受 auto/true/false，收到 {bad}")
 
     # 交叉相乘後去重：int8/w8a16 的 auto 與 false 會產生同一個 tag
+    maxdets = [int(x) for x in a.max_det_list.split(",") if x.strip()]
     cfgs, seen = [], set()
     for v in variants:
         for s in imgszs:
             for e in e2es:
-                c = Cfg(v, s, e)
-                if c.tag not in seen:
-                    seen.add(c.tag)
-                    cfgs.append(c)
+                for md in maxdets:
+                    c = Cfg(v, s, e, md)
+                    if c.tag not in seen:
+                        seen.add(c.tag)
+                        cfgs.append(c)
 
     if a.verify_only:
         a.verify = True
@@ -461,7 +498,7 @@ def main() -> None:
                 continue
 
         entry = {"exported": True, "file": out.name, "variant": cfg.variant,
-                 "imgsz": cfg.imgsz, "end2end": cfg.end2end,
+                 "imgsz": cfg.imgsz, "end2end": cfg.end2end, "max_det": cfg.max_det,
                  "end2end_forced_off": cfg.e2e_forced,
                  "size_mb": round(out.stat().st_size / 1024 / 1024, 2)}
 
