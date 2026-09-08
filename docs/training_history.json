@@ -1,6 +1,6 @@
 {
  "generated": "2026-09-07",
- "note": "本檔由 scratchpad 的 build_history.py 從各版本的原始輸出直接讀出，非手動抄寫。v5 時代的部分欄位為 null，因為來源文件用圖片嵌入數字、無法解析。",
+ "note": "本檔由 scratchpad 的 build_history.py 從各版本的原始輸出直接讀出，非手動抄寫。v5 時代的部分欄位為 null，因為來源文件用圖片嵌入數字、無法解析。 2026-09-08 修正：v11.5 的 test FP 148->149、jaccard 0.68698->0.68627（依存檔 confusion_matrix.csv 逐欄重算，原值把 pred_Black_Spot/true_Oily_Spot 的 2 個框當成 1 個），v11.5 的 P/R/mAP 改採 eval/summary.json 的原值；另補 v11 valid 與 v12s test 的 jaccard。",
  "datasets": {
   "v5": {
    "classes": 8,
@@ -182,11 +182,18 @@
    "eval": {
     "val": {
      "mAP50": 0.83543,
-     "mAP50_95": 0.62924
+     "mAP50_95": 0.62924,
+     "jaccard": 0.66056,
+     "TP": 685,
+     "FP": 169,
+     "FN": 183,
+     "cross_class": 6,
+     "note": "P/R 未存檔；jaccard 由 eval/confusion_matrix.csv 重算（該檔為 valid，GT 868 框）"
     },
     "test": {
      "mAP50": 0.82213,
-     "mAP50_95": 0.61294
+     "mAP50_95": 0.61294,
+     "note": "test 的混淆矩陣未存檔，無法回算 P/R/jaccard"
     }
    },
    "eval_on_v55_subset": {
@@ -218,10 +225,10 @@
    "seconds_per_epoch": 157.3,
    "eval": {
     "val": {
-     "mAP50": 0.82277,
-     "mAP50_95": 0.62974,
-     "precision": 0.86252,
-     "recall": 0.80306,
+     "mAP50": 0.82899,
+     "mAP50_95": 0.6358,
+     "precision": 0.86341,
+     "recall": 0.80114,
      "jaccard": 0.65425,
      "TP": 685,
      "FP": 179,
@@ -229,13 +236,13 @@
      "cross_class": 5
     },
     "test": {
-     "mAP50": 0.8095,
-     "mAP50_95": 0.6065,
-     "precision": 0.85639,
-     "recall": 0.79282,
-     "jaccard": 0.68698,
+     "mAP50": 0.80959,
+     "mAP50_95": 0.60691,
+     "precision": 0.85839,
+     "recall": 0.79502,
+     "jaccard": 0.68627,
      "TP": 665,
-     "FP": 148,
+     "FP": 149,
      "FN": 155,
      "cross_class": 4
     }
@@ -361,7 +368,12 @@
      "mAP50": 0.81266,
      "mAP50_95": 0.61836,
      "precision": 0.86643,
-     "recall": 0.80441
+     "recall": 0.80441,
+     "jaccard": 0.72737,
+     "TP": 683,
+     "FP": 119,
+     "FN": 137,
+     "cross_class": 3
     }
    },
    "plateau16_mean": 0.64032,
