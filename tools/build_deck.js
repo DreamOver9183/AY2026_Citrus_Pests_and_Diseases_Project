@@ -436,13 +436,17 @@ function hdr(t) {
     ...tblBase, align: "left",
   });
 
-  card(s, M, 4.35, W - 2 * M, 1.5, C.tint);
+  card(s, M, 4.35, W - 2 * M, 1.92, C.tint);
   s.addText([
     { text: "工作包 A 有明確的分歧點：", options: { bold: true, color: C.dark } },
     { text: "兩人的中位 IoU ≥ 0.85 才值得全類重標，否則依既定規則直接刪掉這個類別。", options: { color: C.ink } },
-  ], { x: M + 0.35, y: 4.58, w: W - 2 * M - 0.7, h: 0.5, isTextBox: true, margin: 0, fontFace: F, fontSize: 15 });
+  ], { x: M + 0.35, y: 4.55, w: W - 2 * M - 0.7, h: 0.42, isTextBox: true, margin: 0, fontFace: F, fontSize: 15 });
+  s.addText([
+    { text: "本週新查到：", options: { bold: true, color: C.dark } },
+    { text: "Thrips_Damage 在 2026-06 就有類別代號，但 train / valid / test 全部零標註 —— 它是九類裡唯一從零開始、最晚建立的類別。", options: { color: C.ink } },
+  ], { x: M + 0.35, y: 5.03, w: W - 2 * M - 0.7, h: 0.62, isTextBox: true, margin: 0, fontFace: F, fontSize: 14 });
   s.addText("這條路怎麼走都會有結論，不會白做。", {
-    x: M + 0.35, y: 5.16, w: W - 2 * M - 0.7, h: 0.45, isTextBox: true, margin: 0,
+    x: M + 0.35, y: 5.68, w: W - 2 * M - 0.7, h: 0.45, isTextBox: true, margin: 0,
     fontFace: F, fontSize: 17, bold: true, color: C.accent,
   });
   s.addNotes("重點：這不是「投入了可能沒結果」的賭注，兩種結果都有明確的下一步。");
@@ -509,6 +513,97 @@ function hdr(t) {
     fontFace: F, fontSize: 17, color: C.accent,
   });
   s.addNotes("正文到這裡結束。");
+}
+
+// =====================================================================
+// 11b. 全期 mAP50 總覽（圖為主）
+// =====================================================================
+{
+  const s = pres.addSlide(); lightBg(s);
+  title(s, "全期 mAP50 總覽（2026-06 至今）", "valid split —— 唯一每一期都有的量測。顏色 = 資料集世代，跨顏色不可比");
+
+  const labels = ["06 large", "06 nano", "06 n+P2", "06 微調", "06 SSD-L", "06 SSD-S",
+                  "v8", "v9", "v10", "v11", "v11.5", "v12s"];
+  const N = null;
+  s.addChart(pres.ChartType.bar, [
+    { name: "12 類資料集（06/07）", labels: labels,
+      values: [0.871, 0.854, 0.851, 0.846, 0.472, 0.453, N, N, N, N, N, N] },
+    { name: "v5・v5r（8 類）", labels: labels,
+      values: [N, N, N, N, N, N, 0.821, 0.867, N, N, N, N] },
+    { name: "v5.5・v5.6（9 類，現行）", labels: labels,
+      values: [N, N, N, N, N, N, N, N, 0.799, 0.835, 0.829, 0.837] },
+  ], {
+    x: M, y: 1.82, w: W - 2 * M, h: 4.05,
+    barDir: "col", barGrouping: "stacked", barGapWidthPct: 45,
+    chartColors: ["A8C4B4", "5E8F73", "2C5F45"],
+    showLegend: true, legendPos: "t", legendFontSize: 12, legendColor: C.ink,
+    showValue: true, dataLabelPosition: "inEnd", dataLabelColor: "FFFFFF",
+    dataLabelFontSize: 10, dataLabelFontFace: F, dataLabelFormatCode: "0.000",
+    catAxisLabelColor: C.ink, catAxisLabelFontSize: 11, catAxisLabelFontFace: F,
+    valAxisLabelColor: C.muted, valAxisLabelFontSize: 10, valAxisLabelFontFace: F,
+    valAxisMinVal: 0, valAxisMaxVal: 1.0,
+    valGridLine: { color: "E4EDE7", size: 1 }, catGridLine: { style: "none" },
+    showTitle: false,
+  });
+  s.addText("兩個 SSD 的凹陷是架構限制（320 輸入抓不到極小目標）；其餘十個都落在 0.80–0.87，沒有趨勢可言。",
+    { x: M, y: 6.02, w: W - 2 * M, h: 0.5, isTextBox: true, margin: 0,
+      fontFace: F, fontSize: 13, color: C.ink });
+  s.addNotes("重點只有一句：顏色不同就不能相減。SSD 那兩根是架構問題，不是資料問題。");
+}
+
+// =====================================================================
+// 11c. 三套資料集的差別（解釋為何不可比）
+// =====================================================================
+{
+  const s = pres.addSlide(); lightBg(s);
+  title(s, "為什麼跨期不能相減", "三套資料集量的根本不是同一件事");
+
+  const BR = String.fromCharCode(10);
+  const cols = [
+    { h: "12 類（2026-06/07）", c: "A8C4B4", rows: [
+        ["類別", "12 類，其中 2 類零標註" + BR + "另含 2 個健康葉類別"],
+        ["評估集", "valid 438 張" + BR + "P_SI 一類佔框數 68.8%"],
+        ["權重", "最後一輪" + BR + "（原報告標成「最優」）"],
+      ] },
+    { h: "8 類（v5・v5r）", c: "5E8F73", rows: [
+        ["類別", "8 類" + BR + "沒有 Thrips_Damage"],
+        ["評估集", "valid 438 張" + BR + "v5r 有 13.4% 跨 split 近重複"],
+        ["權重", "best.pt"],
+      ] },
+    { h: "9 類（v5.5・v5.6，現行）", c: "2C5F45", rows: [
+        ["類別", "9 類" + BR + "定義已固定"],
+        ["評估集", "valid 401 ＋ test 401" + BR + "零洩漏、±2SE ≤ 0.10"],
+        ["權重", "last.pt（無選擇偏誤）"],
+      ] },
+  ];
+  const cw = 3.82, gap = 0.42;
+  cols.forEach((col, i) => {
+    const x = M + i * (cw + gap);
+    card(s, x, 1.82, cw, 4.05, i === 2 ? C.tint : C.tint2);
+    s.addShape(pres.ShapeType.roundRect, {
+      x: x, y: 1.82, w: cw, h: 0.62, rectRadius: 0.1, fill: { color: col.c },
+    });
+    s.addText(col.h, {
+      x: x + 0.2, y: 1.82, w: cw - 0.4, h: 0.62, isTextBox: true, margin: 0,
+      fontFace: F, fontSize: 14, bold: true, color: i === 0 ? C.dark : C.white, valign: "middle",
+    });
+    col.rows.forEach((r, j) => {
+      const y = 2.62 + j * 1.08;
+      s.addText(r[0], {
+        x: x + 0.25, y: y, w: cw - 0.5, h: 0.3, isTextBox: true, margin: 0,
+        fontFace: F, fontSize: 11, bold: true, color: C.muted,
+      });
+      s.addText(r[1], {
+        x: x + 0.25, y: y + 0.3, w: cw - 0.5, h: 0.7, isTextBox: true, margin: 0,
+        fontFace: F, fontSize: 13, color: C.ink,
+      });
+    });
+  });
+  s.addText("量尺換過三次，刻度不能互換 —— 唯一能直接相減的是 v11.5 對 v12s。", {
+    x: M, y: 6.05, w: W - 2 * M, h: 0.45, isTextBox: true, margin: 0,
+    fontFace: F, fontSize: 15, bold: true, color: C.accent,
+  });
+  s.addNotes("被問「不是變差了嗎」就翻這頁，三欄對照講完就夠。");
 }
 
 // =====================================================================
@@ -652,6 +747,8 @@ function hdr(t) {
      { text: "標註本身兩人各 20 張，一次會議的時間。真正的成本是決定要不要全類重標之後的那一輪。" }],
     [{ text: "v12s 那顆權重還有用嗎？" },
      { text: "只當精度上限的參考。它在手機上約 950 ms 一張，不是部署候選。" }],
+    [{ text: "6–7 月不是有 0.87 嗎？" },
+     { text: "那是 12 類資料集（含 2 個健康葉類別、2 類零標註），而且是最後一輪被標成「最優」。不同量尺，不能相減。" }],
   ], {
     x: M, y: 1.85, w: W - 2 * M, colW: [4.2, 7.73], rowH: 0.61,
     ...tblBase, fontSize: 12.5, align: "left",
