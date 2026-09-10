@@ -1,6 +1,16 @@
-# 柑橘病蟲害目標偵測（AY2026 專題）
+# 一葉知病 OneLeaf — 病蟲害辨識模型
 
 以 **YOLO26-n-P2** 偵測柑橘葉片上的九種病蟲害，部署目標是手機／邊緣裝置。
+本庫是「一葉知病」專題的**影像辨識這條線**：訓練、評估與部署量測。
+
+| 這個專題的其他部分 | |
+| --- | --- |
+| **對外研究報告** | [`OneLeaf-dx/report`](https://github.com/OneLeaf-dx/report) —— 七章 27 篇，含 RAG／SLM 與行動端 App |
+| **組織首頁** | [`OneLeaf-dx`](https://github.com/OneLeaf-dx) |
+
+> 本庫原本掛在個人帳號下，2026-09-10 轉入組織並改名為 `detection`。
+> 舊網址會自動轉址，但請把本機 remote 換成新的：
+> `git remote set-url origin https://github.com/OneLeaf-dx/detection.git`
 
 | | |
 | --- | --- |
@@ -52,6 +62,8 @@
 ```
 .
 ├── README.md            ← 你在這裡
+├── AGENTS.md            AI agent 的操作規則：紅線、訓練協定、判準、收工前要跑什麼
+├── .claude/skills/      benchmark skill（`.claude/` 底下唯一進版控的東西）
 ├── docs/                所有文件。索引在 docs/README.md
 │   └── archive/         已失效但仍有用途的舊文件（附封存理由）
 ├── tools/               建置 / 驗收 / 診斷 / 標註流程的腳本
@@ -60,14 +72,17 @@
 │   ├── export/          .pt → .tflite 的 Docker 匯出管線
 │   ├── Model/           待測的 .tflite（*.tflite 未進版控）
 │   └── report/          量測報告
-├── Train Code/          訓練用的 notebook
+├── Train Code/          各版本的訓練 notebook 與其輸出
 │   ├── yolo26-p2.yaml   官方架構快照（訓練時實際讀的是已安裝的 ultralytics）
 │   ├── v9/              六臂消融與長跑 —— 交付權重的來源
 │   ├── v10/             v5.5 的首次訓練
 │   ├── v11/             v5.6 的首次訓練（patience=30，評估精度報不出來）
 │   ├── v11.5/           **目前的基準**：patience=0 + 70 輪，±2SE 目標達成
 │   └── v12s/            放大模型的實驗（yolo26**s**-p2）——**已完成，容量不是瓶頸**
+│       每個版本一律是 `train_<版本>.ipynb` + `Train_output/`；後者放 Kaggle 下載的
+│       zip（未進版控）與解壓出來的 `extracted/`，只有權重、超參數與評估數據進版控
 ├── Train Records/       v8 時代的訓練產出（已封存，數字與現行不可比）
+├── _History/            2026 年 6–7 月的歸檔（5 個 zip、27.6 GB，未進版控；只有索引在版控裡）
 └── Datasets/            未進版控，約 54 GB。依**處理階段**分三層：
     ├── 1_原始影像/        人工標註過的來源影像，還沒切分、沒增強
     │   ├── v5r/ v5.5/ v5.6/      各自 {Diseases, Healthy, Pests}
@@ -173,13 +188,13 @@ Skill 本體在 `.claude/skills/tflite_mobile_benchmark/`（對 Claude Code 說
 | `check_annotation_return.py` | **收件端**：格式預檢 ＋ 正式驗收 ＋ 併回來源樹（類別 id 重映） |
 | `score_annotation_agreement.py` | 兩人標註一致性（貪婪配對 ＋ 中位 IoU） |
 
-**保留但不再使用**
+**已被 `Benchmark/` 取代**
 
 | 檔案 | 為什麼保留 |
 | --- | --- |
-| `run_mobile_benchmark.py` · `export_other_formats.py` | 手機延遲量測、其他匯出格式（見上方 Benchmark 段） |
+| `run_mobile_benchmark.py` · `export_other_formats.py` | 手機延遲量測、其他匯出格式的舊入口。現行流程走 `Benchmark/`（見上方 Benchmark 段） |
 
-**保留但不再使用**
+**實測後否決，保留作紀錄**
 
 | 檔案 | 為什麼保留 |
 | --- | --- |
@@ -214,6 +229,8 @@ Skill 本體在 `.claude/skills/tflite_mobile_benchmark/`（對 Claude Code 說
 ---
 
 ## 三條專案層級的規則
+
+完整的操作規範（紅線、目錄職責、收工關卡、兩個容易踩的坑）在 **[AGENTS.md](AGENTS.md)**。
 
 1. **v8 的歷史數字與現行完全不可比。** 不只量尺不同——v5r 的 valid 有 44.5%、
    test 有 47.5% 的影像落在 v5 的 train 裡，**不存在對 v8 乾淨的評估集**。
