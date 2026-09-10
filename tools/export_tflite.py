@@ -283,7 +283,7 @@ def export_one(pt: Path, cfg: Cfg, workdir: Path, data_yaml: Path,
     from ultralytics import YOLO
 
     # exporter 把產物寫在**來源 .pt 旁邊**，所以先複製到專屬目錄，
-    # 免得在 Train Output/ 底下留下一堆 .tflite。
+    # 免得在 Train_output/ 底下留下一堆 .tflite。
     staged = workdir / cfg.tag / pt.name
     staged.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(pt, staged)

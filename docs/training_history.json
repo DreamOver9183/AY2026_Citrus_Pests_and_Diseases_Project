@@ -207,7 +207,7 @@
     }
    },
    "note": "patience=30 → best.pt 由 valid 挑出，valid 不可與 test 併計，只能報 test（最差 ±2SE 0.140）",
-   "artifacts": "Train Code/v11/Train Output/extracted/"
+   "artifacts": "Train Code/v11/Train_output/extracted/"
   },
   "v11.5": {
    "dataset": "v5.6",
@@ -342,7 +342,7 @@
    },
    "worst_pooled_2se": 0.099,
    "note": "patience=0 + 固定輪數 → valid 未參與決策，可與 test 併計。九類 ±2SE ≤ 0.10 達成",
-   "artifacts": "Train Code/v11.5/Train Output/extracted/"
+   "artifacts": "Train Code/v11.5/Train_output/extracted/"
   },
   "v12s": {
    "dataset": "v5.6",
@@ -384,7 +384,7 @@
    "passed": false,
    "delta_vs_v11_5_test_mAP50": 0.00307,
    "note": "只改模型尺度 n→s（3.84x 參數 / 3.49x GFLOPs），其餘與 v11.5 逐字相同。預先登記判準 test mAP50 >= 0.83959，實得 0.81266（+0.003），**未通過**。結論：容量不是瓶頸。依 v12.1 推估平台 1 約 950 ms/張，非部署候選。",
-   "artifacts": "Train Code/v12s/Train Output/extracted/"
+   "artifacts": "Train Code/v12s/Train_output/extracted/"
   }
  },
  "constants": {

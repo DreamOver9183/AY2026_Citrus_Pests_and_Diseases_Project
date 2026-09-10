@@ -47,13 +47,13 @@ docker build -t citrus-tflite-export -f Benchmark/export/Dockerfile .
 PowerShell：
 
 ```bash
-docker run --rm -v "${PWD}:/work" citrus-tflite-export python tools/export_tflite.py --weights "Train Code/v11.5/Train Output/extracted/runs/detect/v5.6_v11_5/weights/last.pt" --variants fp32,w8a32 --verify
+docker run --rm -v "${PWD}:/work" citrus-tflite-export python tools/export_tflite.py --weights "Train Code/v11.5/Train_output/extracted/runs/detect/v5.6_v11_5/weights/last.pt" --variants fp32,w8a32 --verify
 ```
 
 CMD：
 
 ```bash
-docker run --rm -v "%cd%":/work citrus-tflite-export python tools/export_tflite.py --weights "Train Code/v11.5/Train Output/extracted/runs/detect/v5.6_v11_5/weights/last.pt" --variants fp32,w8a32 --verify
+docker run --rm -v "%cd%":/work citrus-tflite-export python tools/export_tflite.py --weights "Train Code/v11.5/Train_output/extracted/runs/detect/v5.6_v11_5/weights/last.pt" --variants fp32,w8a32 --verify
 ```
 
 產物進 `Benchmark/Model/`，命名為 `<stem>__<variant>.tflite`，
