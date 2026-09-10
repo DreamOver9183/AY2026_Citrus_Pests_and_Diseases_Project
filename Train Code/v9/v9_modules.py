@@ -9,7 +9,7 @@
 Kaggle 端取得方式（需開啟 internet）：
 
     !curl -sSL -o v9_modules.py \\
-      https://raw.githubusercontent.com/DreamOver9183/AY2026_Citrus_Pests_and_Diseases_Project/main/Train%20Code/v9/v9_modules.py
+      https://raw.githubusercontent.com/OneLeaf-dx/detection/main/Train%20Code/v9/v9_modules.py
 
 典型用法：
 

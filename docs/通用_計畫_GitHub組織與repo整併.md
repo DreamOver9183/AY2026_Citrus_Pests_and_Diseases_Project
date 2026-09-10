@@ -1,7 +1,7 @@
 # 一葉知病 — GitHub 組織與 repo 整併計劃書
 
-**版本**：草案 v1　**日期**：2026-09-08
-**狀態**：**待組員確認，尚未執行任何操作**
+**版本**：v2　**日期**：2026-09-08（提案）／2026-09-10（執行）
+**狀態**：**已執行，兩個主庫已轉入 `OneLeaf-dx` 並改短名 —— 見 §10**
 **目的**：專題定名「一葉知病」之後，決定程式碼與報告要怎麼放。
 
 ---
@@ -14,7 +14,7 @@
 | **② 組織的英文代號用哪個** | GitHub 組織名稱只能用英數與連字號 | **建議：`oneleaf-dx`** |
 | **③ RAG 與 App 的程式碼放哪** | 目前不確定是否在版控中 | **需要你們回答**（見 §7） |
 
-**在三件都同意之前，不會動任何東西。** 現有兩個 repo 維持原狀。
+> **2026-09-10 更新**：① 與 ② 已定案並執行 —— 組織 `OneLeaf-dx` 已建立，兩個主庫已轉入並改名為 `detection` 與 `report`（見 §10）。③ 仍未回答，是目前最優先的缺口。以下 §1 至 §9 是當初的提案原文，保留不動。
 
 ---
 
@@ -241,6 +241,60 @@ repo 名稱是否要一併改短（`...Project` → `detection`）**可以討論
 7. 在組織首頁加一份專案介紹（`.github` repo 的 README）
 
 **每一步都可逆，第 4 步之前隨時可以喊停。**
+
+---
+
+## 10. 執行紀錄（2026-09-10）
+
+§9 的步驟已執行到第 6 步。實際做法與提案有兩處不同，記在下面。
+
+### 10.1 已完成
+
+| 步驟 | 結果 |
+| --- | --- |
+| 建立組織 | `OneLeaf-dx`（2026-09-09 建立），採用 §4.2 的建議代號 |
+| 邀請組員 | 已寄出 2 封邀請（`nutc11245@gmail.com`、`822ian822-bit`），皆為 Member，**尚未有第二位 Owner** |
+| 推乾淨 | 轉移前先推送 Project 的 15 個與 Report 的 2 個 commit，兩庫本機與遠端一致後才動 |
+| 轉移 | 兩個 repo 皆已轉入組織，**並同時改短名** |
+| 驗證轉址 | 舊網址回 `301` 指向新網址；`raw.githubusercontent.com` 的舊路徑仍回 `200` |
+| 更新本機 remote | 本機兩份 clone 已執行 `git remote set-url`，`git fetch` 正常 |
+
+| 原網址 | 新網址 |
+| --- | --- |
+| `DreamOver9183/AY2026_Citrus_Pests_and_Diseases_Project` | **`OneLeaf-dx/detection`** |
+| `DreamOver9183/AY2026_Citrus_Pests_and_Diseases_Report` | **`OneLeaf-dx/report`** |
+
+轉移前查過兩個 repo 都沒有 star、fork、issue、Actions secret、webhook、deploy key 或 GitHub Pages，所以沒有任何附屬設定需要在組織端重建。報告庫的外部協作者 `Wen1045`（write）在轉移後保留為 outside collaborator，權限未變。
+
+### 10.2 與提案不同的兩處
+
+**一、改名一併做了。** §8 原本建議展前只做加法、不改名。實際決定在轉移時就把名稱改成 `detection` 與 `report`，理由是改名與轉移共用同一套自動轉址，分兩次做並不會比較安全，反而要讓組員換兩次網址。§8 真正要防的「重排」是**庫內**的檔名與目錄結構——那部分一個字都沒動，原則仍然成立。
+
+**二、只搬了兩個 repo。** 個人帳號下另有三個與本專題相關的 repo，這次不搬：
+
+| repo | 狀態 | 說明 |
+| --- | --- | --- |
+| `Citrus_Pest_and_Disease_Tools` | 留在個人帳號 | 模型評估與視覺化平台，有 2 支 CI workflow |
+| `Model-Mobile-Test` | 留在個人帳號（private） | 2026-06／07 的 YOLO26 轉 TFLite 紀錄 |
+| `TFLite_Benchmark_skills` | 留在個人帳號 | 手機 benchmark 工具鏈，本庫 `Benchmark/` 已收錄其內容 |
+
+因此本庫 `README.md`、`Benchmark/README.md`、`Benchmark/export/` 與 `docs/v12_結果_TFLite基準量測.md` 裡指向這三個 repo 的連結**維持原樣**，它們沒有失效。真正改掉的只有指向本庫自己的 4 處 raw 連結（`Train Code/v9/` 的三本 notebook 與 `v9_modules.py`），已改為 `OneLeaf-dx/detection`。
+
+### 10.3 還沒做的
+
+| 項目 | 對應 |
+| --- | --- |
+| 組員各自跑一次 `git remote set-url origin <新網址>` | §9 步驟 6 |
+| 指定第二位 Owner（避免單點失效） | §7 ③ |
+| 組織首頁 `.github` repo 的專案介紹 | §9 步驟 7 |
+| **確認 RAG／App 的程式碼有進版控** | §7 ①，仍是最優先的缺口 |
+
+組員要更新本機 remote 的指令：
+
+```powershell
+git remote set-url origin https://github.com/OneLeaf-dx/detection.git
+git remote set-url origin https://github.com/OneLeaf-dx/report.git
+```
 
 ---
 
