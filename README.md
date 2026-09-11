@@ -178,7 +178,7 @@ Skill 本體在 `.claude/skills/tflite_mobile_benchmark/`（對 Claude Code 說
 | 檔案 | 用途 |
 | --- | --- |
 | `export_tflite.py` | `.pt` → `.tflite` 的四軸掃描（量化 × 解析度 × end2end × max_det），含逐框比對與完整 mAP。**只能在 `Benchmark/export/` 的容器裡跑**——ultralytics 的 LiteRT 匯出在 Windows 被平台斷言擋住 |
-| `judge_deploy_stoploss.py` | 部署線的止損判準（[v12.2 計畫](docs/v12.2_計畫_部署線止損標準.md)），**門檻寫死在程式裡**。精度讀匯出報告、延遲讀 `run_mobile_benchmark.py` 的 JSON（唯一會交錯重跑取最小值的入口），自動判過線、第二階段准入與期限 |
+| `judge_deploy_stoploss.py` | 即時辨識功能的採用門檻＝部署線的止損判準（[v12.2 計畫](docs/v12.2_計畫_部署線止損標準.md)），**門檻寫死在程式裡**。精度讀匯出報告、延遲讀 `run_mobile_benchmark.py` 的 JSON（唯一會交錯重跑取最小值的入口），自動判過線、第二階段准入與期限 |
 
 **人工標註流程**
 
