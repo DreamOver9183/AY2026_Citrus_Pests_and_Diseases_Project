@@ -666,7 +666,8 @@ def main() -> None:
         print(f"  {tag:<28}{e['size_mb']:>7.2f}"
               f"{(f'{m:.5f}' if m is not None else '—'):>9}{d:>9}"
               f"{e.get('verify', {}).get('verdict', '—'):>8}"
-              f"{('保留' if e['end2end'] else ('強制關' if e['end2end_forced_off'] else '關')):>10}")
+              # 由 log 重建的舊條目沒有 end2end_forced_off，要用 get，否則總表會在最後一刻崩掉
+              f"{('保留' if e['end2end'] else ('強制關' if e.get('end2end_forced_off') else '關')):>10}")
     print("═" * 88)
     print(f"  報告   {rp.relative_to(P.REPO)}")
     if failed:

@@ -1,10 +1,10 @@
 {
- "weights": "/work/Train Code/v11.5/Train Output/extracted/runs/detect/v5.6_v11_5/weights/last.pt",
+ "weights": "/work/Train Code/v11.5/Train_output/extracted/runs/detect/v5.6_v11_5/weights/last.pt",
  "dataset": "v5.6",
  "calibration_split": "train",
  "fraction": 0.05,
  "calib_per_class": 60,
- "calib_balanced": false,
+ "calib_balanced": true,
  "results": {
   "fp32__i640__e2e1__md100": {
    "exported": true,
@@ -482,6 +482,146 @@
    },
    "phone_cpu_ms": 43.5,
    "phone_cpu_fps": 22.98
+  },
+  "fp32__i224__e2e1": {
+   "exported": true,
+   "file": "last__fp32__i224__e2e1.tflite",
+   "variant": "fp32",
+   "imgsz": 224,
+   "end2end": true,
+   "max_det": 300,
+   "end2end_forced_off": false,
+   "size_mb": 9.51,
+   "val": {
+    "mAP50": 0.68938,
+    "mAP50_95": 0.4785,
+    "precision": 0.79307,
+    "recall": 0.63444,
+    "per_class_ap50": {
+     "Oily_Spot": 0.91209,
+     "Canker": 0.72779,
+     "Sooty_Mold": 0.99136,
+     "Black_Spot": 0.94935,
+     "Scale_Insect": 0.27132,
+     "Citrus_Leaf_Miner": 0.56611,
+     "Thrips": 0.64467,
+     "Aphid": 0.7534,
+     "Thrips_Damage": 0.38837
+    },
+    "seconds": 16.0
+   }
+  },
+  "fp32__i224__e2e0": {
+   "exported": true,
+   "file": "last__fp32__i224__e2e0.tflite",
+   "variant": "fp32",
+   "imgsz": 224,
+   "end2end": false,
+   "max_det": 300,
+   "end2end_forced_off": false,
+   "size_mb": 9.49,
+   "val": {
+    "mAP50": 0.69676,
+    "mAP50_95": 0.48645,
+    "precision": 0.79271,
+    "recall": 0.65589,
+    "per_class_ap50": {
+     "Oily_Spot": 0.93239,
+     "Canker": 0.71064,
+     "Sooty_Mold": 0.99227,
+     "Black_Spot": 0.9507,
+     "Scale_Insect": 0.27118,
+     "Citrus_Leaf_Miner": 0.60513,
+     "Thrips": 0.65015,
+     "Aphid": 0.77238,
+     "Thrips_Damage": 0.38599
+    },
+    "seconds": 16.3
+   }
+  },
+  "int8__i288__e2e0": {
+   "exported": true,
+   "file": "last__int8__i288__e2e0.tflite",
+   "variant": "int8",
+   "imgsz": 288,
+   "end2end": false,
+   "max_det": 300,
+   "end2end_forced_off": true,
+   "size_mb": 2.84,
+   "val": {
+    "mAP50": 0.70206,
+    "mAP50_95": 0.42024,
+    "precision": 0.78361,
+    "recall": 0.72453,
+    "per_class_ap50": {
+     "Oily_Spot": 0.87681,
+     "Canker": 0.57306,
+     "Sooty_Mold": 0.97712,
+     "Black_Spot": 0.97825,
+     "Scale_Insect": 0.40325,
+     "Citrus_Leaf_Miner": 0.5433,
+     "Thrips": 0.70147,
+     "Aphid": 0.81996,
+     "Thrips_Damage": 0.44527
+    },
+    "seconds": 13.2
+   }
+  },
+  "int8__i256__e2e0": {
+   "exported": true,
+   "file": "last__int8__i256__e2e0.tflite",
+   "variant": "int8",
+   "imgsz": 256,
+   "end2end": false,
+   "max_det": 300,
+   "end2end_forced_off": true,
+   "size_mb": 2.84,
+   "val": {
+    "mAP50": 0.70859,
+    "mAP50_95": 0.42203,
+    "precision": 0.80337,
+    "recall": 0.70856,
+    "per_class_ap50": {
+     "Oily_Spot": 0.95325,
+     "Canker": 0.64739,
+     "Sooty_Mold": 0.96485,
+     "Black_Spot": 0.88115,
+     "Scale_Insect": 0.35491,
+     "Citrus_Leaf_Miner": 0.58158,
+     "Thrips": 0.68653,
+     "Aphid": 0.80007,
+     "Thrips_Damage": 0.50762
+    },
+    "seconds": 12.4
+   }
+  },
+  "int8__i224__e2e0": {
+   "exported": true,
+   "file": "last__int8__i224__e2e0.tflite",
+   "variant": "int8",
+   "imgsz": 224,
+   "end2end": false,
+   "max_det": 300,
+   "end2end_forced_off": true,
+   "size_mb": 2.84,
+   "val": {
+    "mAP50": 0.62084,
+    "mAP50_95": 0.35544,
+    "precision": 0.77467,
+    "recall": 0.62755,
+    "per_class_ap50": {
+     "Oily_Spot": 0.8236,
+     "Canker": 0.5221,
+     "Sooty_Mold": 0.96308,
+     "Black_Spot": 0.68001,
+     "Scale_Insect": 0.24614,
+     "Citrus_Leaf_Miner": 0.542,
+     "Thrips": 0.67019,
+     "Aphid": 0.74334,
+     "Thrips_Damage": 0.39704
+    },
+    "seconds": 12.3
+   }
   }
  },
  "pytorch_baseline": {
@@ -520,13 +660,60 @@
     "Thrips_Damage": 0.45148
    },
    "seconds": 59.0
+  },
+  "224": {
+   "mAP50": 0.67498,
+   "mAP50_95": 0.46296,
+   "precision": 0.77511,
+   "recall": 0.63068,
+   "per_class_ap50": {
+    "Oily_Spot": 0.78276,
+    "Canker": 0.72475,
+    "Sooty_Mold": 0.98464,
+    "Black_Spot": 0.93855,
+    "Scale_Insect": 0.33087,
+    "Citrus_Leaf_Miner": 0.48872,
+    "Thrips": 0.68534,
+    "Aphid": 0.8147,
+    "Thrips_Damage": 0.32453
+   },
+   "seconds": 25.5
+  },
+  "256": {
+   "mAP50": 0.73969,
+   "mAP50_95": 0.51723,
+   "precision": 0.79652,
+   "recall": 0.69929,
+   "per_class_ap50": {
+    "Oily_Spot": 0.90887,
+    "Canker": 0.78555,
+    "Sooty_Mold": 0.995,
+    "Black_Spot": 0.96719,
+    "Scale_Insect": 0.41257,
+    "Citrus_Leaf_Miner": 0.58105,
+    "Thrips": 0.68163,
+    "Aphid": 0.87766,
+    "Thrips_Damage": 0.44774
+   },
+   "seconds": 24.6
+  },
+  "288": {
+   "mAP50": 0.76817,
+   "mAP50_95": 0.54596,
+   "precision": 0.82976,
+   "recall": 0.72641,
+   "per_class_ap50": {
+    "Oily_Spot": 0.97467,
+    "Canker": 0.82506,
+    "Sooty_Mold": 0.995,
+    "Black_Spot": 0.95143,
+    "Scale_Insect": 0.5199,
+    "Citrus_Leaf_Miner": 0.60482,
+    "Thrips": 0.71616,
+    "Aphid": 0.90686,
+    "Thrips_Damage": 0.41961
+   },
+   "seconds": 26.4
   }
- },
- "pytorch_baseline_mAP50_by_imgsz": {
-  "640": 0.80897,
-  "512": 0.80752,
-  "416": 0.80294,
-  "320": 0.77663
- },
- "note": "本檔曾因每輪覆寫而遺失前幾輪的結果，已從 scratchpad 的執行 log 重建，並標記 reconstructed_from_log。工具已改為合併寫入。"
+ }
 }

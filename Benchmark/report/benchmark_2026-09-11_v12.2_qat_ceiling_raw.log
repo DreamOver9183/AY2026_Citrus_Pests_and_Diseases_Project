@@ -1,0 +1,25 @@
+======================================================================
+last__int8__i320__e2e0.tflite @ cpu
+======================================================================
+--------- beginning of main
+09-11 19:22:17.951 11854 11854 I tflite  : Log parameter values verbosely: [0]
+09-11 19:22:17.951 11854 11854 I tflite  : Min num runs: [25]
+09-11 19:22:17.951 11854 11854 I tflite  : Num threads: [4]
+09-11 19:22:17.951 11854 11854 I tflite  : Graph: [/data/local/tmp/last__int8__i320__e2e0.tflite]
+09-11 19:22:17.951 11854 11854 I tflite  : Signature to run: []
+09-11 19:22:17.951 11854 11854 I tflite  : #threads used for CPU inference: [4]
+09-11 19:22:17.952 11854 11854 I tflite  : Use gpu: [0]
+09-11 19:22:17.952 11854 11854 I tflite  : Use NNAPI: [0]
+09-11 19:22:17.953 11854 11854 I tflite  : Loaded model /data/local/tmp/last__int8__i320__e2e0.tflite
+09-11 19:22:17.953 11854 11854 I tflite  : Initialized TensorFlow Lite runtime.
+09-11 19:22:17.963 11854 11854 I tflite  : Created TensorFlow Lite XNNPACK delegate for CPU.
+09-11 19:22:17.965 11854 11854 I tflite  : Replacing 542 out of 551 node(s) with delegate (TfLiteXNNPackDelegate) node, yielding 19 partitions for subgraph 0.
+09-11 19:22:17.998 11854 11854 I tflite  : The input model file size (MB): 2.98789
+09-11 19:22:17.998 11854 11854 I tflite  : Initialized session in 46.477ms.
+09-11 19:22:18.005 11854 11854 I tflite  : Running benchmark for at least 1 iterations and at least 0.5 seconds but terminate if exceeding 150 seconds.
+09-11 19:22:18.547 11854 11854 I tflite  : count=9 first=69002 curr=56681 min=48210 max=71147 avg=59821.6 std=6735 p5=48210 median=59882 p95=71147
+09-11 19:22:18.547 11854 11854 I tflite  : Running benchmark for at least 25 iterations and at least 1 seconds but terminate if exceeding 150 seconds.
+09-11 19:22:19.613 11854 11854 I tflite  : count=25 first=54902 curr=36459 min=36121 max=58295 avg=42372.8 std=7925 p5=36212 median=38908 p95=57958
+09-11 19:22:19.613 11854 11854 I tflite  : Inference timings in us: Init: 46477, First inference: 69002, Warmup (avg): 59821.6, Inference (avg): 42372.8
+09-11 19:22:19.613 11854 11854 I tflite  : Note: as the benchmark tool itself affects memory footprint, the following is only APPROXIMATE to the actual memory footprint of the model at runtime. Take the information at your discretion.
+09-11 19:22:19.613 11854 11854 I tflite  : Memory footprint delta from the start of the tool (MB): init=23.6016 overall=31.8164
