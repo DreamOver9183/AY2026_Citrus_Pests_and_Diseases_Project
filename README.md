@@ -188,6 +188,7 @@ Skill 本體在 `.claude/skills/tflite_mobile_benchmark/`（對 Claude Code 說
 | `make_annotation_guide.py` | 由既有標註渲染正例／反例對照圖 |
 | `check_annotation_return.py` | **收件端**：格式預檢 ＋ 正式驗收 ＋ 併回來源樹（類別 id 重映） |
 | `score_annotation_agreement.py` | 兩人標註一致性（貪婪配對 ＋ 中位 IoU） |
+| `prelabel_assist.py` | B 包「AI 預標 → 單人審圖」的機械部分：座標格線圖、格線座標寫成 YOLO、核對拼圖、審前播種、審後比對（哪些檔案沒動過） |
 
 **已被 `Benchmark/` 取代**
 
