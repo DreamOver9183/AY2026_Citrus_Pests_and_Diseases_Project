@@ -224,6 +224,35 @@ def downsample_scale(train: list[dict], rng: random.Random) -> list[dict]:
     return kept
 
 
+def imread_any(path) -> "np.ndarray | None":
+    """讀圖。**不要直接用 `cv2.imread`。**
+
+    `cv2.imread` 在 Windows 走窄字元 API，遇到非 ASCII 路徑會回傳 `None`
+    而不是丟例外。本專案的來源樹是 `Datasets/1_原始影像/...`（中文），
+    2026-09-13 實測 OpenCV 5.0.0 在這個路徑下每一張都讀不到——
+    而呼叫端只把 `None` 當成「這張跳過」，結果是**整批增強靜默產生 0 張**。
+
+    `np.fromfile` + `cv2.imdecode` 不經過那條路徑，而且**一樣會套用 EXIF 方向**
+    （已逐像素比對過 `PIL.ImageOps.exif_transpose`，完全相同），
+    所以換過來不會改變任何既有資料的座標系。
+    """
+    buf = np.fromfile(str(path), dtype=np.uint8)
+    if buf.size == 0:
+        return None
+    return cv2.imdecode(buf, cv2.IMREAD_COLOR)
+
+
+def imwrite_any(path, img, quality: int = JPEG_QUALITY) -> bool:
+    """寫圖。`cv2.imwrite` 在非 ASCII 路徑同樣會**靜默失敗**（回傳 False）。"""
+    path = Path(path)
+    ok, buf = cv2.imencode(path.suffix or ".jpg", img,
+                           [cv2.IMWRITE_JPEG_QUALITY, quality])
+    if not ok:
+        return False
+    path.write_bytes(buf.tobytes())
+    return True
+
+
 def write_sample(img_path: Path, boxes, out_img: Path, out_lbl: Path):
     shutil.copy2(img_path, out_img)
     out_lbl.write_text(
@@ -233,7 +262,7 @@ def write_sample(img_path: Path, boxes, out_img: Path, out_lbl: Path):
 
 
 def write_augmented(item: dict, out_img: Path, out_lbl: Path) -> bool:
-    im = cv2.imread(str(item["img"]))
+    im = imread_any(item["img"])
     if im is None:
         return False
     bb = [[cx, cy, w, h] for _c, cx, cy, w, h in item["boxes"]]
@@ -245,7 +274,7 @@ def write_augmented(item: dict, out_img: Path, out_lbl: Path) -> bool:
     out = [(int(c), *map(float, b)) for b, c in zip(res["bboxes"], res["class_labels"])]
     if item["boxes"] and not out:
         return False                                   # 增強後標註全失效，捨棄
-    cv2.imwrite(str(out_img), res["image"], [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
+    imwrite_any(out_img, res["image"], JPEG_QUALITY)
     out_lbl.write_text(
         "".join(f"{c} {cx:.6f} {cy:.6f} {w:.6f} {h:.6f}\n" for c, cx, cy, w, h in out),
         encoding="utf-8",

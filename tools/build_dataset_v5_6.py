@@ -60,13 +60,15 @@ import numpy as np                        # noqa: E402
 from PIL import Image as PILImage         # noqa: E402
 
 from build_dataset_v5r import (           # noqa: E402  重用 v5r 的解析/寫出邏輯
-    IMG_EXT, JPEG_QUALITY, equiv_px, find_image, parse_label, write_sample,
+    IMG_EXT, JPEG_QUALITY, equiv_px, find_image, imread_any, imwrite_any,
+    parse_label, write_sample,
 )
 from check_dataset_leakage import dhash   # noqa: E402  與洩漏查驗共用同一個感知雜湊
 import aug_profiles                       # noqa: E402  逐類增強 profile
 
 REPO = Path(__file__).resolve().parent.parent
 V55_OUT = _P.split("v5.5")
+DATASET_VERSION = "v5.6"      # build_dataset_v5_7.py 會連同下面兩個一起改寫
 V56_ROOT = _P.raw("v5.6")
 OUT_ROOT = _P.split("v5.6")
 MANUAL_ROOT = _P.MANUAL
@@ -329,7 +331,7 @@ def nested_split(name: str, items: list[dict],
 
 def write_augmented(item: dict, compose, out_img: Path, out_lbl: Path) -> bool:
     """套用該類別專屬的 profile 寫出一張增強圖。"""
-    im = cv2.imread(str(item["img"]))
+    im = imread_any(item["img"])
     if im is None:
         return False
     bb = [[cx, cy, w, h] for _c, cx, cy, w, h in item["boxes"]]
@@ -341,7 +343,7 @@ def write_augmented(item: dict, compose, out_img: Path, out_lbl: Path) -> bool:
     out = [(int(c), *map(float, b)) for b, c in zip(res["bboxes"], res["class_labels"])]
     if item["boxes"] and not out:
         return False                      # 增強後標註全失效，捨棄
-    cv2.imwrite(str(out_img), res["image"], [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
+    imwrite_any(out_img, res["image"], JPEG_QUALITY)
     out_lbl.write_text(
         "".join(f"{c} {cx:.6f} {cy:.6f} {w:.6f} {h:.6f}\n" for c, cx, cy, w, h in out),
         encoding="utf-8",
@@ -371,7 +373,7 @@ def main() -> None:
     use_ext = args.arm in ("ext", "all")
 
     print("═" * 82)
-    print(f"  Datasets_YOLO26_v5.6 建置   arm={args.arm}   "
+    print(f"  Datasets_YOLO26_{DATASET_VERSION} 建置   arm={args.arm}   "
           f"ROTATE_MODE={aug_profiles.ROTATE_MODE}")
     print("═" * 82)
 
@@ -557,7 +559,17 @@ def main() -> None:
                 made += 1
                 counters["train"][name] += 1
         if need:
-            print(f"  {name:<20} 增強 {made:,}/{need:,}")
+            print(f"  {name:<20} 增強 {made:,}/{need:,}"
+                  + ("" if made == need else "   ⚠ 未達配額"))
+        # 2026-09-13：cv2.imread 在中文路徑下靜默回傳 None，整批增強產出 0 張而建置
+        # 仍然「成功」結束，八道 Gate 也照樣綠燈（它們檢查的是比例，不是絕對張數）。
+        # 一張都沒生出來一定是環境或程式壞了，不是資料的問題——當場停。
+        if need and made == 0:
+            bad = src[0]["img"] if src else "?"
+            raise SystemExit(
+                f"\n{name}：配額 {need} 張，但一張增強圖都沒產生。"
+                f"\n最常見的原因是讀圖失敗（來源 {bad}）。"
+                f"\n先用 tools/build_dataset_v5r.py 的 imread_any() 單獨試讀那個檔案。")
 
     # copy-paste 合成（cp 臂）
     if use_cp and cp_n["Citrus_Leaf_Miner"]:
@@ -575,7 +587,7 @@ def main() -> None:
 
     # ── 8. data.yaml 與 provenance ──────────────────────────────────────
     yaml_text = (
-        "# Datasets_YOLO26_v5.6 —— 由 tools/build_dataset_v5_6.py 產生\n"
+        f"# Datasets_YOLO26_{DATASET_VERSION} —— 由 tools/{Path(sys.argv[0]).name} 產生\n"
         f"# seed={SEED}  arm={args.arm}  rotate_mode={aug_profiles.ROTATE_MODE}\n"
         f"# 切分：逐類絕對評估量，且與 v5.5 巢狀相容（v5.6 eval 是 v5.5 eval 的超集）\n"
         "path: .\ntrain: train/images\nval: valid/images\ntest: test/images\n\n"
@@ -586,6 +598,7 @@ def main() -> None:
     (out_root / "_provenance.json").write_text(json.dumps(dict(
         meta=dict(
             built=datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
+            version=DATASET_VERSION, src_root=str(V56_ROOT),
             arm=args.arm, seed=SEED, rotate_mode=aug_profiles.ROTATE_MODE,
             aug_mult=AUG_MULT, aug_cap=AUG_CAP, dup_threshold=DUP_THRESHOLD,
             eval_target={k: list(v) for k, v in EVAL_TARGET.items()},

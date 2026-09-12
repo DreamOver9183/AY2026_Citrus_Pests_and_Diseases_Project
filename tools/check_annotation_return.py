@@ -40,6 +40,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from PIL import Image                     # noqa: E402
 
+import dataset_paths as _P                # noqa: E402
 import build_dataset_v5_6 as B            # noqa: E402
 
 PACKAGES = {
@@ -105,10 +106,13 @@ def main() -> None:
     ap.add_argument("--precheck", action="store_true",
                     help="只檢查前幾張的格式，不要求交齊")
     ap.add_argument("--install", action="store_true",
-                    help="通過後把標註併進 v5.6 的來源樹（只有 B 有這個動作）")
+                    help="通過後把標註併進來源樹（只有 B 有這個動作）")
+    ap.add_argument("--src-version", default=None,
+                    help="--install 要併進哪一版來源樹（例 v5.7）；預設是 build_dataset_v5_6 的 v5.6")
     args = ap.parse_args()
 
     spec = PACKAGES[args.package]
+    src_root = _P.raw(args.src_version) if args.src_version else B.V56_ROOT
     root = B.MANUAL_ROOT / spec["folder"]
     src_dir = Path(args.dir) if args.dir else root / "完成後放這裡"
     img_dir = root / spec["images"]
@@ -200,7 +204,7 @@ def main() -> None:
               f"（類別 id {0} → {spec['cid']}）。")
         return
 
-    dst = B.V56_ROOT / spec["install"]
+    dst = src_root / spec["install"]
     (dst / "images").mkdir(parents=True, exist_ok=True)
     (dst / "labels").mkdir(parents=True, exist_ok=True)
     n = 0

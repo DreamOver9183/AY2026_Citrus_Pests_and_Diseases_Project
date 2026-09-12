@@ -51,6 +51,7 @@ V55_ROOT = _P.raw("v5.5")
 V56_ROOT = B.V56_ROOT
 OUT = B.OUT_ROOT
 V55_OUT = B.V55_OUT
+DATASET_LABEL = B.DATASET_VERSION
 PY = sys.executable
 
 IMGSZ = 640
@@ -75,6 +76,10 @@ AUG_SHARE_MAX = 0.80                # 單一類別的增強圖佔比上限
 MED_SIZE_RATIO = (0.6, 1.6)         # train vs 評估集的中位框尺寸比
 BOX_PER_IMG_RATIO = (0.7, 1.4)      # train vs 評估集的每圖框數比
 SE_MAX = 0.10
+
+# 「與 v5.5 位元一致」要跳過的來源資料夾。v5.6 是空的（全部都該一致）；
+# verify_dataset_v5_7.py 會把重標過的 Thrips 放進來，並改用更嚴格的逐子類檢查。
+BITWISE_SKIP: set[str] = set()
 
 
 class Report:
@@ -136,6 +141,8 @@ def gate0(rep: Report) -> None:
     # 與 v5.5 位元一致
     diff, checked = [], 0
     for rel, _ in EXPECT_SOURCES:
+        if rel in BITWISE_SKIP:
+            continue
         for sub in ("images", "labels"):
             a, b = V55_ROOT / rel / sub, V56_ROOT / rel / sub
             if not (a.is_dir() and b.is_dir()):
@@ -148,7 +155,7 @@ def gate0(rep: Report) -> None:
                 checked += 1
                 if pa.stat().st_size != pb.stat().st_size or md5(pa) != md5(pb):
                     diff.append(f"位元不同 {rel}/{sub}/{pa.name}")
-    rep.add(f"與 v5.5 來源位元一致（比對 {checked:,} 檔）", not diff,
+    rep.add(f"與 v5.5 來源位元一致（比對 {checked:,} 檔{f"，跳過 {len(BITWISE_SKIP)} 個資料夾" if BITWISE_SKIP else ""}）", not diff,
             "" if not diff else f"{len(diff)} 項不符：{diff[:3]}")
     layout = all((OUT / sp / d).is_dir() for sp in SPLITS for d in ("images", "labels"))
     rep.add("OutPut 為 {train,valid,test}/{images,labels} 二層", layout)
@@ -390,7 +397,7 @@ def main() -> None:
     skip = {int(s) for s in args.skip.split(",") if s.strip().isdigit()}
 
     print("═" * 82)
-    print(f"  Datasets_YOLO26_v5.6 驗收   {OUT}")
+    print(f"  Datasets_YOLO26_{DATASET_LABEL} 驗收   {OUT}")
     print("═" * 82)
 
     pj = OUT / "_provenance.json"
@@ -417,7 +424,7 @@ def main() -> None:
         for g, _, note in rep.failed:
             print(f"  ✗ {g}" + (f"  —— {note}" if note else ""))
         sys.exit(1)
-    print(f"八道 Gate 全綠（{len(rep.rows)} 項檢查）。v5.6 可以交付訓練。")
+    print(f"八道 Gate 全綠（{len(rep.rows)} 項檢查）。{DATASET_LABEL} 可以交付訓練。")
 
 
 if __name__ == "__main__":

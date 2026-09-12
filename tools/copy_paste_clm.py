@@ -84,6 +84,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import cv2
 import numpy as np
 
+from build_dataset_v5r import imread_any   # noqa: E402  非 ASCII 路徑安全的讀圖
+
 IMGSZ_REF = 640
 JPEG_QUALITY = 92
 
@@ -200,8 +202,8 @@ def synthesize(sources: list[dict], targets: list[dict], n: int,
         guard += 1
         s = src_with_box[rng.randrange(len(src_with_box))]
         t = targets[rng.randrange(len(targets))]
-        simg = cv2.imread(str(s["img"]))
-        timg = cv2.imread(str(t["img"]))
+        simg = imread_any(s["img"])
+        timg = imread_any(t["img"])
         if simg is None or timg is None:
             continue
         cropped = _crop_patch(simg, s["boxes"][rng.randrange(len(s["boxes"]))])
@@ -216,7 +218,7 @@ def synthesize(sources: list[dict], targets: list[dict], n: int,
         boxes = [(cid, cx, cy, bw, bh)]
         if rng.random() < 0.4:
             s2 = src_with_box[rng.randrange(len(src_with_box))]
-            simg2 = cv2.imread(str(s2["img"]))
+            simg2 = imread_any(s2["img"])
             c2 = _crop_patch(simg2, s2["boxes"][rng.randrange(len(s2["boxes"]))]) \
                 if simg2 is not None else None
             if c2 is not None:
