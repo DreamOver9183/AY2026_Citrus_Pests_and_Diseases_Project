@@ -1,0 +1,419 @@
+{
+  "run": "v5.7_v11_5",
+  "epochs": 70,
+  "patience": 0,
+  "close_mosaic": 13,
+  "dataset": "v5.6",
+  "nc": 9,
+  "imgsz": 640,
+  "primary_weight": "last.pt",
+  "note": "patience=0 且固定輪數，valid 未參與任何決策，因此 last.pt 的 valid 與 test 可合法併計；best.pt 僅作對照。",
+  "evals": {
+    "last_val": {
+      "mAP50": 0.82575,
+      "mAP50_95": 0.62637,
+      "precision": 0.85242,
+      "recall": 0.82117,
+      "per_class": {
+        "Oily_Spot": {
+          "precision": 0.92691,
+          "recall": 0.91667,
+          "f1": 0.92176,
+          "ap50": 0.94299,
+          "ap50_95": 0.9351
+        },
+        "Canker": {
+          "precision": 0.92218,
+          "recall": 0.93413,
+          "f1": 0.92812,
+          "ap50": 0.92819,
+          "ap50_95": 0.61372
+        },
+        "Sooty_Mold": {
+          "precision": 0.97728,
+          "recall": 1.0,
+          "f1": 0.98851,
+          "ap50": 0.995,
+          "ap50_95": 0.95481
+        },
+        "Black_Spot": {
+          "precision": 0.87072,
+          "recall": 0.96,
+          "f1": 0.91318,
+          "ap50": 0.96027,
+          "ap50_95": 0.94326
+        },
+        "Scale_Insect": {
+          "precision": 0.57049,
+          "recall": 0.58954,
+          "f1": 0.57986,
+          "ap50": 0.54519,
+          "ap50_95": 0.34425
+        },
+        "Citrus_Leaf_Miner": {
+          "precision": 0.79303,
+          "recall": 0.78058,
+          "f1": 0.78676,
+          "ap50": 0.79306,
+          "ap50_95": 0.63409
+        },
+        "Thrips": {
+          "precision": 0.88401,
+          "recall": 0.6,
+          "f1": 0.71483,
+          "ap50": 0.64535,
+          "ap50_95": 0.35202
+        },
+        "Aphid": {
+          "precision": 0.88172,
+          "recall": 0.82832,
+          "f1": 0.85419,
+          "ap50": 0.89741,
+          "ap50_95": 0.51204
+        },
+        "Thrips_Damage": {
+          "precision": 0.8454,
+          "recall": 0.78126,
+          "f1": 0.81206,
+          "ap50": 0.72426,
+          "ap50_95": 0.34801
+        }
+      }
+    },
+    "last_test": {
+      "mAP50": 0.86118,
+      "mAP50_95": 0.64113,
+      "precision": 0.90923,
+      "recall": 0.81247,
+      "per_class": {
+        "Oily_Spot": {
+          "precision": 0.94026,
+          "recall": 0.95833,
+          "f1": 0.94921,
+          "ap50": 0.95333,
+          "ap50_95": 0.9495
+        },
+        "Canker": {
+          "precision": 0.87839,
+          "recall": 0.85165,
+          "f1": 0.86481,
+          "ap50": 0.88088,
+          "ap50_95": 0.56084
+        },
+        "Sooty_Mold": {
+          "precision": 0.98834,
+          "recall": 1.0,
+          "f1": 0.99414,
+          "ap50": 0.995,
+          "ap50_95": 0.96779
+        },
+        "Black_Spot": {
+          "precision": 0.94771,
+          "recall": 0.96,
+          "f1": 0.95381,
+          "ap50": 0.9454,
+          "ap50_95": 0.91294
+        },
+        "Scale_Insect": {
+          "precision": 0.81814,
+          "recall": 0.57503,
+          "f1": 0.67537,
+          "ap50": 0.71901,
+          "ap50_95": 0.40129
+        },
+        "Citrus_Leaf_Miner": {
+          "precision": 0.85192,
+          "recall": 0.6293,
+          "f1": 0.72388,
+          "ap50": 0.68755,
+          "ap50_95": 0.50115
+        },
+        "Thrips": {
+          "precision": 0.92952,
+          "recall": 0.6701,
+          "f1": 0.77878,
+          "ap50": 0.76263,
+          "ap50_95": 0.44105
+        },
+        "Aphid": {
+          "precision": 0.94017,
+          "recall": 0.88952,
+          "f1": 0.91415,
+          "ap50": 0.96151,
+          "ap50_95": 0.57153
+        },
+        "Thrips_Damage": {
+          "precision": 0.88861,
+          "recall": 0.77833,
+          "f1": 0.82982,
+          "ap50": 0.84529,
+          "ap50_95": 0.46409
+        }
+      }
+    },
+    "best_val": {
+      "mAP50": 0.84184,
+      "mAP50_95": 0.63761,
+      "precision": 0.85146,
+      "recall": 0.81595,
+      "per_class": {
+        "Oily_Spot": {
+          "precision": 0.95644,
+          "recall": 0.91504,
+          "f1": 0.93528,
+          "ap50": 0.97887,
+          "ap50_95": 0.96626
+        },
+        "Canker": {
+          "precision": 0.92159,
+          "recall": 0.92814,
+          "f1": 0.92485,
+          "ap50": 0.92823,
+          "ap50_95": 0.62474
+        },
+        "Sooty_Mold": {
+          "precision": 0.93749,
+          "recall": 1.0,
+          "f1": 0.96774,
+          "ap50": 0.995,
+          "ap50_95": 0.96339
+        },
+        "Black_Spot": {
+          "precision": 0.84323,
+          "recall": 0.96,
+          "f1": 0.89783,
+          "ap50": 0.96872,
+          "ap50_95": 0.9531
+        },
+        "Scale_Insect": {
+          "precision": 0.58192,
+          "recall": 0.58824,
+          "f1": 0.58506,
+          "ap50": 0.55852,
+          "ap50_95": 0.36873
+        },
+        "Citrus_Leaf_Miner": {
+          "precision": 0.90002,
+          "recall": 0.81481,
+          "f1": 0.8553,
+          "ap50": 0.83336,
+          "ap50_95": 0.66471
+        },
+        "Thrips": {
+          "precision": 0.89437,
+          "recall": 0.58904,
+          "f1": 0.71028,
+          "ap50": 0.67698,
+          "ap50_95": 0.35556
+        },
+        "Aphid": {
+          "precision": 0.85308,
+          "recall": 0.81019,
+          "f1": 0.83108,
+          "ap50": 0.90341,
+          "ap50_95": 0.50476
+        },
+        "Thrips_Damage": {
+          "precision": 0.77496,
+          "recall": 0.7381,
+          "f1": 0.75608,
+          "ap50": 0.73351,
+          "ap50_95": 0.33722
+        }
+      }
+    },
+    "best_test": {
+      "mAP50": 0.8602,
+      "mAP50_95": 0.64104,
+      "precision": 0.91825,
+      "recall": 0.80671,
+      "per_class": {
+        "Oily_Spot": {
+          "precision": 0.92872,
+          "recall": 0.91667,
+          "f1": 0.92266,
+          "ap50": 0.94093,
+          "ap50_95": 0.93711
+        },
+        "Canker": {
+          "precision": 0.88558,
+          "recall": 0.85051,
+          "f1": 0.86769,
+          "ap50": 0.88993,
+          "ap50_95": 0.55537
+        },
+        "Sooty_Mold": {
+          "precision": 0.98012,
+          "recall": 1.0,
+          "f1": 0.98996,
+          "ap50": 0.995,
+          "ap50_95": 0.96762
+        },
+        "Black_Spot": {
+          "precision": 0.9428,
+          "recall": 0.96,
+          "f1": 0.95132,
+          "ap50": 0.97172,
+          "ap50_95": 0.94003
+        },
+        "Scale_Insect": {
+          "precision": 0.81158,
+          "recall": 0.59398,
+          "f1": 0.68594,
+          "ap50": 0.70855,
+          "ap50_95": 0.40166
+        },
+        "Citrus_Leaf_Miner": {
+          "precision": 0.90583,
+          "recall": 0.64062,
+          "f1": 0.75049,
+          "ap50": 0.6888,
+          "ap50_95": 0.48867
+        },
+        "Thrips": {
+          "precision": 0.93769,
+          "recall": 0.65979,
+          "f1": 0.77457,
+          "ap50": 0.75944,
+          "ap50_95": 0.43579
+        },
+        "Aphid": {
+          "precision": 0.94448,
+          "recall": 0.88271,
+          "f1": 0.91255,
+          "ap50": 0.95692,
+          "ap50_95": 0.56105
+        },
+        "Thrips_Damage": {
+          "precision": 0.92741,
+          "recall": 0.7561,
+          "f1": 0.83304,
+          "ap50": 0.83055,
+          "ap50_95": 0.48206
+        }
+      }
+    }
+  },
+  "pooled_2se": {
+    "Oily_Spot": {
+      "n_valid": 24,
+      "n_test": 24,
+      "ap50_valid": 0.94299,
+      "ap50_test": 0.95333,
+      "gap": 0.0103,
+      "se2_pooled": 0.0156,
+      "meets_target": true
+    },
+    "Canker": {
+      "n_valid": 24,
+      "n_test": 24,
+      "ap50_valid": 0.92819,
+      "ap50_test": 0.88088,
+      "gap": -0.0473,
+      "se2_pooled": 0.0431,
+      "meets_target": true
+    },
+    "Sooty_Mold": {
+      "n_valid": 33,
+      "n_test": 32,
+      "ap50_valid": 0.995,
+      "ap50_test": 0.995,
+      "gap": 0.0,
+      "se2_pooled": 0.021,
+      "meets_target": true
+    },
+    "Black_Spot": {
+      "n_valid": 25,
+      "n_test": 25,
+      "ap50_valid": 0.96027,
+      "ap50_test": 0.9454,
+      "gap": -0.0149,
+      "se2_pooled": 0.0304,
+      "meets_target": true
+    },
+    "Scale_Insect": {
+      "n_valid": 35,
+      "n_test": 35,
+      "ap50_valid": 0.54519,
+      "ap50_test": 0.71901,
+      "gap": 0.1738,
+      "se2_pooled": 0.049,
+      "meets_target": true
+    },
+    "Citrus_Leaf_Miner": {
+      "n_valid": 45,
+      "n_test": 45,
+      "ap50_valid": 0.79306,
+      "ap50_test": 0.68755,
+      "gap": -0.1055,
+      "se2_pooled": 0.099,
+      "meets_target": true
+    },
+    "Thrips": {
+      "n_valid": 60,
+      "n_test": 60,
+      "ap50_valid": 0.64535,
+      "ap50_test": 0.76263,
+      "gap": 0.1173,
+      "se2_pooled": 0.0969,
+      "meets_target": true
+    },
+    "Aphid": {
+      "n_valid": 75,
+      "n_test": 76,
+      "ap50_valid": 0.89741,
+      "ap50_test": 0.96151,
+      "gap": 0.0641,
+      "se2_pooled": 0.0341,
+      "meets_target": true
+    },
+    "Thrips_Damage": {
+      "n_valid": 40,
+      "n_test": 40,
+      "ap50_valid": 0.72426,
+      "ap50_test": 0.84529,
+      "gap": 0.121,
+      "se2_pooled": 0.0825,
+      "meets_target": true
+    }
+  },
+  "worst_pooled_2se": 0.099,
+  "plateau": {
+    "mAP50": {
+      "window": 16,
+      "mean": 0.83273,
+      "std": 0.00453,
+      "best": 0.84248
+    },
+    "mAP50_95": {
+      "window": 16,
+      "mean": 0.62944,
+      "std": 0.00329,
+      "best": 0.63596
+    }
+  },
+  "best_vs_plateau": 0.00817,
+  "best_f1_conf": 0.4915,
+  "fp_from_background": {
+    "Oily_Spot": 0,
+    "Canker": 23,
+    "Sooty_Mold": 0,
+    "Black_Spot": 1,
+    "Scale_Insect": 40,
+    "Citrus_Leaf_Miner": 12,
+    "Thrips": 8,
+    "Aphid": 25,
+    "Thrips_Damage": 7
+  },
+  "fn_to_background": {
+    "Oily_Spot": 0,
+    "Canker": 17,
+    "Sooty_Mold": 0,
+    "Black_Spot": 0,
+    "Scale_Insect": 49,
+    "Citrus_Leaf_Miner": 23,
+    "Thrips": 27,
+    "Aphid": 10,
+    "Thrips_Damage": 7
+  }
+}
