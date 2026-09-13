@@ -1,6 +1,6 @@
 {
  "generated": "2026-09-07",
- "note": "本檔由 scratchpad 的 build_history.py 從各版本的原始輸出直接讀出，非手動抄寫。v5 時代的部分欄位為 null，因為來源文件用圖片嵌入數字、無法解析。 2026-09-08 修正：v11.5 的 test FP 148->149、jaccard 0.68698->0.68627（依存檔 confusion_matrix.csv 逐欄重算，原值把 pred_Black_Spot/true_Oily_Spot 的 2 個框當成 1 個），v11.5 的 P/R/mAP 改採 eval/summary.json 的原值；另補 v11 valid 與 v12s test 的 jaccard。",
+ "note": "本檔由 scratchpad 的 build_history.py 從各版本的原始輸出直接讀出，非手動抄寫。v5 時代的部分欄位為 null，因為來源文件用圖片嵌入數字、無法解析。 2026-09-08 修正：v11.5 的 test FP 148->149、jaccard 0.68698->0.68627（依存檔 confusion_matrix.csv 逐欄重算，原值把 pred_Black_Spot/true_Oily_Spot 的 2 個框當成 1 個），v11.5 的 P/R/mAP 改採 eval/summary.json 的原值；另補 v11 valid 與 v12s test 的 jaccard。  ⚠ v5.7 起 Thrips_Damage 換了框定義（一葉一框），它的 AP 與 v5.6 以前不可比，連帶整體 mAP50 也不可比——跨版本比較請用去掉該類的八類平均（v5.6 0.85268 / v5.7 0.85082 / v5.7ext 0.85884）。",
  "datasets": {
   "v5": {
    "classes": 8,
@@ -57,6 +57,38 @@
    "leakage": "全類別 0 組",
    "note": "逐類絕對評估量、與 v5.5 巢狀相容；修掉全類別的框膨脹缺陷",
    "build_script": "tools/build_dataset_v5_6.py"
+  },
+  "v5.7": {
+   "classes": 9,
+   "images": {
+    "train": 7264,
+    "valid": 401,
+    "test": 401
+   },
+   "boxes": {
+    "train": 18046,
+    "valid": 863,
+    "test": 812
+   },
+   "leakage": "全類別 0 組",
+   "note": "= v5.6 ＋ Thrips_Damage 208 張依新約定重標（一葉一框，245→215 框，框中位面積 11.30%→15.40%）；其餘八類來源逐位元相同",
+   "build_script": "tools/build_dataset_v5_7.py"
+  },
+  "v5.7_ext": {
+   "classes": 9,
+   "images": {
+    "train": 7264,
+    "valid": 401,
+    "test": 401
+   },
+   "boxes": {
+    "train": 18048,
+    "valid": 863,
+    "test": 812
+   },
+   "leakage": "全類別 0 組",
+   "note": "v5.7 的實驗臂：train 多 124 張外部潛葉蛾影像，配額中性（CLM 兩臂都是 444 張），所以張數與 v5.7 完全相同",
+   "build_script": "tools/build_dataset_v5_7.py --arm ext"
   }
  },
  "runs": {
@@ -385,6 +417,244 @@
    "delta_vs_v11_5_test_mAP50": 0.00307,
    "note": "只改模型尺度 n→s（3.84x 參數 / 3.49x GFLOPs），其餘與 v11.5 逐字相同。預先登記判準 test mAP50 >= 0.83959，實得 0.81266（+0.003），**未通過**。結論：容量不是瓶頸。依 v12.1 推估平台 1 約 950 ms/張，非部署候選。",
    "artifacts": "Train Code/v12s/Train_output/extracted/"
+  },
+  "v5.7_v11_5": {
+   "dataset": "v5.7",
+   "arm": "base",
+   "classes": 9,
+   "epochs_planned": 70,
+   "patience": 0,
+   "reported_weight": "last.pt",
+   "epochs_run": 70,
+   "best_epoch": 44,
+   "best_mAP50": 0.84725,
+   "best_mAP50_95": 0.63831,
+   "plateau16_mean": 0.62944,
+   "plateau16_std": 0.00329,
+   "total_seconds": 11254.5,
+   "seconds_per_epoch": 160.8,
+   "eval": {
+    "val": {
+     "mAP50": 0.82575,
+     "mAP50_95": 0.62637,
+     "precision": 0.85242,
+     "recall": 0.82117
+    },
+    "test": {
+     "mAP50": 0.86118,
+     "mAP50_95": 0.64113,
+     "precision": 0.90923,
+     "recall": 0.81247,
+     "TP": 675,
+     "FP": 116,
+     "FN": 133,
+     "cross_class": 2,
+     "jaccard": 0.72894
+    }
+   },
+   "pooled_2se": {
+    "Oily_Spot": {
+     "n_valid": 24,
+     "n_test": 24,
+     "ap50_valid": 0.94299,
+     "ap50_test": 0.95333,
+     "gap": 0.0103,
+     "se2_pooled": 0.0156,
+     "meets_target": true
+    },
+    "Canker": {
+     "n_valid": 24,
+     "n_test": 24,
+     "ap50_valid": 0.92819,
+     "ap50_test": 0.88088,
+     "gap": -0.0473,
+     "se2_pooled": 0.0431,
+     "meets_target": true
+    },
+    "Sooty_Mold": {
+     "n_valid": 33,
+     "n_test": 32,
+     "ap50_valid": 0.995,
+     "ap50_test": 0.995,
+     "gap": 0.0,
+     "se2_pooled": 0.021,
+     "meets_target": true
+    },
+    "Black_Spot": {
+     "n_valid": 25,
+     "n_test": 25,
+     "ap50_valid": 0.96027,
+     "ap50_test": 0.9454,
+     "gap": -0.0149,
+     "se2_pooled": 0.0304,
+     "meets_target": true
+    },
+    "Scale_Insect": {
+     "n_valid": 35,
+     "n_test": 35,
+     "ap50_valid": 0.54519,
+     "ap50_test": 0.71901,
+     "gap": 0.1738,
+     "se2_pooled": 0.049,
+     "meets_target": true
+    },
+    "Citrus_Leaf_Miner": {
+     "n_valid": 45,
+     "n_test": 45,
+     "ap50_valid": 0.79306,
+     "ap50_test": 0.68755,
+     "gap": -0.1055,
+     "se2_pooled": 0.099,
+     "meets_target": true
+    },
+    "Thrips": {
+     "n_valid": 60,
+     "n_test": 60,
+     "ap50_valid": 0.64535,
+     "ap50_test": 0.76263,
+     "gap": 0.1173,
+     "se2_pooled": 0.0969,
+     "meets_target": true
+    },
+    "Aphid": {
+     "n_valid": 75,
+     "n_test": 76,
+     "ap50_valid": 0.89741,
+     "ap50_test": 0.96151,
+     "gap": 0.0641,
+     "se2_pooled": 0.0341,
+     "meets_target": true
+    },
+    "Thrips_Damage": {
+     "n_valid": 40,
+     "n_test": 40,
+     "ap50_valid": 0.72426,
+     "ap50_test": 0.84529,
+     "gap": 0.121,
+     "se2_pooled": 0.0825,
+     "meets_target": true
+    }
+   },
+   "note": "summary.json 的 dataset 欄寫死成 v5.6，此處已更正為實際跑的版本；run 名稱與 args.yaml 的 name 是對的"
+  },
+  "v5.7ext_v11_5": {
+   "dataset": "v5.7_ext",
+   "arm": "ext",
+   "classes": 9,
+   "epochs_planned": 70,
+   "patience": 0,
+   "reported_weight": "last.pt",
+   "epochs_run": 70,
+   "best_epoch": 47,
+   "best_mAP50": 0.85202,
+   "best_mAP50_95": 0.636,
+   "plateau16_mean": 0.62994,
+   "plateau16_std": 0.00303,
+   "total_seconds": 11188.6,
+   "seconds_per_epoch": 159.8,
+   "eval": {
+    "val": {
+     "mAP50": 0.83646,
+     "mAP50_95": 0.63142,
+     "precision": 0.86908,
+     "recall": 0.80534
+    },
+    "test": {
+     "mAP50": 0.86499,
+     "mAP50_95": 0.6504,
+     "precision": 0.88134,
+     "recall": 0.83221,
+     "TP": 678,
+     "FP": 149,
+     "FN": 129,
+     "cross_class": 3,
+     "jaccard": 0.70699
+    }
+   },
+   "pooled_2se": {
+    "Oily_Spot": {
+     "n_valid": 24,
+     "n_test": 24,
+     "ap50_valid": 0.94831,
+     "ap50_test": 0.99026,
+     "gap": 0.042,
+     "se2_pooled": 0.0156,
+     "meets_target": true
+    },
+    "Canker": {
+     "n_valid": 24,
+     "n_test": 24,
+     "ap50_valid": 0.95249,
+     "ap50_test": 0.87701,
+     "gap": -0.0755,
+     "se2_pooled": 0.0431,
+     "meets_target": true
+    },
+    "Sooty_Mold": {
+     "n_valid": 33,
+     "n_test": 32,
+     "ap50_valid": 0.995,
+     "ap50_test": 0.995,
+     "gap": 0.0,
+     "se2_pooled": 0.021,
+     "meets_target": true
+    },
+    "Black_Spot": {
+     "n_valid": 25,
+     "n_test": 25,
+     "ap50_valid": 0.94395,
+     "ap50_test": 0.99044,
+     "gap": 0.0465,
+     "se2_pooled": 0.0304,
+     "meets_target": true
+    },
+    "Scale_Insect": {
+     "n_valid": 35,
+     "n_test": 35,
+     "ap50_valid": 0.59553,
+     "ap50_test": 0.67904,
+     "gap": 0.0835,
+     "se2_pooled": 0.049,
+     "meets_target": true
+    },
+    "Citrus_Leaf_Miner": {
+     "n_valid": 45,
+     "n_test": 45,
+     "ap50_valid": 0.81633,
+     "ap50_test": 0.70607,
+     "gap": -0.1103,
+     "se2_pooled": 0.099,
+     "meets_target": true
+    },
+    "Thrips": {
+     "n_valid": 60,
+     "n_test": 60,
+     "ap50_valid": 0.6689,
+     "ap50_test": 0.7377,
+     "gap": 0.0688,
+     "se2_pooled": 0.0969,
+     "meets_target": true
+    },
+    "Aphid": {
+     "n_valid": 75,
+     "n_test": 76,
+     "ap50_valid": 0.8946,
+     "ap50_test": 0.95043,
+     "gap": 0.0558,
+     "se2_pooled": 0.0341,
+     "meets_target": true
+    },
+    "Thrips_Damage": {
+     "n_valid": 40,
+     "n_test": 40,
+     "ap50_valid": 0.71305,
+     "ap50_test": 0.859,
+     "gap": 0.146,
+     "se2_pooled": 0.0825,
+     "meets_target": true
+    }
+   },
+   "note": "summary.json 的 dataset 欄寫死成 v5.6，此處已更正為實際跑的版本；run 名稱與 args.yaml 的 name 是對的"
   }
  },
  "constants": {
@@ -405,6 +675,20 @@
    "v11.5": "1.5σ"
   },
   "close_mosaic": "v9/v10/v11/v11.5 四次皆確認：train/cls 斷崖式下降、val 指標不動",
-  "ultralytics版本": "8.4.121（釘死）"
+  "ultralytics版本": "8.4.121（釘死）",
+  "v5.7_ext臂_CLM增益": {
+   "value": 0.0209,
+   "判準": 0.04,
+   "結論": "未過。同一輪裡完全沒加資料的 Oily_Spot 也動了 +0.0211，七個未變動類別的移動範圍 -0.0070 ~ +0.0211"
+  },
+  "Thrips_Damage_valid_test_gap": {
+   "v9": 0.285,
+   "v11": 0.19,
+   "v11.5@v5.6": -0.2017,
+   "v5.7base": 0.121,
+   "v5.7ext": 0.146,
+   "顯著門檻": 0.165,
+   "結論": "重標之後一次就過；三輪不收斂的成因是標註噪聲"
+  }
  }
 }

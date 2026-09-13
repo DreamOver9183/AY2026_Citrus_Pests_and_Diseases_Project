@@ -3,9 +3,10 @@
 
 **為什麼用生成的，而不是手抄兩份**：base 與 ext 是一組 A/B，
 「兩臂的訓練程式完全相同」是這個比較能成立的前提。手抄兩份 16 個 cell 的
-notebook，遲早會有一邊被順手改到而沒人發現。這支腳本只改三個 cell——
-標題（markdown）、第一個設定 cell、以及 Step.2 的資料集指紋——
-其餘 13 個 cell **逐字複製**，並在最後印出「有幾個 cell 沒被動過」當證據。
+notebook，遲早會有一邊被順手改到而沒人發現。這支腳本只改四個 cell——
+標題（markdown）、第一個設定 cell、Step.2 的資料集指紋、
+以及 Step.7 寫 `summary.json` 時那個寫死的 `dataset` 欄——
+其餘 12 個 cell **逐字複製**，並在最後印出「有幾個 cell 沒被動過」當證據。
 
 產出：
     Train Code/v11.5/train_v5_7_base.ipynb    RUN=v5.7_v11_5
@@ -171,6 +172,21 @@ assert _meta.get("arm") == EXPECT_ARM, (
     return out
 
 
+def patch_cell15(src: str, cfg: dict) -> str:
+    """`summary.json` 的 `dataset` 欄在 v11.5 是寫死的 "v5.6"。
+
+    v11 有一半的分析時間花在事後確認「到底跑了哪一版」，就是因為這種寫死的字串；
+    v11.5 為此加了張數指紋，卻漏掉這一行本身。改成用 Step.2 讀到的 provenance，
+    並補上 `arm`——base 與 ext 的張數相同，`arm` 是唯一分得出來的欄位。
+    """
+    old = '    "dataset": "v5.6",                      # 由 Step.2 的張數指紋確認過\n'
+    new = ('    "dataset": _meta.get("version", EXPECT_VER),   # 來自 _provenance.json，不是寫死的\n'
+           '    "arm": _meta.get("arm", EXPECT_ARM),\n')
+    if src.count(old) != 1:
+        raise SystemExit("cell 15 的 dataset 欄找不到，train_v11_5.ipynb 可能改過")
+    return src.replace(old, new)
+
+
 def main() -> None:
     nb0 = json.loads(SRC_NB.read_text(encoding="utf-8"))
     print(f"來源 {SRC_NB.relative_to(REPO)}（{len(nb0['cells'])} cells）")
@@ -189,6 +205,8 @@ def main() -> None:
                 new = patch_cell1(src, cfg)
             elif i == 5:
                 new = patch_cell5(src, cfg, n)
+            elif i == 15:
+                new = patch_cell15(src, cfg)
             else:
                 untouched += 1
                 continue
